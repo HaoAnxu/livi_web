@@ -1,0 +1,8 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+.el-container, .el-header, .el-main, .el-footer, .el-aside {
+    padding: 0 !important;
+    margin: 0 !important;
+}
