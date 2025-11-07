@@ -7,6 +7,11 @@ import RegisterView from '@/views/register/register.vue'
 import CartView from '@/views/cart/cart.vue'
 import WeCommunityView from '@/views/weCommunity/weCommunity.vue'
 import UserCenterView from '@/views/userCenter/userCenter.vue'
+import SmartHomeView from '@/views/smartHome/smartHome.vue'
+import ShopView from '@/views/shop/shop.vue'
+import ShortVideoView from '@/views/shortVideo/shortVideo.vue'
+import MusicView from '@/views/music/music.vue'
+import AIView from '@/views/AI/ai.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +26,12 @@ const router = createRouter({
               {path:'register',name:'register',component:RegisterView},
               {path:'cart',name:'cart',component:CartView},
               {path:'weCommunity',name:'weCommunity',component:WeCommunityView},
-              {path:'userCenter',name:'userCenter',component:UserCenterView}
+              {path:'userCenter',name:'userCenter',component:UserCenterView},
+              {path:'smartHome',name:'smartHome',component:SmartHomeView},
+              {path:'shop',name:'shop',component:ShopView},
+              {path:'shortVideo',name:'shortVideo',component:ShortVideoView},
+              {path:'music',name:'music',component:MusicView},
+              {path:'ai',name:'ai',component:AIView}
           ]
       }
   ],

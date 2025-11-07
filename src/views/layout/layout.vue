@@ -1,46 +1,87 @@
 <script setup>
-import { ref } from 'vue';
+import {ref} from 'vue';
 
 // 导航菜单数据
 const navMenus = ref([
-  { name: '首页', path: '/' },
-  { name: '智能家居', path: '/smartHome' },
-  { name: '购物商城', path: '/shop' },
-  { name: 'We社区', path: '/weCommunity' },
-  { name: '豆包AI', path: '/ai' },
-  { name: '短视频', path: '/video' },
-  { name: '音乐', path: '/music' },
+  {name: '首页', path: '/'},
+  {name: '智能家居', path: '/smartHome'},
+  {name: '购物商城', path: '/shop'},
+  {name: 'We社区', path: '/weCommunity'},
+  {name: '豆包AI', path: '/ai'},
+  {name: '短视频', path: '/shortVideo'},
+  {name: '音乐', path: '/music'},
 ]);
 
 // 右侧功能菜单
 const funcMenus = ref([
-  { name: '登录', path: '/login' },
-  { name: '注册', path: '/register' },
-  { name: '购物车', path: '/cart' },
-  { name: '待读消息', path: '/messages' },
-  { name: '用户中心', path: '/userCenter' }
+  {name: '登录', path: '/login'},
+  {name: '注册', path: '/register'},
+  {name: '购物车', path: '/cart'},
+  {name: '待读消息', path: '/messages'},
+  {name: '用户中心', path: '/userCenter'}
 ]);
+
+const isDropdownOpen = ref(false);
+// 切换下拉菜单
+const toggleDropdown = () => {
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+// 点击菜单项后关闭下拉菜单
+const closeDropdown = () => {
+  isDropdownOpen.value = false;
+};
 </script>
 
 <template>
   <div class="common-layout">
     <el-container>
       <el-header class="top-header">
-        <div class="top-nav">
+        <!--PC端Menu-->
+        <div class="top-nav-pc">
           <!--左侧导航菜单-->
           <ul class="nav-left">
-            <li v-for="(menu,index) in navMenus" :key="index">
-              <a :href="menu.path" class="nav-link">{{menu.name}}</a>
+            <li v-for="(menu,index) in navMenus" :key="menu.path">
+              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
               <span class="split" v-if="index < navMenus.length - 1">|</span>
             </li>
           </ul>
           <!--右侧功能菜单-->
           <ul class="nav-right">
-            <li v-for="(menu,index) in funcMenus" :key="index">
-              <a :href="menu.path" class="nav-link">{{menu.name}}</a>
+            <li v-for="(menu,index) in funcMenus" :key="menu.path">
+              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
               <span class="split" v-if="index < funcMenus.length - 1">|</span>
             </li>
           </ul>
+        </div>
+
+        <!--移动端Menu-->
+        <div class="top-nav-mobile">
+          <!--移动端logo-->
+          <div class="top-nav-mobile-logo">
+            <a href="/" class="mobile-logo">Livi Unity</a>
+          </div>
+          <el-config-provider theme="dark">
+            <el-dropdown class="mobile-dropdown" size="large" trigger="click">
+              <span><el-icon class="mobile-icon"><Menu /></el-icon></span>
+              <template #dropdown>
+                <el-dropdown-menu class="custom-dark-menu">
+                  <el-dropdown-item v-for="(menu,index) in navMenus" :key="menu.path">
+                    <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-dropdown class="mobile-dropdown" size="large" trigger="click">
+              <span><el-icon class="mobile-icon"><Avatar /></el-icon></span>
+              <template #dropdown>
+                <el-dropdown-menu class="custom-dark-menu">
+                  <el-dropdown-item v-for="(menu,index) in funcMenus" :key="menu.path">
+                    <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </el-config-provider>
         </div>
       </el-header>
 
@@ -56,20 +97,45 @@ const funcMenus = ref([
 <style scoped>
 /* 顶部导航整体样式 */
 .top-header {
-  height: 40px;
-  line-height: 40px;
+  height: 50px;
+  line-height: 50px;
   background-color: #333;
   color: #b0b0b0;
-  font-size: 12px;
-  padding: 0;
+  font-size: 14px;
 }
 
 /* 导航容器 */
-.top-nav {
-  width: 1226px;
+.top-nav-pc {
+  width: 70%;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
+}
+
+.top-nav-mobile {
+  display: none;
+}
+.top-nav-mobile-logo {
+  margin: 0 auto;
+  padding-left: 20vw;
+  font-size: 20px;
+}
+.mobile-logo {
+  color: #d3d3d3;
+  text-decoration: none;
+}
+.mobile-dropdown {
+  color: #b0b0b0;
+  font-size: 15px;
+  margin-top: 2vh;
+  margin-right: 7vw;
+}
+.mobile-icon {
+  font-size: 20px;
+}
+.custom-dark-menu {
+  background-color: #333 !important; /* 与顶部导航背景一致 */
+  border: 1px solid #444 !important; /* 暗色边框 */
 }
 
 /* 列表样式重置 */
@@ -82,7 +148,7 @@ const funcMenus = ref([
 
 /* 导航链接样式 */
 .nav-link {
-  color: #b0b0b0;
+  color: #888888;
   text-decoration: none;
   padding: 0 5px;
   transition: color 0.3s;
@@ -95,7 +161,18 @@ const funcMenus = ref([
 
 /* 分隔线样式 */
 .split {
-  color: #424242;
-  margin: 0 2px;
+  color: #606060;
+  margin: 0 3px;
+}
+
+@media (max-width: 992px) {
+  .top-nav-pc {
+    display: none;
+  }
+
+  .top-nav-mobile {
+    display: flex;
+    justify-content: right;
+  }
 }
 </style>
