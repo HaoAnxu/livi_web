@@ -3,19 +3,13 @@ import { ref } from 'vue';
 
 // 导航菜单数据
 const navMenus = ref([
-  { name: '小米商城', path: '/' },
-  { name: 'MIUI', path: '/miui' },
-  { name: 'IoT 平台', path: '/iot' },
-  { name: '云服务', path: '/cloud' },
-  { name: '金融', path: '/finance' },
-  { name: '有品', path: '/youpin' },
-  { name: '小爱开放平台', path: '/ai' },
-  { name: '企业团购', path: '/group' },
-  { name: '资质证照', path: '/license' },
-  { name: '协议规则', path: '/agreement' },
-  { name: '下载app', path: '/app' },
-  { name: '智能生活', path: '/life' },
-  { name: 'Select Region', path: '/region' }
+  { name: '首页', path: '/' },
+  { name: '智能家居', path: '/smartHome' },
+  { name: '购物商城', path: '/shop' },
+  { name: 'We社区', path: '/weCommunity' },
+  { name: '豆包AI', path: '/ai' },
+  { name: '短视频', path: '/video' },
+  { name: '音乐', path: '/music' },
 ]);
 
 // 右侧功能菜单
@@ -23,28 +17,27 @@ const funcMenus = ref([
   { name: '登录', path: '/login' },
   { name: '注册', path: '/register' },
   { name: '购物车', path: '/cart' },
-  { name: '我的订单', path: '/order' }
+  { name: '待读消息', path: '/messages' },
+  { name: '用户中心', path: '/userCenter' }
 ]);
 </script>
 
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="mi-header">
-        <!-- 顶部导航容器 -->
-        <div class="mi-nav">
-          <!-- 左侧导航菜单 -->
+      <el-header class="top-header">
+        <div class="top-nav">
+          <!--左侧导航菜单-->
           <ul class="nav-left">
-            <li v-for="(menu, index) in navMenus" :key="index">
-              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+            <li v-for="(menu,index) in navMenus" :key="index">
+              <a :href="menu.path" class="nav-link">{{menu.name}}</a>
               <span class="split" v-if="index < navMenus.length - 1">|</span>
             </li>
           </ul>
-
-          <!-- 右侧功能菜单 -->
+          <!--右侧功能菜单-->
           <ul class="nav-right">
-            <li v-for="(menu, index) in funcMenus" :key="index">
-              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+            <li v-for="(menu,index) in funcMenus" :key="index">
+              <a :href="menu.path" class="nav-link">{{menu.name}}</a>
               <span class="split" v-if="index < funcMenus.length - 1">|</span>
             </li>
           </ul>
@@ -62,7 +55,7 @@ const funcMenus = ref([
 
 <style scoped>
 /* 顶部导航整体样式 */
-.mi-header {
+.top-header {
   height: 40px;
   line-height: 40px;
   background-color: #333;
@@ -72,7 +65,7 @@ const funcMenus = ref([
 }
 
 /* 导航容器 */
-.mi-nav {
+.top-nav {
   width: 1226px;
   margin: 0 auto;
   display: flex;
