@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="路由和菜单，响应式布局">
-      <change afterPath="$PROJECT_DIR$/src/api/shop.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/request.js" afterDir="false" />
+    <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="有请求了">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/layout/layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/layout/layout.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/shop/shop.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/shop/shop.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +67,7 @@
       <workItem from="1762480732922" duration="198000" />
       <workItem from="1762480950707" duration="1656000" />
       <workItem from="1762482632959" duration="6605000" />
-      <workItem from="1762495908459" duration="8125000" />
+      <workItem from="1762495908459" duration="12950000" />
     </task>
     <task id="LOCAL-00001" summary="2025/11/6 17:38">
       <option name="closed" value="true" />
@@ -121,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762498686832</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="有请求了">
+      <option name="closed" value="true" />
+      <created>1762504313223</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1762504313223</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -154,6 +158,7 @@
     <MESSAGE value="2025/11/6 17:38" />
     <MESSAGE value="2025/11/7 10:06" />
     <MESSAGE value="路由和菜单，响应式布局" />
-    <option name="LAST_COMMIT_MESSAGE" value="路由和菜单，响应式布局" />
+    <MESSAGE value="有请求了" />
+    <option name="LAST_COMMIT_MESSAGE" value="有请求了" />
   </component>
 </project>
