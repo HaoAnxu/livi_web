@@ -1,0 +1,4 @@
+# 只排除这3个关键文件夹/文件
+node_modules/
+.idea/
+dist/
