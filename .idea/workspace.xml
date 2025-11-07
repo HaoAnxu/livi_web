@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="2025/11/6 17:38">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="2025/11/6 17:38" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -30,6 +27,7 @@
     "Node.js.vite.config.js.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "javascript.nodejs.core.library.configured.version": "24.10.0",
     "javascript.nodejs.core.library.typings.version": "24.10.0",
@@ -63,10 +61,24 @@
       <workItem from="1762415880112" duration="342000" />
       <workItem from="1762416825785" duration="697000" />
       <workItem from="1762417611670" duration="4105000" />
+      <workItem from="1762480732922" duration="198000" />
     </task>
+    <task id="LOCAL-00001" summary="2025/11/6 17:38">
+      <option name="closed" value="true" />
+      <created>1762480886255</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1762480886255</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="2025/11/6 17:38" />
+    <option name="LAST_COMMIT_MESSAGE" value="2025/11/6 17:38" />
   </component>
 </project>
