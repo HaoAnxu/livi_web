@@ -99,9 +99,8 @@ const closeDropdown = () => {
 .top-header {
   height: 50px;
   line-height: 50px;
-  background-color: #333;
-  color: #b0b0b0;
-  font-size: 14px;
+  background: linear-gradient(to left, rgb(51, 51, 51), rgb(80, 80, 80));
+  font-size: 12px;
 }
 
 /* 导航容器 */
@@ -148,7 +147,7 @@ const closeDropdown = () => {
 
 /* 导航链接样式 */
 .nav-link {
-  color: #888888;
+  color: #afafaf;
   text-decoration: none;
   padding: 0 5px;
   transition: color 0.3s;
@@ -169,7 +168,9 @@ const closeDropdown = () => {
   .top-nav-pc {
     display: none;
   }
-
+  .top-header {
+    background: linear-gradient(to left, rgb(51, 51, 51), rgba(99, 99, 99, 0.84));
+  }
   .top-nav-mobile {
     display: flex;
     justify-content: right;
