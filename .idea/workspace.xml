@@ -5,14 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="日常更新">
-      <change afterPath="$PROJECT_DIR$/src/components/Message.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/Message.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/YZcode.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/api/user.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/websocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/websocket.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/music/music.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/music/music.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/shortVideo/shortVideo.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/shortVideo/shortVideo.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/YZcode.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/YZcode.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/login/login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login/login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/register/register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/register/register.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +45,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_interpreter_path": "D:/Develop/node/node",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.inline.completion",
+    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.postfix.templates",
     "ts.external.directory.path": "D:\\Develop\\WebStorm 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
@@ -87,7 +85,10 @@
       <workItem from="1763106865254" duration="1295000" />
       <workItem from="1763361053619" duration="9864000" />
       <workItem from="1763427682469" duration="3966000" />
-      <workItem from="1763433251615" duration="14665000" />
+      <workItem from="1763433251615" duration="14686000" />
+      <workItem from="1763514820377" duration="91000" />
+      <workItem from="1763514926052" duration="5342000" />
+      <workItem from="1763520983256" duration="15666000" />
     </task>
     <task id="LOCAL-00001" summary="2025/11/6 17:38">
       <option name="closed" value="true" />
@@ -161,7 +162,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763427735269</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="日常更新">
+      <option name="closed" value="true" />
+      <created>1763461188233</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1763461188233</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,6 +204,7 @@
     <MESSAGE value="2025/11/7 10:06" />
     <MESSAGE value="路由和菜单，响应式布局" />
     <MESSAGE value="有请求了" />
-    <option name="LAST_COMMIT_MESSAGE" value="有请求了" />
+    <MESSAGE value="日常更新" />
+    <option name="LAST_COMMIT_MESSAGE" value="日常更新" />
   </component>
 </project>

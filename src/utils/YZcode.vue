@@ -55,7 +55,7 @@ const drawCode =()=>{
     const ctx = canvas.getContext('2d')
     ctx.clearRect(0,0,props.width,props.height)// 清空画布
     
-    ctx.fillStyle = '#ababab'
+    ctx.fillStyle = 'rgba(220,220,220,0.89)'
     ctx.fillRect(0,0,props.width,props.height)
 
     // 绘制干扰元素
