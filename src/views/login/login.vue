@@ -68,6 +68,12 @@ watch(
 
 <template>
   <div class="bg">
+    <div class="fade-text">团结改造家</div>
+    <div class="fade-text">Livi Unity</div>
+    <div class="fade-text">团结改造家</div>
+    <div class="fade-text">Livi Unity</div>
+    <div class="fade-text">团结改造家</div>
+    <div class="fade-text">Livi Unity</div>
     <form class="form">
       <h1 class="title">Livi Unity</h1>
       <div class="flex-column">
@@ -124,6 +130,7 @@ watch(
 </template>
 
 <style scoped>
+@import '@/assets/CSS/Login_Register/bg.css';
 .title {
   background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ff6b6b);
   background-size: 400% 400%;
@@ -148,14 +155,6 @@ watch(
     opacity: 0.9; /* 回到初始状态 */
   }
 }
-.bg {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .form {
   display: flex;
   flex-direction: column;
