@@ -1,6 +1,7 @@
 <script setup>
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 import router from "@/router/index.js";
+import { Menu, Avatar } from '@element-plus/icons-vue'; // 导入缺失的图标组件
 
 const loginUser = ref("");
 
@@ -41,7 +42,9 @@ const logout = () => {
 };
 
 onMounted(()=>{
-  loginUser.value = JSON.parse(localStorage.getItem('loginUser')).username;
+  // 处理localStorage为空的情况，避免报错
+  const userInfo = localStorage.getItem('loginUser');
+  loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
 })
 </script>
 
@@ -55,7 +58,7 @@ onMounted(()=>{
           <ul class="nav-left">
             <li v-for="(menu,index) in navMenus" :key="menu.path">
               <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
-              <span class="split" v-if="index < navMenus.length - 1">|</span>
+              <span class="split" v-if="index < navMenus.length - 1"></span>
             </li>
           </ul>
           <!--右侧功能菜单-->
@@ -64,30 +67,30 @@ onMounted(()=>{
             <template v-if="!loginUser">
               <li>
                 <a href="/login" class="nav-link">登录</a>
-                <span class="split">|</span>
+                <span class="split"></span>
               </li>
               <li>
                 <a href="/register" class="nav-link">注册</a>
-                <span class="split">|</span>
+                <span class="split"></span>
               </li>
               <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
                 <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
-                <span class="split" v-if="index < commonFuncMenus.length - 1">|</span>
+                <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
             </template>
             <!-- 已登录：显示用户名 + 退出登录 + 公共菜单 -->
             <template v-else>
               <li>
                 <span class="nav-link" style="cursor: default;">{{ loginUser }}</span>
-                <span class="split">|</span>
+                <span class="split"></span>
               </li>
               <li>
                 <a href="javascript:;" class="nav-link" @click="logout">退出登录</a>
-                <span class="split">|</span>
+                <span class="split"></span>
               </li>
               <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
                 <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
-                <span class="split" v-if="index < commonFuncMenus.length - 1">|</span>
+                <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
             </template>
           </ul>
@@ -100,27 +103,30 @@ onMounted(()=>{
             <a href="/" class="mobile-logo">Livi Unity</a>
           </div>
           <el-config-provider theme="dark">
-            <el-dropdown class="mobile-dropdown" size="large" trigger="click">
+            <!-- 添加@click.stop阻止事件冒泡，确保菜单可点击 -->
+            <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
               <span><el-icon class="mobile-icon"><Menu /></el-icon></span>
               <template #dropdown>
                 <el-dropdown-menu class="custom-dark-menu">
                   <el-dropdown-item v-for="(menu,index) in navMenus" :key="menu.path">
-                    <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                    <!-- 使用router-link替代a标签，配合Vue Router跳转，同时保留closeDropdown -->
+                    <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-dropdown class="mobile-dropdown" size="large" trigger="click">
+            <!-- 添加@click.stop阻止事件冒泡 -->
+            <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
               <span><el-icon class="mobile-icon"><Avatar /></el-icon></span>
               <template #dropdown>
                 <el-dropdown-menu class="custom-dark-menu">
                   <!-- 移动端：未登录显示登录、注册 -->
                   <template v-if="!loginUser">
                     <el-dropdown-item>
-                      <a href="/login" class="nav-link" @click="closeDropdown">登录</a>
+                      <router-link to="/login" class="nav-link" @click="closeDropdown">登录</router-link>
                     </el-dropdown-item>
                     <el-dropdown-item>
-                      <a href="/register" class="nav-link" @click="closeDropdown">注册</a>
+                      <router-link to="/register" class="nav-link" @click="closeDropdown">注册</router-link>
                     </el-dropdown-item>
                   </template>
                   <!-- 移动端：已登录显示用户名、退出登录 -->
@@ -134,7 +140,7 @@ onMounted(()=>{
                   </template>
                   <!-- 移动端公共菜单 -->
                   <el-dropdown-item v-for="(menu,index) in commonFuncMenus" :key="menu.path">
-                    <a :href="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</a>
+                    <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -153,11 +159,14 @@ onMounted(()=>{
 </template>
 
 <style scoped>
-/* 顶部导航整体样式 */
+/* 顶部导航整体样式 - 清新蓝绿色渐变+流动动画 */
 .top-header {
   height: 50px;
   line-height: 50px;
-  background: linear-gradient(to left, rgb(51, 51, 51), rgb(80, 80, 80));
+  /* 清新淡雅蓝绿色渐变（从浅到深自然过渡） */
+  background: linear-gradient(90deg, #e6f7f5, #b3e8df, #80d8cc);
+  background-size: 200% 200%; /* 动画所需背景尺寸 */
+  animation: gradientFlow 15s ease infinite; /* 流动动画，15秒循环 */
   font-size: 12px;
 }
 
@@ -178,11 +187,11 @@ onMounted(()=>{
   font-size: 20px;
 }
 .mobile-logo {
-  color: #d3d3d3;
+  color: #2d7d74; /* 蓝绿色系文字，适配清新风格 */
   text-decoration: none;
 }
 .mobile-dropdown {
-  color: #b0b0b0;
+  color: #2d7d74; /* 移动端图标颜色统一 */
   font-size: 15px;
   margin-top: 2vh;
   margin-right: 7vw;
@@ -191,8 +200,8 @@ onMounted(()=>{
   font-size: 20px;
 }
 .custom-dark-menu {
-  background-color: #333 !important; /* 与顶部导航背景一致 */
-  border: 1px solid #444 !important; /* 暗色边框 */
+  background-color: #f0faf8 !important; /* 浅蓝绿色背景，保持清新 */
+  border: 1px solid #b3e8df !important; /* 同色系边框，呼应渐变 */
 }
 
 /* 列表样式重置 */
@@ -205,33 +214,54 @@ onMounted(()=>{
 
 /* 导航链接样式 */
 .nav-link {
-  color: #afafaf;
+  color: #2d7d74; /* 深一点的蓝绿色，保证可读性 */
   text-decoration: none;
   padding: 0 5px;
   transition: color 0.3s;
 }
 
-/*  hover 效果 */
+/* hover 效果 - 文字加深，增强交互感 */
 .nav-link:hover {
-  color: #fff;
+  color: #1a5e57; /* 更深的蓝绿色，hover时突出 */
 }
 
-/* 分隔线样式 */
+/* 分隔线样式 - 蓝绿色系浅色调，不突兀 */
 .split {
-  color: #606060;
-  margin: 0 3px;
+  display: inline-block;
+  height: 12px;
+  width: 1px;
+  background-color: #8fd8ce; /* 浅蓝绿色分隔线，适配整体风格 */
+  margin: 0 8px;
+  vertical-align: middle;
 }
 
+/* 移动端适配样式 */
 @media (max-width: 992px) {
   .top-nav-pc {
     display: none;
   }
   .top-header {
-    background: linear-gradient(to left, rgb(51, 51, 51), rgba(99, 99, 99, 0.84));
+    /* 移动端同步PC端渐变和动画，风格统一 */
+    background: linear-gradient(90deg, #e6f7f5, #b3e8df, #80d8cc);
+    background-size: 200% 200%;
+    animation: gradientFlow 15s ease infinite;
   }
   .top-nav-mobile {
     display: flex;
     justify-content: right;
+  }
+}
+
+/* 渐变流动动画关键帧 - 自然左右平移 */
+@keyframes gradientFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>
