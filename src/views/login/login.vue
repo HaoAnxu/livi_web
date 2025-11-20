@@ -28,7 +28,11 @@ const login = async()=>{
   const result = await loginApi(userInfo.value);
   if(result.code){
     Message.success("登录成功");
-    localStorage.setItem('loginUser',JSON.stringify(result.data));
+    const userInfo ={
+      username: result.data,
+      token: result.msg
+    }
+    localStorage.setItem('loginUser',JSON.stringify(userInfo));
     router.push('/');
   }else {
     Message.error(result.msg);
@@ -43,19 +47,19 @@ const reset =()=>{
   userInfo.value.password = "";
   YZcodeText.value = "";
 }
-const userEmailLogin =()=>{
-  router.push('/userEmailLogin');
+const goIndex =()=>{
+  router.push('/');
 }
 const contactAdmin =()=>{
-  router.push('/contactAdmin');
+  router.push('/');
 }
 // 表单校验通过，让登录按钮颜色变成清新绿
 watch(
-    () => [userInfo.value.username, userInfo.value.password],
-    ([newName, newPwd]) => {
+    () => [userInfo.value.username, userInfo.value.password, YZcodeText.value],
+    ([newName, newPwd, newCode]) => {
       const loginBtn = document.querySelector('.button-submit');
       if (loginBtn) { // 确保元素存在
-        if (newName.trim() && newPwd.trim()) {
+        if (newName.trim() && newPwd.trim() && newCode.trim().length === 4) {
           loginBtn.style.backgroundColor = 'rgba(125, 250, 122, 0.89)';
         } else {
           loginBtn.style.backgroundColor = '#d7edfa';
@@ -118,8 +122,8 @@ watch(
       <p class="p">没有账号？ <span class="span" @click="register">注册~</span></p>
       <p class="p line">或者？</p>
       <div class="flex-row">
-        <button class="btn" @click="userEmailLogin">
-          <el-icon><ChatLineSquare /></el-icon>邮箱+验证码登录
+        <button class="btn" @click="goIndex">
+          <el-icon><ChatLineSquare /></el-icon>我就逛逛不登陆~
         </button>
         <button class="btn" @click="contactAdmin">
           <el-icon><CoffeeCup /></el-icon>联系管理员

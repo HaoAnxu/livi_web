@@ -1,5 +1,8 @@
 <script setup>
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
+import router from "@/router/index.js";
+
+const loginUser = ref("");
 
 // 导航菜单数据
 const navMenus = ref([
@@ -11,17 +14,14 @@ const navMenus = ref([
   {name: '短视频', path: '/shortVideo'},
   {name: '音乐', path: '/music'},
 ]);
-
-// 右侧功能菜单
-const funcMenus = ref([
-  {name: '登录', path: '/login'},
-  {name: '注册', path: '/register'},
+// 右侧功能菜单（拆分：公共菜单+登录相关菜单）
+const commonFuncMenus = ref([ // 始终显示的公共菜单
   {name: '购物车', path: '/cart'},
   {name: '待读消息', path: '/messages'},
   {name: '用户中心', path: '/userCenter'}
 ]);
-
 const isDropdownOpen = ref(false);
+
 // 切换下拉菜单
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
@@ -30,6 +30,19 @@ const toggleDropdown = () => {
 const closeDropdown = () => {
   isDropdownOpen.value = false;
 };
+
+// 退出登录方法（空置，你后续补充）
+const logout = () => {
+  closeDropdown();
+  // 清除localStorage中的登录用户信息
+  localStorage.removeItem('loginUser');
+  // 跳转登录页
+  router.push('/login');
+};
+
+onMounted(()=>{
+  loginUser.value = JSON.parse(localStorage.getItem('loginUser')).username;
+})
 </script>
 
 <template>
@@ -47,10 +60,36 @@ const closeDropdown = () => {
           </ul>
           <!--右侧功能菜单-->
           <ul class="nav-right">
-            <li v-for="(menu,index) in funcMenus" :key="menu.path">
-              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
-              <span class="split" v-if="index < funcMenus.length - 1">|</span>
-            </li>
+            <!-- 未登录：显示登录、注册 + 公共菜单 -->
+            <template v-if="!loginUser">
+              <li>
+                <a href="/login" class="nav-link">登录</a>
+                <span class="split">|</span>
+              </li>
+              <li>
+                <a href="/register" class="nav-link">注册</a>
+                <span class="split">|</span>
+              </li>
+              <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+                <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                <span class="split" v-if="index < commonFuncMenus.length - 1">|</span>
+              </li>
+            </template>
+            <!-- 已登录：显示用户名 + 退出登录 + 公共菜单 -->
+            <template v-else>
+              <li>
+                <span class="nav-link" style="cursor: default;">{{ loginUser }}</span>
+                <span class="split">|</span>
+              </li>
+              <li>
+                <a href="javascript:;" class="nav-link" @click="logout">退出登录</a>
+                <span class="split">|</span>
+              </li>
+              <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+                <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                <span class="split" v-if="index < commonFuncMenus.length - 1">|</span>
+              </li>
+            </template>
           </ul>
         </div>
 
@@ -75,8 +114,27 @@ const closeDropdown = () => {
               <span><el-icon class="mobile-icon"><Avatar /></el-icon></span>
               <template #dropdown>
                 <el-dropdown-menu class="custom-dark-menu">
-                  <el-dropdown-item v-for="(menu,index) in funcMenus" :key="menu.path">
-                    <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                  <!-- 移动端：未登录显示登录、注册 -->
+                  <template v-if="!loginUser">
+                    <el-dropdown-item>
+                      <a href="/login" class="nav-link" @click="closeDropdown">登录</a>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a href="/register" class="nav-link" @click="closeDropdown">注册</a>
+                    </el-dropdown-item>
+                  </template>
+                  <!-- 移动端：已登录显示用户名、退出登录 -->
+                  <template v-else>
+                    <el-dropdown-item disabled>
+                      <span class="nav-link">欢迎，{{ loginUser }}</span>
+                    </el-dropdown-item>
+                    <el-dropdown-item>
+                      <a href="javascript:;" class="nav-link" @click="logout">退出登录</a>
+                    </el-dropdown-item>
+                  </template>
+                  <!-- 移动端公共菜单 -->
+                  <el-dropdown-item v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+                    <a :href="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</a>
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
