@@ -5,13 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="日常更新">
+      <change afterPath="$PROJECT_DIR$/.env.development" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.env.production" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/api/wecommunity.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/utils/request.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/request.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/layout/layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/layout/layout.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -86,6 +102,10 @@
       <workItem from="1763514926052" duration="5342000" />
       <workItem from="1763520983256" duration="16979000" />
       <workItem from="1763600767271" duration="5296000" />
+      <workItem from="1763689574984" duration="3542000" />
+      <workItem from="1763951620973" duration="1349000" />
+      <workItem from="1763971615874" duration="2000" />
+      <workItem from="1763971627718" duration="4022000" />
     </task>
     <task id="LOCAL-00001" summary="2025/11/6 17:38">
       <option name="closed" value="true" />

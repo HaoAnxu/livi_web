@@ -1,6 +1,7 @@
 <script setup>
-import { ref, onUnmounted } from "vue";
+import {ref, onUnmounted, onMounted} from "vue";
 import Message from "@/utils/Message"
+import {verifyIsLogin} from "@/api/wecommunity"
 import {
   connectWebSocket,
   sendMessage,
@@ -9,6 +10,7 @@ import {
   subscribeMessage,
   unsubscribeMessage,
 } from '@/utils/websocket';
+import router from "@/router/index.js";
 
 // 变量
 const userId = ref('1'); // 默认用户ID（可修改）
@@ -53,7 +55,7 @@ const handleConnect = () => {
   }
 
   // 拼接当前用户的WS地址
-  const wsUrl = `/ws/chat/${userId.value}`;
+  const wsUrl = `/ws/permission/chat/${userId.value}`;
   // 连接WebSocket
   connectWebSocket(userId.value, wsUrl);
 
@@ -121,6 +123,17 @@ onUnmounted(() => {
   }
   closeWebSocket();
 });
+//监测是否登录
+const isLogin =async ()=>{
+  const result = await verifyIsLogin();
+  if(!result.code){
+    Message.error('请先登录！');
+    await router.push('/login');
+  }
+}
+onMounted(()=>{
+  isLogin();
+})
 </script>
 
 <template>

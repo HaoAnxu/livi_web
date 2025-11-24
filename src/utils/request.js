@@ -1,6 +1,8 @@
 import axios from 'axios'
 import router from '../router'
 import Message from "@/utils/Message.js";
+import md5 from 'js-md5';
+import {timestamp} from "@vueuse/core";
 
 //创建axios实例
 const request = axios.create({
@@ -15,7 +17,18 @@ request.interceptors.request.use(
         if(loginUser){
             config.headers.token = loginUser.token;
         }
+        //生成签名，和后端逻辑一致，进行校验
+        const timestamp = Date.now().toString()
+        const nonce = Math.random().toString(36).substring(2,12);
+        const signSecret = import.meta.env.VITE_SIGN_SECRET;//从环境变量中获取
+        const sign = md5(timestamp + nonce + signSecret);
+        config.headers.timestamp = timestamp;
+        config.headers.nonce = nonce;
+        config.headers.sign = sign;
         return config;
+    },
+    (error)=>{
+        return Promise.reject(error)
     }
 )
 
@@ -27,6 +40,8 @@ request.interceptors.response.use(
     (error)=>{
         if(error.response.status === 401){
             Message.error("登录过期,请重新登录")
+            //清除localStorage中的loginUser
+            localStorage.removeItem('loginUser')
             router.push('/login')
         }
         return Promise.reject(error)

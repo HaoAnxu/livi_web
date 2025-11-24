@@ -164,9 +164,9 @@ onMounted(()=>{
   height: 50px;
   line-height: 50px;
   /* 清新淡雅蓝绿色渐变（从浅到深自然过渡） */
-  background: linear-gradient(90deg, #e6f7f5, #b3e8df, #80d8cc);
+  background: linear-gradient(90deg, #e6f7f5, #b3e8df, #72d8c8);
   background-size: 200% 200%; /* 动画所需背景尺寸 */
-  animation: gradientFlow 15s ease infinite; /* 流动动画，15秒循环 */
+  animation: gradientFlow 10s ease infinite; /* 流动动画，15秒循环 */
   font-size: 12px;
 }
 
@@ -200,8 +200,8 @@ onMounted(()=>{
   font-size: 20px;
 }
 .custom-dark-menu {
-  background-color: #f0faf8 !important; /* 浅蓝绿色背景，保持清新 */
-  border: 1px solid #b3e8df !important; /* 同色系边框，呼应渐变 */
+  background-color: #f0faf8 !important;
+  border: 1px solid #b3e8df !important;
 }
 
 /* 列表样式重置 */
@@ -214,15 +214,14 @@ onMounted(()=>{
 
 /* 导航链接样式 */
 .nav-link {
-  color: #2d7d74; /* 深一点的蓝绿色，保证可读性 */
+  color: #2d7d74;
   text-decoration: none;
   padding: 0 5px;
   transition: color 0.3s;
 }
 
-/* hover 效果 - 文字加深，增强交互感 */
 .nav-link:hover {
-  color: #1a5e57; /* 更深的蓝绿色，hover时突出 */
+  color: #ffffff;
 }
 
 /* 分隔线样式 - 蓝绿色系浅色调，不突兀 */
@@ -230,7 +229,7 @@ onMounted(()=>{
   display: inline-block;
   height: 12px;
   width: 1px;
-  background-color: #8fd8ce; /* 浅蓝绿色分隔线，适配整体风格 */
+  background-color: #69aaa1; /* 浅蓝绿色分隔线，适配整体风格 */
   margin: 0 8px;
   vertical-align: middle;
 }
