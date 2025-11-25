@@ -1,9 +1,10 @@
 <script setup>
-import Message from "@/utils/Message"
+import Message from "@/utils/MyMessage.js"
 import YZcode from "@/utils/YZcode.vue";
-import { loginApi, registerApi } from "@/api/user.js";
-import {ref, onMounted,watch} from "vue";
+import { loginApi } from "@/api/user.js";
+import { ref,watch } from "vue";
 import { useRouter } from 'vue-router'
+import { MyLoading } from "@/utils/MyLoading.js";
 
 const router = useRouter();
 const userInfo = ref({
@@ -25,15 +26,18 @@ const login = async()=>{
     return;
   }
   //再校验用户名和密码
+  MyLoading.value = true;
   const result = await loginApi(userInfo.value);
   if(result.code){
     Message.success("登录成功");
     const userInfo ={
-      username: result.data,
-      token: result.msg
+      userId: result.data.userId,
+      username: result.data.username,
+      token: result.data.token
     }
     localStorage.setItem('loginUser',JSON.stringify(userInfo));
-    router.push('/');
+    await router.push('/');
+    MyLoading.value = false;
   }else {
     Message.error(result.msg);
   }
@@ -53,7 +57,7 @@ const goIndex =()=>{
 const contactAdmin =()=>{
   router.push('/');
 }
-// 表单校验通过，让登录按钮颜色变成清新绿
+// 表单校验通过，让登录按钮颜色变成绿
 watch(
     () => [userInfo.value.username, userInfo.value.password, YZcodeText.value],
     ([newName, newPwd, newCode]) => {

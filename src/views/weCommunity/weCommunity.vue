@@ -1,6 +1,6 @@
 <script setup>
 import {ref, onUnmounted, onMounted} from "vue";
-import Message from "@/utils/Message"
+import Message from "@/utils/MyMessage.js"
 import {verifyIsLogin} from "@/api/wecommunity"
 import {
   connectWebSocket,

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import router from '../router'
-import Message from "@/utils/Message.js";
+import Message from "@/utils/MyMessage.js";
 import md5 from 'js-md5';
 import {timestamp} from "@vueuse/core";
 

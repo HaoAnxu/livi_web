@@ -1,5 +1,5 @@
 import { ref, onUnmounted } from 'vue';
-import Message from "./Message.js"
+import Message from "./MyMessage.js"
 
 //定义全局变量
 let wsInstance = null; // WebSocket实例

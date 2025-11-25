@@ -3,9 +3,9 @@
 </script>
 
 <template>
-  <div>
-    <h1>智能助手</h1>
-  </div>
+  <h1>
+    智能助手
+  </h1>
 </template>
 
 <style scoped>

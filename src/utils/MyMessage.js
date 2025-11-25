@@ -1,7 +1,7 @@
 import { createVNode, render } from 'vue'
-import Message from '../components/Message.vue'
+import MyMessage from '../components/MyMessage.vue'
 
-// 挂载容器（简化创建逻辑）
+// 挂载容器
 const container = document.createElement('div')
 document.body.appendChild(container)
 
@@ -20,7 +20,7 @@ const MessageUtil = (options) => {
     }
 
     // 创建虚拟节点并传递参数
-    const vnode = createVNode(Message, { ...opts, close: closeCurrent })
+    const vnode = createVNode(MyMessage, { ...opts, close: closeCurrent })
     closeCurrent() // 覆盖旧消息
     currentVNode = vnode
     render(vnode, container)

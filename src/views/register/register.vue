@@ -1,22 +1,9 @@
 <script setup>
-import Message from "@/utils/Message"
-import {registerApi, sendCodeApi, verifyCodeApi} from "@/api/user.js";
-import {ref, onMounted, watch} from "vue";
-import {useRouter} from 'vue-router'
-import { ElLoading } from 'element-plus'
-
-//全屏加载遮罩动画
-const fullscreenLoading = ref(false)
-const openFullScreen = () => {
-  const loading = ElLoading.service({
-    lock: true,
-    text: 'Loading',
-    background: 'rgba(0, 0, 0, 0.7)',
-  })
-  setTimeout(() => {
-    loading.close()
-  }, 2000)
-}
+import Message from "@/utils/MyMessage.js"
+import { registerApi, sendCodeApi, verifyCodeApi } from "@/api/user.js";
+import { ref,watch } from "vue";
+import { useRouter } from 'vue-router'
+import { MyLoading } from "@/utils/MyLoading.js";
 
 const router = useRouter();
 const codeText = ref("");
@@ -38,8 +25,7 @@ const sendCode = async () => {
     return;
   }
   // 显示全屏加载动画
-  fullscreenLoading.value = true;
-  openFullScreen();
+  MyLoading.value = true;
   const result = await sendCodeApi(userInfo.value.email);
   if (result.code) {
     Message.success("验证码发送成功");
@@ -47,7 +33,7 @@ const sendCode = async () => {
     Message.error(result.msg);
   }
   // 隐藏全屏加载动画
-  fullscreenLoading.value = false;
+  MyLoading.value = false;
 }
 //注册
 const register = async () => {
@@ -65,6 +51,8 @@ const register = async () => {
     Message.warn("请输入验证码");
     return;
   }
+  // 显示全屏加载动画
+  MyLoading.value = true;
   const verifyResult = await verifyCodeApi(userInfo.value.email, codeText.value);
   if (verifyResult.code) {
     Message.success("验证码验证成功");
@@ -72,15 +60,14 @@ const register = async () => {
     const registerResult = await registerApi(userInfo.value);
     if (registerResult.code) {
       Message.success("注册成功");
-      router.push("/login");
+      await router.push("/login");
+      MyLoading.value = false;
     } else {
       Message.error(registerResult.msg);
-      return;
     }
   } else {
     Message.error(verifyResult.msg);
     isVerifyCode.value = false;
-    return;
   }
 }
 watch(() => [userInfo.value.username, userInfo.value.password, userInfo.value.email, codeText.value], () => {
