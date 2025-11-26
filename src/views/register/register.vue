@@ -1,5 +1,5 @@
 <script setup>
-import Message from "@/utils/MyMessage.js"
+import MyMessage from "@/utils/MyMessage.js"
 import { registerApi, sendCodeApi, verifyCodeApi } from "@/api/user.js";
 import { ref,watch } from "vue";
 import { useRouter } from 'vue-router'
@@ -21,16 +21,28 @@ const isEmailValid = (email) => {
 // 发送验证码方法
 const sendCode = async () => {
   if (!isEmailValid(userInfo.value.email)) {
-    Message.warn("请输入正确的邮箱格式");
+    MyMessage.warn("请输入正确的邮箱格式");
     return;
   }
   // 显示全屏加载动画
   MyLoading.value = true;
-  const result = await sendCodeApi(userInfo.value.email);
-  if (result.code) {
-    Message.success("验证码发送成功");
-  } else {
-    Message.error(result.msg);
+  try {
+    const result = await sendCodeApi(userInfo.value.email);
+    if (result.code) {
+      MyMessage.success("验证码发送成功");
+    } else {
+      MyMessage.error(result.msg);
+    }
+  } catch (error) {
+    console.log('请求失败：', error);
+    let errorMsg = '请求失败，请稍后重试';
+    if (error.message.includes('timeout')) {
+      errorMsg = '请求超时，请检查网络或联系管理员';
+    } else if (error.message.includes('Network Error')) {
+      errorMsg = '网络错误，无法连接服务器';
+    }
+    MyMessage.error(errorMsg);
+    MyLoading.value = false;
   }
   // 隐藏全屏加载动画
   MyLoading.value = false;
@@ -39,35 +51,47 @@ const sendCode = async () => {
 const register = async () => {
   //校验表单
   if (!userInfo.value.username || !userInfo.value.password || !userInfo.value.email) {
-    Message.warn("请填写完整信息");
+    MyMessage.warn("请填写完整信息");
     return;
   }
   if (!isEmailValid(userInfo.value.email)) {
-    Message.warn("请输入正确的邮箱格式");
+    MyMessage.warn("请输入正确的邮箱格式");
     return;
   }
   //校验验证码
   if (!codeText.value) {
-    Message.warn("请输入验证码");
+    MyMessage.warn("请输入验证码");
     return;
   }
   // 显示全屏加载动画
   MyLoading.value = true;
-  const verifyResult = await verifyCodeApi(userInfo.value.email, codeText.value);
-  if (verifyResult.code) {
-    Message.success("验证码验证成功");
-    isVerifyCode.value = true;
-    const registerResult = await registerApi(userInfo.value);
-    if (registerResult.code) {
-      Message.success("注册成功");
-      await router.push("/login");
-      MyLoading.value = false;
+  try {
+    const verifyResult = await verifyCodeApi(userInfo.value.email, codeText.value);
+    if (verifyResult.code) {
+      MyMessage.success("验证码验证成功");
+      isVerifyCode.value = true;
+      const registerResult = await registerApi(userInfo.value);
+      if (registerResult.code) {
+        MyMessage.success("注册成功");
+        await router.push("/login");
+        MyLoading.value = false;
+      } else {
+        MyMessage.error(registerResult.msg);
+      }
     } else {
-      Message.error(registerResult.msg);
+      MyMessage.error(verifyResult.msg);
+      isVerifyCode.value = false;
     }
-  } else {
-    Message.error(verifyResult.msg);
-    isVerifyCode.value = false;
+  } catch (error) {
+    console.log('请求失败：', error);
+    let errorMsg = '请求失败，请稍后重试';
+    if (error.message.includes('timeout')) {
+      errorMsg = '请求超时，请检查网络或联系管理员';
+    } else if (error.message.includes('Network Error')) {
+      errorMsg = '网络错误，无法连接服务器';
+    }
+    MyMessage.error(errorMsg);
+    MyLoading.value = false;
   }
 }
 watch(() => [userInfo.value.username, userInfo.value.password, userInfo.value.email, codeText.value], () => {
@@ -103,10 +127,10 @@ watch(() => userInfo.value.email, () => {
 
 <template>
   <div class="bg">
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
+    <div class="fade-text">团结</div>
+    <div class="fade-text">Livi</div>
+    <div class="fade-text">改造家</div>
+    <div class="fade-text">Unity</div>
     <div class="fade-text">团结改造家</div>
     <div class="fade-text">Livi Unity</div>
 

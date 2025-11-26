@@ -2,12 +2,11 @@ import axios from 'axios'
 import router from '../router'
 import Message from "@/utils/MyMessage.js";
 import md5 from 'js-md5';
-import {timestamp} from "@vueuse/core";
 
 //创建axios实例
 const request = axios.create({
   baseURL: '/api',
-  timeout: 60000
+  timeout: 60000,//请求超时时间10秒
 })
 
 //axios的请求 request 拦截器, 每次请求获取localStorage中的loginUser, 从中获取到token, 在请求头token中携带到服务端

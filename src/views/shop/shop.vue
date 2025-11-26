@@ -1,7 +1,8 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import {queryGoodsApi} from "@/api/shop.js";
-import {ElMessage} from "element-plus";
+import MyMessage from "@/utils/MyMessage.js";
+import {MyLoading} from "@/utils/MyLoading.js";
 
 const form = ref({
   goodsName: '',
@@ -31,11 +32,26 @@ const sort_rule_options = ref([
 ])
 
 const search = async () => {
-  const result = await queryGoodsApi(form.value)
-  if (result.code) {
-    goods_list.value = result.data.rows
-  }else {
-    ElMessage.error(result.msg)
+  MyLoading.value = true;
+  try {
+    const result = await queryGoodsApi(form.value)
+    if (result.code) {
+      goods_list.value = result.data.rows
+      MyLoading.value = false;
+    } else {
+      MyMessage.error(result.msg)
+      MyLoading.value = false;
+    }
+  } catch (error) {
+    console.log('请求失败：', error);
+    let errorMsg = '请求失败，请稍后重试';
+    if (error.message.includes('timeout')) {
+      errorMsg = '请求超时，请检查网络或联系管理员';
+    } else if (error.message.includes('Network Error')) {
+      errorMsg = '网络错误，无法连接服务器';
+    }
+    MyMessage.error(errorMsg);
+    MyLoading.value = false;
   }
 }
 const reset = () => {

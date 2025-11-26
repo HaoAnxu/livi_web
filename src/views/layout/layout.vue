@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import router from "@/router/index.js";
-import { Menu, Avatar } from '@element-plus/icons-vue'; // 导入缺失的图标组件
+import {Menu, Avatar} from '@element-plus/icons-vue';
 
 const loginUser = ref("");
 
@@ -15,8 +15,8 @@ const navMenus = ref([
   {name: '短视频', path: '/shortVideo'},
   {name: '音乐', path: '/music'},
 ]);
-// 右侧功能菜单（拆分：公共菜单+登录相关菜单）
-const commonFuncMenus = ref([ // 始终显示的公共菜单
+// 右侧功能菜单
+const commonFuncMenus = ref([
   {name: '购物车', path: '/cart'},
   {name: '待读消息', path: '/messages'},
   {name: '用户中心', path: '/userCenter'}
@@ -32,17 +32,14 @@ const closeDropdown = () => {
   isDropdownOpen.value = false;
 };
 
-// 退出登录方法（空置，你后续补充）
+// 退出登录方法
 const logout = () => {
   closeDropdown();
-  // 清除localStorage中的登录用户信息
   localStorage.removeItem('loginUser');
-  // 跳转登录页
   router.push('/login');
 };
 
-onMounted(()=>{
-  // 处理localStorage为空的情况，避免报错
+onMounted(() => {
   const userInfo = localStorage.getItem('loginUser');
   loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
 })
@@ -55,41 +52,42 @@ onMounted(()=>{
         <!--PC端Menu-->
         <div class="top-nav-pc">
           <!--左侧导航菜单-->
-          <ul class="nav-left">
+          <ul class="nav-list nav-left">
             <li v-for="(menu,index) in navMenus" :key="menu.path">
-              <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+              <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
               <span class="split" v-if="index < navMenus.length - 1"></span>
             </li>
           </ul>
           <!--右侧功能菜单-->
-          <ul class="nav-right">
+          <ul class="nav-list nav-right">
             <!-- 未登录：显示登录、注册 + 公共菜单 -->
             <template v-if="!loginUser">
               <li>
-                <a href="/login" class="nav-link">登录</a>
+                <router-link to="/login" class="nav-link">登录</router-link>
                 <span class="split"></span>
               </li>
               <li>
-                <a href="/register" class="nav-link">注册</a>
+                <router-link to="/register" class="nav-link">注册</router-link>
                 <span class="split"></span>
               </li>
               <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
-                <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
                 <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
             </template>
             <!-- 已登录：显示用户名 + 退出登录 + 公共菜单 -->
             <template v-else>
               <li>
-                <span class="nav-link" style="cursor: default;">{{ loginUser }}</span>
+                <span class="nav-link user-name">{{ loginUser }}</span>
                 <span class="split"></span>
               </li>
+              开发者入驻
               <li>
-                <a href="javascript:;" class="nav-link" @click="logout">退出登录</a>
+                <a href="javascript:;" class="nav-link logout-btn" @click="logout">退出登录</a>
                 <span class="split"></span>
               </li>
               <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
-                <a :href="menu.path" class="nav-link">{{ menu.name }}</a>
+                <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
                 <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
             </template>
@@ -100,52 +98,52 @@ onMounted(()=>{
         <div class="top-nav-mobile">
           <!--移动端logo-->
           <div class="top-nav-mobile-logo">
-            <a href="/" class="mobile-logo">Livi Unity</a>
+            <router-link to="/" class="mobile-logo">Livi Unity</router-link>
           </div>
-          <el-config-provider theme="dark">
-            <!-- 添加@click.stop阻止事件冒泡，确保菜单可点击 -->
-            <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
-              <span><el-icon class="mobile-icon"><Menu /></el-icon></span>
-              <template #dropdown>
-                <el-dropdown-menu class="custom-dark-menu">
-                  <el-dropdown-item v-for="(menu,index) in navMenus" :key="menu.path">
-                    <!-- 使用router-link替代a标签，配合Vue Router跳转，同时保留closeDropdown -->
-                    <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <!-- 添加@click.stop阻止事件冒泡 -->
-            <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
-              <span><el-icon class="mobile-icon"><Avatar /></el-icon></span>
-              <template #dropdown>
-                <el-dropdown-menu class="custom-dark-menu">
-                  <!-- 移动端：未登录显示登录、注册 -->
-                  <template v-if="!loginUser">
-                    <el-dropdown-item>
-                      <router-link to="/login" class="nav-link" @click="closeDropdown">登录</router-link>
+          <!-- 新增按钮容器：让两个按钮紧密排列 -->
+          <div class="mobile-btn-group">
+            <el-config-provider>
+              <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
+                <span><el-icon class="mobile-icon"><Menu/></el-icon></span>
+                <template #dropdown>
+                  <el-dropdown-menu class="custom-menu">
+                    <el-dropdown-item v-for="(menu,index) in navMenus" :key="menu.path">
+                      <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                     </el-dropdown-item>
-                    <el-dropdown-item>
-                      <router-link to="/register" class="nav-link" @click="closeDropdown">注册</router-link>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+              <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
+                <span><el-icon class="mobile-icon"><Avatar/></el-icon></span>
+                <template #dropdown>
+                  <el-dropdown-menu class="custom-menu">
+                    <!-- 移动端：未登录显示登录、注册 -->
+                    <template v-if="!loginUser">
+                      <el-dropdown-item>
+                        <router-link to="/login" class="nav-link" @click="closeDropdown">登录</router-link>
+                      </el-dropdown-item>
+                      <el-dropdown-item>
+                        <router-link to="/register" class="nav-link" @click="closeDropdown">注册</router-link>
+                      </el-dropdown-item>
+                    </template>
+                    <!-- 移动端：已登录显示用户名、退出登录 -->
+                    <template v-else>
+                      <el-dropdown-item disabled>
+                        <span class="nav-link user-name">欢迎，{{ loginUser }}</span>
+                      </el-dropdown-item>
+                      <el-dropdown-item>
+                        <a href="javascript:;" class="nav-link logout-btn" @click="logout">退出登录</a>
+                      </el-dropdown-item>
+                    </template>
+                    <!-- 移动端公共菜单 -->
+                    <el-dropdown-item v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+                      <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                     </el-dropdown-item>
-                  </template>
-                  <!-- 移动端：已登录显示用户名、退出登录 -->
-                  <template v-else>
-                    <el-dropdown-item disabled>
-                      <span class="nav-link">欢迎，{{ loginUser }}</span>
-                    </el-dropdown-item>
-                    <el-dropdown-item>
-                      <a href="javascript:;" class="nav-link" @click="logout">退出登录</a>
-                    </el-dropdown-item>
-                  </template>
-                  <!-- 移动端公共菜单 -->
-                  <el-dropdown-item v-for="(menu,index) in commonFuncMenus" :key="menu.path">
-                    <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </el-config-provider>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </el-config-provider>
+          </div>
         </div>
       </el-header>
 
@@ -153,114 +151,206 @@ onMounted(()=>{
         <router-view></router-view>
       </el-main>
 
-      <el-footer>Footer</el-footer>
+      <el-footer class="app-footer">Livi Unity ©2025 智能家居商城</el-footer>
     </el-container>
   </div>
 </template>
 
 <style scoped>
-/* 顶部导航整体样式 - 清新蓝绿色渐变+流动动画 */
+/* 基础布局 - 小米风格橙白主调 */
 .top-header {
-  height: 50px;
-  line-height: 50px;
-  /* 清新淡雅蓝绿色渐变（从浅到深自然过渡） */
-  background: linear-gradient(90deg, #e6f7f5, #b3e8df, #72d8c8);
-  background-size: 200% 200%; /* 动画所需背景尺寸 */
-  animation: gradientFlow 10s ease infinite; /* 流动动画，15秒循环 */
-  font-size: 12px;
+  height: 60px;
+  line-height: 60px;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-/* 导航容器 */
+/* PC端导航容器 */
 .top-nav-pc {
-  width: 70%;
+  width: 1200px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
 }
 
+/* 移动端导航容器 - 核心修复溢出问题 */
 .top-nav-mobile {
   display: none;
-}
-.top-nav-mobile-logo {
-  margin: 0 auto;
-  padding-left: 20vw;
-  font-size: 20px;
-}
-.mobile-logo {
-  color: #2d7d74; /* 蓝绿色系文字，适配清新风格 */
-  text-decoration: none;
-}
-.mobile-dropdown {
-  color: #2d7d74; /* 移动端图标颜色统一 */
-  font-size: 15px;
-  margin-top: 2vh;
-  margin-right: 7vw;
-}
-.mobile-icon {
-  font-size: 20px;
-}
-.custom-dark-menu {
-  background-color: #f0faf8 !important;
-  border: 1px solid #b3e8df !important;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px; /* 减少左右内边距，避免挤压空间 */
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box; /* 关键：内边距计入宽度，防止溢出 */
+  max-width: 100vw; /* 限制最大宽度为屏幕宽度 */
 }
 
-/* 列表样式重置 */
-.nav-left, .nav-right {
+.top-nav-mobile-logo {
+  font-size: 22px; /* 缩小logo字体，减少宽度占用 */
+  font-weight: 600;
+}
+
+/* 移动端按钮容器 - 紧凑排列+防溢出 */
+.mobile-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-logo {
+  color: #ff6700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+/* 移动端下拉菜单 - 缩小图标和按钮尺寸 */
+.mobile-dropdown {
+  color: #333;
+  font-size: 14px; /* 缩小按钮文字尺寸 */
+  transition: color 0.2s;
+  padding: 0 8px; /* 给按钮加少量内边距，点击区域更友好 */
+}
+
+.mobile-dropdown:hover {
+  color: #ff6700;
+}
+
+.mobile-icon {
+  font-size: 20px; /* 缩小图标尺寸，减少宽度 */
+}
+
+/* 自定义下拉菜单样式 - 小米浅灰风格 */
+.custom-menu {
+  background-color: #fff !important;
+  border: 1px solid #e5e5e5 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 4px !important;
+}
+
+/* 导航列表样式（合并重复） */
+.nav-list {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-/* 导航链接样式 */
+/* 导航链接基础样式（精简重复属性） */
 .nav-link {
-  color: #2d7d74;
+  color: #333;
   text-decoration: none;
-  padding: 0 5px;
-  transition: color 0.3s;
+  padding: 0 12px;
+  transition: all 0.2s ease;
+  display: inline-block;
+  height: 60px;
+  line-height: 60px;
+  position: relative;
+  box-sizing: border-box;
 }
 
+/* 链接hover效果 - 小米橙下划线+文字变色（合并伪类逻辑） */
 .nav-link:hover {
-  color: #ffffff;
+  color: #ff6700;
 }
 
-/* 分隔线样式 - 蓝绿色系浅色调，不突兀 */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background-color: #ff6700;
+  transition: width 0.2s ease;
+}
+
+.nav-link:hover::after {
+  width: 80%;
+}
+
+/* 用户名样式 */
+.user-name {
+  color: #ff6700;
+  font-weight: 500;
+}
+
+/* 退出登录按钮特殊样式（复用伪类，仅覆盖颜色） */
+.logout-btn:hover {
+  color: #ff4400;
+}
+
+.logout-btn::after {
+  background-color: #ff4400;
+}
+
+/* 分隔线样式 - 小米浅灰 */
 .split {
   display: inline-block;
-  height: 12px;
+  height: 14px;
   width: 1px;
-  background-color: #69aaa1; /* 浅蓝绿色分隔线，适配整体风格 */
+  background-color: #e5e5e5;
   margin: 0 8px;
   vertical-align: middle;
 }
 
-/* 移动端适配样式 */
+/* 移动端适配 */
+@media (max-width: 1200px) {
+  .top-nav-pc {
+    width: 90%;
+  }
+}
+
 @media (max-width: 992px) {
   .top-nav-pc {
     display: none;
   }
-  .top-header {
-    /* 移动端同步PC端渐变和动画，风格统一 */
-    background: linear-gradient(90deg, #e6f7f5, #b3e8df, #80d8cc);
-    background-size: 200% 200%;
-    animation: gradientFlow 15s ease infinite;
-  }
+
   .top-nav-mobile {
     display: flex;
-    justify-content: right;
+  }
+
+  .top-header {
+    height: 55px;
+    line-height: 55px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .nav-link {
+    height: 45px;
+    line-height: 45px;
+    padding: 0 8px;
+  }
+
+  /* 移动端下拉菜单链接hover（仅覆盖差异样式） */
+  .custom-menu .nav-link:hover {
+    background-color: #f5f5f5;
+  }
+
+  .custom-menu .nav-link::after {
+    display: none;
   }
 }
 
-/* 渐变流动动画关键帧 - 自然左右平移 */
-@keyframes gradientFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+/* 页脚样式 - 小米浅灰底 */
+.app-footer {
+  background-color: #f5f5f5;
+  color: #666;
+  text-align: center;
+  padding: 20px 0;
+  font-size: 12px;
+  border-top: 1px solid #e5e5e5;
+}
+
+/* 主内容区留白 */
+.el-main {
+  padding: 20px 0;
+  min-height: 85vh;
 }
 </style>

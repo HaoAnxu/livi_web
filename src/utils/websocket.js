@@ -1,5 +1,6 @@
 import { ref, onUnmounted } from 'vue';
 import Message from "./MyMessage.js"
+import md5 from "js-md5";
 
 //定义全局变量
 let wsInstance = null; // WebSocket实例
@@ -12,6 +13,7 @@ const WS_CONFIG ={
     reconnectInterval: 5000, // 重连间隔
     heartbeatInterval: 5000, // 心跳间隔
     maxReconnectTimes: 10, // 最大重连次数（避免无限重连）
+    signSecret: import.meta.env.VITE_SIGN_SECRET // 从环境变量拿签名密钥（和 Axios 一致）
 }
 
 //定时器变量（管理重连和心跳）
@@ -28,7 +30,17 @@ export function connectWebSocket(userId,wsUrl){
         return;
     }
     if(!wsUrl){
-        Message.error('请传入完整的WebSocket地址（如 /ws/chat/1）');
+        Message.error('WebSocket地址缺失');
+        return;
+    }
+    //把安全校验所需要的数据生成
+    const timestamp = Date.now().toString();
+    const nonce = Math.random().toString(36).substring(2, 12);
+    const sign = md5(timestamp+nonce+WS_CONFIG.signSecret);
+    //Token校验
+    const loginUser = JSON.parse(localStorage.getItem('loginUser'));
+    if (!loginUser?.token) {
+        Message.error('未登录，无法建立WebSocket连接');
         return;
     }
     //存储用户id到配置变量
@@ -38,8 +50,17 @@ export function connectWebSocket(userId,wsUrl){
         wsInstance.close();
         wsInstance = null;
     }
-    // 创建WebSocket实例
-    wsInstance = new WebSocket(wsUrl);
+    // 创建WebSocket实例+请求头
+    wsInstance = new WebSocket(wsUrl,
+        [],// 第二个参数：子协议（没有就传空数组，不能省）
+        {// 第三个参数：options 对象，里面放 headers
+        headers: {
+            'token': loginUser.token,
+            'timestamp': timestamp,
+            'nonce': nonce,
+            'sign': sign
+        }
+    });
     //1.连接成功回调->@OnOpen
     wsInstance.onopen = () => {
         Message.success('WebSocket连接成功！');
