@@ -29,7 +29,7 @@ const handlejoinCommunity = async (communityId) => {
     return;
   }
   try {
-    const result = await joinCommunity(communityId, loginUser.id);
+    const result = await joinCommunity(communityId, loginUser.userId);
     if (result.code) {
       MyMessage.success('加入社区成功');
       getCommunityInfoList(); // 刷新列表
@@ -49,7 +49,7 @@ const handleExitCommunity = async (communityId) => {
     return;
   }
   try {
-    const result = await exitCommunity(communityId, loginUser.id);
+    const result = await exitCommunity(communityId, loginUser.userId);
     if (result.code) {
       MyMessage.success('退出社区成功');
       getCommunityInfoList(); // 刷新列表
@@ -81,17 +81,9 @@ onMounted(() => {
               <div class="btn-group">
                 <button
                     class="btn join-btn"
-                    @click="handlejoinCommunity(item.id)"
-                    v-if="!item.joined"
+                    @click="handlejoinCommunity(item.communityId)"
                 >
                   加入社区
-                </button>
-                <button
-                    class="btn exit-btn"
-                    @click="handleExitCommunity(item.id)"
-                    v-if="item.joined"
-                >
-                  退出社区
                 </button>
                 <button class="btn more-btn" @click="() => console.log('查看详情', item.id)">
                   查看详情

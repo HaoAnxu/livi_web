@@ -5,15 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b8abbeba-5a1c-48b3-893e-410d98521060" name="更改" comment="日常更新">
-      <change afterPath="$PROJECT_DIR$/src/views/weCommunity/test.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/wecommunity.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/wecommunity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/request.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/request.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/websocket.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/websocket.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/layout/layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/layout/layout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/register/register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/register/register.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/shop/shop.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/shop/shop.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/userCenter/userCenter.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/userCenter/userCenter.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -112,7 +104,7 @@
       <workItem from="1763971615874" duration="2000" />
       <workItem from="1763971627718" duration="4049000" />
       <workItem from="1764051586363" duration="9490000" />
-      <workItem from="1764120338478" duration="17195000" />
+      <workItem from="1764120338478" duration="18158000" />
     </task>
     <task id="LOCAL-00001" summary="2025/11/6 17:38">
       <option name="closed" value="true" />
@@ -226,7 +218,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764064565948</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="日常更新">
+      <option name="closed" value="true" />
+      <created>1764150596614</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1764150596614</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
