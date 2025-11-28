@@ -14,22 +14,41 @@ const userInfo = ref({
 })
 const isVerifyCode = ref(false);
 const isRightEmail = ref(false);
+// 新增：验证码发送状态锁定 + 冷却倒计时
+const isSendingCode = ref(false);
+const codeCountdown = ref(0);
+let countdownTimer = null; // 倒计时定时器
+
 const isEmailValid = (email) => {
   const reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/;
   return reg.test(email.trim());
 };
-// 发送验证码方法
+
+// 发送验证码方法（修复加载动画 + 新增状态锁定/冷却）
 const sendCode = async () => {
-  if (!isEmailValid(userInfo.value.email)) {
-    MyMessage.warn("请输入正确的邮箱格式");
+  // 新增：邮箱无效/发送中/冷却中 直接返回
+  if (!isEmailValid(userInfo.value.email) || isSendingCode.value || codeCountdown.value > 0) {
     return;
   }
+
+  // 锁定发送状态
+  isSendingCode.value = true;
   // 显示全屏加载动画
   MyLoading.value = true;
+
   try {
     const result = await sendCodeApi(userInfo.value.email);
     if (result.code) {
       MyMessage.success("验证码发送成功");
+      // 启动60秒冷却倒计时
+      codeCountdown.value = 60;
+      countdownTimer = setInterval(() => {
+        codeCountdown.value--;
+        if (codeCountdown.value <= 0) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+      }, 1000);
     } else {
       MyMessage.error(result.msg);
     }
@@ -42,14 +61,15 @@ const sendCode = async () => {
       errorMsg = '网络错误，无法连接服务器';
     }
     MyMessage.error(errorMsg);
+  } finally {
     MyLoading.value = false;
+    isSendingCode.value = false;
   }
-  // 隐藏全屏加载动画
-  MyLoading.value = false;
 }
-//注册
+
+// 注册方法
 const register = async () => {
-  //校验表单
+  // 校验表单
   if (!userInfo.value.username || !userInfo.value.password || !userInfo.value.email) {
     MyMessage.warn("请填写完整信息");
     return;
@@ -58,13 +78,15 @@ const register = async () => {
     MyMessage.warn("请输入正确的邮箱格式");
     return;
   }
-  //校验验证码
+  // 校验验证码
   if (!codeText.value) {
     MyMessage.warn("请输入验证码");
     return;
   }
+
   // 显示全屏加载动画
   MyLoading.value = true;
+
   try {
     const verifyResult = await verifyCodeApi(userInfo.value.email, codeText.value);
     if (verifyResult.code) {
@@ -74,9 +96,10 @@ const register = async () => {
       if (registerResult.code) {
         MyMessage.success("注册成功");
         await router.push("/login");
-        MyLoading.value = false;
+        MyMessage.success("注册成功，即将跳转到登录页");
       } else {
         MyMessage.error(registerResult.msg);
+        isVerifyCode.value = false; // 修复：注册失败重置验证码状态
       }
     } else {
       MyMessage.error(verifyResult.msg);
@@ -91,9 +114,13 @@ const register = async () => {
       errorMsg = '网络错误，无法连接服务器';
     }
     MyMessage.error(errorMsg);
+    isVerifyCode.value = false;
+  } finally {
     MyLoading.value = false;
   }
 }
+
+// 保留原有Watch逻辑
 watch(() => [userInfo.value.username, userInfo.value.password, userInfo.value.email, codeText.value], () => {
   const registerBtn = document.querySelector('.button-submit');
   if (!registerBtn) return;
@@ -109,10 +136,13 @@ watch(() => [userInfo.value.username, userInfo.value.password, userInfo.value.em
   }
 }, { immediate: true })
 
-watch(() => userInfo.value.email, () => {
+// 优化邮箱Watch：新增发送中/冷却状态判断
+watch(() => [userInfo.value.email, isSendingCode.value, codeCountdown.value], () => {
   const sendBtn = document.querySelector('.code_button');
-  if (sendBtn) { // 确保元素存在
-    if (isEmailValid(userInfo.value.email)) {
+  if (sendBtn) {
+    // 邮箱有效 + 非发送中 + 非冷却中
+    const canSend = isEmailValid(userInfo.value.email) && !isSendingCode.value && codeCountdown.value <= 0;
+    if (canSend) {
       isRightEmail.value = true;
       sendBtn.style.cursor = 'pointer';
       sendBtn.style.backgroundColor = 'rgba(125, 250, 122, 0.89)';
@@ -121,8 +151,16 @@ watch(() => userInfo.value.email, () => {
       sendBtn.style.cursor = 'not-allowed';
       sendBtn.style.backgroundColor = '#d7edfa';
     }
+    // 更新按钮文字（显示倒计时）
+    sendBtn.innerText = codeCountdown.value > 0 ? `${codeCountdown.value}s后重发` : '发送';
   }
 }, {immediate: true})
+
+// 组件卸载时清理定时器
+import { onUnmounted } from 'vue';
+onUnmounted(() => {
+  if (countdownTimer) clearInterval(countdownTimer);
+});
 </script>
 
 <template>
@@ -181,7 +219,11 @@ watch(() => userInfo.value.email, () => {
       <div class="flex-column">
         <label>邮箱验证码</label></div>
       <div class="inputForm">
-        <button @click="sendCode" class="code_button" type="button" :disabled="!isRightEmail">发送</button>
+        <!-- 修复：按钮禁用逻辑增加发送中/冷却判断 -->
+        <button @click="sendCode" class="code_button" type="button"
+                :disabled="!isRightEmail || isSendingCode || codeCountdown > 0">
+          {{ codeCountdown > 0 ? `${codeCountdown}s后重发` : '发送' }}
+        </button>
         <input type="text" class="input" placeholder="请输入邮箱验证码" v-model="codeText" required>
       </div>
       <button class="button-submit" @click.prevent="register" :disabled="!isVerifyCode">注册</button>

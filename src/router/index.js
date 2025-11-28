@@ -6,6 +6,7 @@ import LoginView from '@/views/login/login.vue'
 import RegisterView from '@/views/register/register.vue'
 import CartView from '@/views/cart/cart.vue'
 import WeCommunityView from '@/views/weCommunity/weCommunity.vue'
+import ChatRoomView from "@/views/weCommunity/ChatRoom.vue";
 import UserCenterView from '@/views/userCenter/userCenter.vue'
 import SmartHomeView from '@/views/smartHome/smartHome.vue'
 import ShopView from '@/views/shop/shop.vue'
@@ -24,6 +25,7 @@ const router = createRouter({
                 {path:'index',name:'index',component:IndexView},
                 {path:'cart',name:'cart',component:CartView},
                 {path:'weCommunity',name:'weCommunity',component:WeCommunityView},
+                {path:'chatRoom',name:'chatRoom',component:ChatRoomView},
                 {path:'userCenter',name:'userCenter',component:UserCenterView},
                 {path:'smartHome',name:'smartHome',component:SmartHomeView},
                 {path:'shop',name:'shop',component:ShopView},

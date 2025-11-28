@@ -35,12 +35,12 @@ const closeDropdown = () => {
 // 退出登录方法
 const logout = () => {
   closeDropdown();
-  localStorage.removeItem('loginUser');
+  sessionStorage.removeItem('loginUser');
   router.push('/login');
 };
 
 onMounted(() => {
-  const userInfo = localStorage.getItem('loginUser');
+  const userInfo = sessionStorage.getItem('loginUser');
   loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
 })
 </script>
@@ -78,10 +78,9 @@ onMounted(() => {
             <!-- 已登录：显示用户名 + 退出登录 + 公共菜单 -->
             <template v-else>
               <li>
-                <span class="nav-link user-name">{{ loginUser }}</span>
+                <router-link to="/userCenter" class="nav-link user-name">{{ loginUser }}</router-link>
                 <span class="split"></span>
               </li>
-              开发者入驻
               <li>
                 <a href="javascript:;" class="nav-link logout-btn" @click="logout">退出登录</a>
                 <span class="split"></span>
@@ -151,7 +150,66 @@ onMounted(() => {
         <router-view></router-view>
       </el-main>
 
-      <el-footer class="app-footer">Livi Unity ©2025 智能家居商城</el-footer>
+      <el-footer class="app-footer">
+        <!-- 重构页脚内容 - 围绕Livi Unity团结改造家主题 -->
+        <div class="footer-container">
+          <!-- 品牌核心信息 -->
+          <div class="footer-brand">
+            <h2 class="brand-name">Livi Unity 团结改造家</h2>
+            <p class="brand-slogan">用团结的力量，改造理想生活空间</p>
+          </div>
+
+          <!-- 快捷链接 -->
+          <div class="footer-links">
+            <div class="link-group">
+              <h3 class="link-title">关于我们</h3>
+              <ul>
+                <li><a href="javascript:;">品牌故事</a></li>
+                <li><a href="javascript:;">团队介绍</a></li>
+                <li><a href="javascript:;">加入我们</a></li>
+              </ul>
+            </div>
+            <div class="link-group">
+              <h3 class="link-title">服务支持</h3>
+              <ul>
+                <li><a href="javascript:;">售后保障</a></li>
+                <li><a href="javascript:;">常见问题</a></li>
+                <li><a href="javascript:;">联系客服</a></li>
+              </ul>
+            </div>
+            <div class="link-group">
+              <h3 class="link-title">法律声明</h3>
+              <ul>
+                <li><a href="javascript:;">隐私政策</a></li>
+                <li><a href="javascript:;">用户协议</a></li>
+                <li><a href="javascript:;">版权声明</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 联系方式 -->
+          <div class="footer-contact">
+            <div class="contact-item">
+              <i class="el-icon-phone"></i>
+              <span>400-123-4567</span>
+            </div>
+            <div class="contact-item">
+              <i class="el-icon-mail"></i>
+              <span>service@liviunity.com</span>
+            </div>
+            <div class="contact-item">
+              <i class="el-icon-location"></i>
+              <span>北京市朝阳区团结湖路88号改造家创意中心</span>
+            </div>
+          </div>
+
+          <!-- 版权信息 -->
+          <div class="footer-copyright">
+            <p>©2025 Livi Unity 团结改造家 版权所有 | 京ICP备12345678号</p>
+            <p>本网站支持IPv6访问 | 营业执照：91110105XXXXXXXXXX</p>
+          </div>
+        </div>
+      </el-footer>
     </el-container>
   </div>
 </template>
@@ -338,19 +396,164 @@ onMounted(() => {
   }
 }
 
-/* 页脚样式 - 小米浅灰底 */
-.app-footer {
-  background-color: #f5f5f5;
-  color: #666;
-  text-align: center;
-  padding: 20px 0;
-  font-size: 12px;
-  border-top: 1px solid #e5e5e5;
-}
-
 /* 主内容区留白 */
 .el-main {
   padding: 20px 0;
   min-height: 85vh;
+}
+
+/* 重构页脚样式 - Livi Unity团结改造家主题 */
+.app-footer {
+  background-color: #f8f8f8;
+  color: #666;
+  padding: 40px 0 20px;
+  font-size: 14px;
+  border-top: 2px solid #ff6700; /* 橙色顶边强化品牌 */
+}
+
+.footer-container {
+  width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* 品牌核心信息 */
+.footer-brand {
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.brand-name {
+  font-size: 24px;
+  color: #ff6700;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+
+.brand-slogan {
+  font-size: 16px;
+  color: #333;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 快捷链接 */
+.footer-links {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.link-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.link-title {
+  font-size: 16px;
+  color: #333;
+  margin: 0 0 15px;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.link-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 30px;
+  height: 2px;
+  background-color: #ff6700;
+}
+
+.footer-links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover {
+  color: #ff6700;
+}
+
+/* 联系方式 */
+.footer-contact {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #333;
+}
+
+.contact-item i {
+  font-size: 18px;
+  color: #ff6700;
+}
+
+/* 版权信息 */
+.footer-copyright {
+  text-align: center;
+  padding-top: 20px;
+  font-size: 12px;
+  color: #999;
+}
+
+.footer-copyright p {
+  margin: 5px 0;
+}
+
+/* 页脚移动端适配 */
+@media (max-width: 1200px) {
+  .footer-container {
+    width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-links {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .link-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .footer-contact {
+    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .app-footer {
+    padding: 30px 0 15px;
+  }
 }
 </style>

@@ -9,10 +9,10 @@ const request = axios.create({
   timeout: 60000,//请求超时时间10秒
 })
 
-//axios的请求 request 拦截器, 每次请求获取localStorage中的loginUser, 从中获取到token, 在请求头token中携带到服务端
+//axios的请求 request 拦截器, 每次请求获取sessionStorage中的loginUser, 从中获取到token, 在请求头token中携带到服务端
 request.interceptors.request.use(
     (config)=>{
-        let loginUser = JSON.parse(localStorage.getItem('loginUser'));
+        let loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
         if(loginUser){
             config.headers.token = loginUser.token;
         }
@@ -39,8 +39,8 @@ request.interceptors.response.use(
     (error)=>{
         if(error.response.status === 401){
             Message.error("登录过期,请重新登录")
-            //清除localStorage中的loginUser
-            localStorage.removeItem('loginUser')
+            //清除sessionStorage中的loginUser
+            sessionStorage.removeItem('loginUser')
             router.push('/login')
         }
         return Promise.reject(error)

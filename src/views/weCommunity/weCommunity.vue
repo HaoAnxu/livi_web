@@ -1,92 +1,108 @@
 <script setup>
-import {getCommunityList} from '@/api/wecommunity';
-import {onMounted, ref} from "vue";
+import {getCommunityListApi} from '@/api/wecommunity';
+import {onMounted, ref, h} from "vue";
 import MyMessage from "@/utils/MyMessage.js";
 import {MyLoading} from "@/utils/MyLoading.js";
-import {joinCommunity, exitCommunity} from '@/api/wecommunity';
+import {joinCommunityApi, queryUserJoinCommunityApi, getCommunityDetailApi} from '@/api/wecommunity';
+import {useRouter} from "vue-router";
+import {ElNotification} from 'element-plus'
 
+const router = useRouter();
 const communityInfoList = ref([]);
+const communityDetail = ref({});
 const getCommunityInfoList = async () => {
   MyLoading.value = true;
   try {
-    const result = await getCommunityList();
+    const result = await getCommunityListApi();
     if (result.code) {
       communityInfoList.value = result.data;
+      MyLoading.value = false;
     } else {
       MyMessage.error(result.msg);
+      MyLoading.value = false;
     }
-    MyLoading.value = false;
   } catch (e) {
-    MyMessage.error('获取社区列表失败，请稍后重试');
     MyLoading.value = false;
   }
 }
 // 加入社区
 const handlejoinCommunity = async (communityId) => {
-  const loginUser = JSON.parse(localStorage.getItem('loginUser'));
+  const loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
   if (!loginUser) {
     MyMessage.error('请先登录');
     return;
   }
-  try {
-    const result = await joinCommunity(communityId, loginUser.userId);
-    if (result.code) {
-      MyMessage.success('加入社区成功');
-      getCommunityInfoList(); // 刷新列表
-    } else {
-      MyMessage.error(result.msg);
-    }
-  } catch (error) {
-    MyMessage.error('操作失败，请稍后重试');
-  }
-}
-
-// 退出社区
-const handleExitCommunity = async (communityId) => {
-  const loginUser = JSON.parse(localStorage.getItem('loginUser'));
-  if (!loginUser) {
-    MyMessage.error('请先登录');
+  // 检查用户是否已经加入社区
+  const isJoin = await queryUserJoinCommunityApi(communityId, loginUser.userId);
+  if (isJoin.data === true) {
+    await router.push({
+      name:'chatRoom',
+      query:{communityId:communityId}
+    });
     return;
   }
-  try {
-    const result = await exitCommunity(communityId, loginUser.userId);
-    if (result.code) {
-      MyMessage.success('退出社区成功');
-      getCommunityInfoList(); // 刷新列表
-    } else {
-      MyMessage.error(result.msg);
-    }
-  } catch (error) {
-    MyMessage.error('操作失败，请稍后重试');
+  const result = await joinCommunityApi(communityId, loginUser.userId);
+  if (result.code) {
+    MyMessage.success('加入社区成功,欢迎~');
+    await router.push({
+      name:'chatRoom',
+      query:{communityId:communityId}
+    });
+  } else {
+    MyMessage.error(result.msg);
   }
 }
+//查看详情
+const handleShowDetail = async (communityId) => {
+  // 获取社区详情
+  const result = await getCommunityDetailApi(communityId);
+  if (result.code) {
+    communityDetail.value = result.data;
+    ElNotification({
+      title: communityDetail.value.communityName,
+      message: h('i', {style: 'color: #ff6700'}, communityDetail.value.communityDesc || '这是一个有趣的社区，快来加入吧～'),
+    })
+  } else {
+    MyMessage.error(result.msg);
+  }
 
+}
 onMounted(() => {
   getCommunityInfoList();
 })
 </script>
 
 <template>
+  <!--  ElNotification-通知  -->
+  <div class="flex flex-wrap gap-1"></div>
+  <!-- 社区卡片网格 -->
   <div class="app-container">
     <div class="community-container">
       <div class="card-grid">
         <div class="parent" v-for="(item, index) in communityInfoList" :key="item.id">
-          <div class="card">
+          <div
+              class="card"
+              :style="item.communityImage
+              ? {
+                  backgroundImage: `url('${item.communityImage}')`,
+                  backgroundSize: '100% 100%',//破坏比例，强制铺满容器
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                }
+                : {}"
+          >
             <div class="content-box">
               <span class="card-title">{{ item.communityName }}</span>
-              <p class="card-content">
-                {{ item.communityDesc || '这是一个有趣的社区，快来加入吧～' }}
-              </p>
               <!-- 按钮区域：加入/退出 -->
               <div class="btn-group">
                 <button
                     class="btn join-btn"
                     @click="handlejoinCommunity(item.communityId)"
                 >
-                  加入社区
+                  进入社区
                 </button>
-                <button class="btn more-btn" @click="() => console.log('查看详情', item.id)">
-                  查看详情
+                <button class="btn more-btn" @click="handleShowDetail(item.communityId)">
+                  显示详情
                 </button>
               </div>
             </div>
@@ -103,197 +119,182 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* 清除全局默认边距（关键：解决横向溢出根源） */
+/* 基础容器：全屏适配，隐藏横向滚动 */
 .app-container {
   width: 100%;
   min-height: 100vh;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* 强制隐藏横向滚动条 */
+  overflow-x: hidden;
   background-color: #f3f3f3;
 }
 
-/* 社区容器：撑满屏幕，底部留空（避免被页脚遮挡） */
+/* 社区容器：适配页脚高度，基础内边距 */
 .community-container {
   width: 100%;
-  min-height: calc(100vh - 80px); /* 假设页脚高度80px，根据实际调整 */
+  min-height: calc(100vh - 80px);
   box-sizing: border-box;
   padding: 20px;
 }
 
-/* 卡片网格：PC端一行5列，无溢出 */
+/* 卡片网格：PC端5列，居中适配 */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* 改为一行5列 */
-  gap: 18px; /* 缩小间距，适配5列布局 */
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
   width: 100%;
-  max-width: 1600px; /* 扩大最大宽度，适配5列 */
-  margin: 0 auto; /* 水平居中 */
+  max-width: 1600px;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
-/* 卡片父容器：固定宽高比，PC端缩小卡片 */
+/* 卡片父容器：3D透视基础布局 */
 .parent {
   width: 100%;
-  padding: 12px; /* 缩小内边距，减小卡片整体尺寸 */
+  padding: 12px;
   perspective: 1000px;
   box-sizing: border-box;
 }
 
-/* 卡片：高级银灰色主体，1:1比例不变 */
+/* 卡片核心样式：1:1比例，银灰科技风，3D交互 */
 .card {
   position: relative;
   width: 100%;
-  padding-top: 100%; /* 宽高比1:1不变 */
-  border: 3px solid #e0e6ed; /* 边框：浅银灰，精致不突兀 */
+  aspect-ratio: 1/1; /* 固定1:1比例，让背景图有明确的铺满容器 */
+  display: block; /* 重置为block，避免flex干扰 */
+  border: 3px solid #e0e6ed;
   transform-style: preserve-3d;
-  /* 银灰科技纹理：低对比度，不花哨 */
-  background: linear-gradient(135deg, #0000 18.75%, #e8ebf0 0 31.25%, #0000 0),
-  repeating-linear-gradient(45deg, #e8ebf0 -6.25% 6.25%, #f5f7fa 0 18.75%);
-  background-size: 50px 50px; /* 缩小纹理尺寸，适配小卡片 */
-  background-position: 0 0, 0 0;
-  background-color: #f0f4f8; /* 卡片底色：浅银蓝灰 */
-  box-shadow: rgba(100, 116, 139, 0.15) 0px 20px 20px -8px; /* 缩小阴影，适配小卡片 */
+  background-color: #f0f4f8;
+  box-shadow: rgba(100, 116, 139, 0.15) 0px 20px 20px -8px;
   transition: all 0.5s ease-in-out;
   box-sizing: border-box;
+  border-radius: 8px;
+  overflow: hidden; /* 隐藏超出卡片的图片部分（如果有） */
 }
 
-/* 卡片内容区：深银灰渐变，科技感十足 */
+/* 无背景图时显示银灰科技纹理 */
+.card:not([style*="backgroundImage"]) {
+  background: linear-gradient(135deg, #0000 18.75%, #e8ebf0 0 31.25%, #0000 0),
+  repeating-linear-gradient(45deg, #e8ebf0 -6.25% 6.25%, #f5f7fa 0 18.75%);
+  background-size: 50px 50px;
+  background-position: 0 0, 0 0;
+  background-color: #f0f4f8;
+}
+
+/* 卡片hover：3D旋转+阴影增强 */
+.card:hover {
+  background-position: var(--card-bg-position, -80px 80px, -80px 80px);
+  transform: rotate3d(0.5, 1, 0, 15deg);
+  box-shadow: rgba(100, 116, 139, 0.25) 0px 25px 25px -10px;
+}
+
+/* 卡片内容区：透明背景，3D布局，内容分布 */
 .content-box {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* 渐变：深银灰→浅银灰，高级感 */
-  background: linear-gradient(135deg, #475569 0%, #64748b 100%);
-  padding: 35px 12px 15px; /* 缩小内边距，适配小卡片 */
+  inset: 0;
+  background: transparent;
+  padding: 35px 12px 15px;
   transform-style: preserve-3d;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.1); /* 内边框：增强层次 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 卡片标题：PC端缩小字体 */
+/* 卡片标题 */
 .card-title {
   display: inline-block;
-  color: #ffffff; /* 标题白色，醒目不刺眼 */
-  font-size: 24px; /* PC端缩小字体，适配小卡片 */
+  color: #353535;
+  font-size: 24px;
   font-weight: 900;
   transition: all 0.5s ease-in-out;
-  transform: translate3d(0px, 0px, 50px);
+  transform: translate3d(0, 0, 50px);
   margin-bottom: 6px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 轻微阴影，增强3D感 */
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
-/* 卡片描述：PC端缩小字体 */
-.card-content {
-  font-size: 16px; /* PC端缩小字体，适配小卡片 */
-  font-weight: 500; /* 减轻字重，更简约 */
-  color: #e2e8f0; /* 描述色：浅银灰，不抢焦点 */
-  transition: all 0.5s ease-in-out;
-  transform: translate3d(0px, 0px, 30px);
-  line-height: 1.4;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* 限制最多2行，避免内容过长拉长卡片 */
-  -webkit-box-orient: vertical;
-}
-
-/* 按钮组 */
+/* 按钮组布局 */
 .btn-group {
   display: flex;
   gap: 6px;
   margin-top: 8px;
 }
 
-/* 按钮：移除蓝色，改为银灰系配色 */
+/* 按钮基础样式：3D层级，交互反馈 */
 .btn {
   flex: 1;
-  padding: 5px 0; /* 缩小内边距，适配小卡片 */
+  padding: 5px 0;
   border: none;
   border-radius: 4px;
-  font-size: 10px; /* 缩小字体 */
+  font-size: 10px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  transform: translate3d(0px, 0px, 20px);
+  transform: translate3d(0, 0, 20px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+  pointer-events: auto;
 }
 
+/* 加入按钮：更高3D层级 */
 .join-btn {
-  background: #ffffff; /* 按钮白底 */
-  color: #64748b; /* 文字：深银灰，贴合整体风格 */
+  background: #fff;
+  color: #64748b;
+  transform: translate3d(0, 0, 30px);
 }
 
+/* 更多按钮：浅白边框增强质感 */
 .more-btn {
-  background: rgba(255, 255, 255, 0.2); /* 半透明白底，融合背景 */
-  color: #ffffff; /* 白色文字 */
-  border: 1px solid rgba(255, 255, 255, 0.3); /* 浅白边框，增强质感 */
+  background: #fff;
+  color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* 按钮hover效果 */
 .btn:hover {
   opacity: 0.9;
-  transform: translate3d(0px, 0px, 30px);
+  transform: translate3d(0, 0, 30px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 社区元信息：移除蓝色，改为银灰系 */
+/* 社区元信息：右上角悬浮，3D层级 */
 .community-meta {
   position: absolute;
   top: 12px;
   right: 12px;
-  height: 36px; /* 缩小尺寸，适配小卡片 */
   width: 36px;
-  background: #ffffff; /* 白底，突出信息 */
-  border: 1px solid #cbd5e1; /* 银灰边框 */
+  height: 36px;
+  background: #fff;
+  border: 1px solid #cbd5e1;
   padding: 5px;
-  transform: translate3d(0px, 0px, 80px);
+  transform: translate3d(0, 0, 80px);
   box-shadow: rgba(100, 116, 139, 0.2) 0px 15px 10px -8px;
   box-sizing: border-box;
   border-radius: 4px;
 }
 
+/* 元信息标签/数值：银灰系配色 */
 .meta-label {
   display: block;
   text-align: center;
-  color: #64748b; /* 标签色：深银灰 */
-  font-size: 6px; /* 缩小字体 */
+  color: #64748b;
+  font-size: 6px;
   font-weight: 700;
 }
 
 .meta-value {
   display: block;
   text-align: center;
-  font-size: 14px; /* 缩小字体 */
+  font-size: 14px;
   font-weight: 900;
-  color: #475569; /* 数值色：深银灰，贴合整体风格 */
+  color: #475569;
   line-height: 1.2;
 }
 
-/* 卡片hover效果：增强科技感 */
-.card:hover {
-  background-position: -80px 80px, -80px 80px;
-  transform: rotate3d(0.5, 1, 0, 15deg);
-  box-shadow: rgba(100, 116, 139, 0.25) 0px 25px 25px -10px; /* hover阴影加深 */
-}
-
-.card:hover .card-title {
-  transform: translate3d(0px, 0px, 60px);
-  color: #f0f9ff; /* hover标题色：浅蓝白，更亮 */
-}
-
-.card:hover .card-content {
-  transform: translate3d(0px, 0px, 40px);
-  color: #f8fafc; /* hover描述色：更白，增强对比 */
-}
-
-/* 响应式：平板（768px-1199px）一行2列（大小不变） */
+/* 响应式：平板（768-1199px）2列布局 */
 @media (max-width: 1199px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -306,29 +307,25 @@ onMounted(() => {
   }
 
   .parent {
-    padding: 15px; /* 恢复原内边距，保持响应式大小不变 */
+    padding: 15px;
   }
 
-  .card {
-    background-size: 60px 60px; /* 恢复原纹理尺寸 */
+  .card:not([style*="backgroundImage"]) {
+    background-size: 60px 60px;
   }
 
   .card-title {
-    font-size: 17px; /* 保持原响应式字体大小 */
-  }
-
-  .card-content {
-    font-size: 14px; /* 保持原响应式字体大小 */
+    font-size: 17px;
   }
 
   .btn {
-    font-size: 11px; /* 保持原响应式字体大小 */
+    font-size: 11px;
     padding: 6px 0;
   }
 
   .community-meta {
-    height: 40px;
     width: 40px;
+    height: 40px;
   }
 
   .meta-label {
@@ -340,7 +337,7 @@ onMounted(() => {
   }
 }
 
-/* 响应式：手机（≤767px）一行2列（大小不变） */
+/* 响应式：手机（≤767px）2列布局 */
 @media (max-width: 767px) {
   .card-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -354,11 +351,10 @@ onMounted(() => {
   }
 
   .parent {
-    padding: 8px; /* 保持原响应式内边距 */
+    padding: 8px;
   }
 
-  .card {
-    padding-top: 100%;
+  .card:not([style*="backgroundImage"]) {
     background-size: 50px 50px;
   }
 
@@ -367,23 +363,15 @@ onMounted(() => {
   }
 
   .card-title {
-    font-size: 16px; /* 保持原响应式字体大小 */
-  }
-
-  .card-content {
-    font-size: 14px; /* 保持原响应式字体大小 */
-    -webkit-line-clamp: 1;
+    font-size: 16px;
   }
 
   .btn {
-    font-size: 10px; /* 保持原响应式字体大小 */
     padding: 5px 0;
   }
-}
 
-/* 修复可能的body默认边距 */
-:deep(body) {
-  margin: 0;
-  padding: 0;
+  .card {
+    aspect-ratio: 1/1; /* 移动端保持比例 */
+  }
 }
 </style>

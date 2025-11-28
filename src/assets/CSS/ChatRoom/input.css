@@ -1,0 +1,257 @@
+/* 父容器样式 - 调整背景色提升对比度 */
+.chat-input-container {
+    /* 稍深的浅橙色背景，与输入框形成对比 */
+    background: linear-gradient(135deg, #ffede0 0%, #ffd8b8 100%);
+    /* 调整边框色为更深的橙色，增强轮廓 */
+    border: 2px solid #e67e22;
+    border-radius: 2rem;
+    padding: 12px 15px;
+    width: fit-content;
+    max-width: 90%;
+    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.15);
+    margin: 20px auto;
+}
+
+/* 布局容器：实现输入框和按钮横向排列 */
+.input-btn-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+}
+
+/* 发送按钮样式（颜色同步调整） */
+.send-btn {
+    /* 调整为新的主橙色系 */
+    --primary: 230, 126, 34;    /* 深橙色 #e67e22 */
+    --secondary: 200, 100, 20;  /* 更深的橙色 #c86414 */
+    width: 60px;
+    height: 50px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    outline: 10px solid rgb(var(--primary), .5);
+    border-radius: 100%;
+    position: relative;
+    transition: .3s;
+    flex-shrink: 0;
+}
+
+.send-btn .back {
+    background: rgb(var(--secondary));
+    border-radius: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.send-btn .front {
+    background: linear-gradient(0deg, rgba(var(--primary), .6) 20%, rgba(var(--primary)) 50%);
+    box-shadow: 0 .5em 1em -0.2em rgba(var(--secondary), .5);
+    border-radius: 100%;
+    position: absolute;
+    border: 1px solid rgb(var(--secondary));
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    transform: translateY(-15%);
+    transition: .15s;
+    color: #fff;
+}
+
+.send-btn:active .front {
+    transform: translateY(0%);
+    box-shadow: 0 0;
+}
+
+/* 输入框样式调整 - 核心优化 */
+.input-wrapper {
+    /* 调整主色调变量为新的橙色系，提升对比度 */
+    --input-primary: #e67e22;      /* 深橙色（原ff9500） */
+    --input-light-1: #f39c12;      /* 浅橙1 */
+    --input-light-2: #f1c40f;      /* 浅橙2（带点黄调） */
+    --input-light-3: #f8e9a1;      /* 浅橙3 */
+    --input-light-4: #ffeead;      /* 浅橙4 */
+    --input-placeholder: #d35400;  /* 占位符色（更深） */
+    --input-shadow: #f0d0b0;       /* 阴影色适配新背景 */
+    --input-shockwave: #e67e22;    /* 冲击波色同步 */
+    --input-label: #c0392b;        /* 标签色加深 */
+
+    /* 布局变量 */
+    --label-base-size: 1rem;
+    --label-active-size: 0.8rem;
+    --label-active-transform: translateY(-170%) scale(0.8);
+
+    position: relative;
+    width: 50%;
+    max-width: 300px;
+    padding: 3px;
+    border-radius: 1.7rem;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+/* 输入框未激活时：淡橙色背景 + 浅边框 */
+.input-wrapper input {
+    /* 淡橙色背景，与父容器形成对比 */
+    background-color: #fff5eb;
+    /* 未激活时浅橙色边框 */
+    border: 2px solid #f39c12;
+    padding: 1.2rem 1rem 1.2rem 3rem;
+    font-size: 1.1rem;
+    width: 100%;
+    border-radius: 1.5rem;
+    color: var(--input-label);
+    box-shadow: 0 0.4rem var(--input-shadow), inset 0 0 0 transparent;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    z-index: 2;
+}
+
+/* 聚焦时边框改为新的深橙色 + 发光效果 */
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--input-primary);
+    /* 调整发光色为新主色 */
+    box-shadow: 0 0.6rem var(--input-shadow), 0 0 15px rgba(230, 126, 34, 0.7);
+    transform: translateY(-3px) scale(1.01);
+}
+
+.input-wrapper input::placeholder {
+    color: var(--input-placeholder);
+    transition: all 0.3s ease;
+}
+
+.input-wrapper input:focus::placeholder {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+.input-wrapper::after {
+    content: "😀";
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    z-index: 3;
+    transition: all 0.3s ease;
+}
+
+@keyframes emoji-dance {
+    0%,
+    100% {
+        transform: translateY(-50%) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-50%) rotate(-20deg) scale(1.1);
+    }
+    75% {
+        transform: translateY(-50%) rotate(20deg) scale(1.1);
+    }
+}
+
+.input-wrapper:hover::after {
+    animation: emoji-dance 0.5s ease infinite;
+}
+
+.input-wrapper:focus-within::after {
+    content: "👋";
+    animation: emoji-dance 0.3s ease infinite;
+}
+
+/* 背景渐变调整为新的橙色系 */
+.input-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+            from 0deg,
+            var(--input-primary),
+            var(--input-light-1),
+            var(--input-light-2),
+            var(--input-light-3),
+            var(--input-light-4),
+            var(--input-light-3),
+            var(--input-light-2),
+            var(--input-light-1),
+            var(--input-primary)
+    );
+    animation: bg-rotate 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.input-wrapper:hover::before,
+.input-wrapper:focus-within::before {
+    opacity: 1;
+}
+
+@keyframes bg-rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 冲击波效果调整为新主色 */
+@keyframes shockwave {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4);
+    }
+    70% {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 20px rgba(230, 126, 34, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0);
+    }
+}
+
+.input-wrapper:focus-within {
+    animation: shockwave 0.5s ease-out;
+}
+
+.input-wrapper {
+    --label-size: var(--label-active-size);
+    --label-transform: var(--label-active-transform);
+}
+
+.input-wrapper input:placeholder-shown + label {
+    transform: translateY(-50%);
+    font-size: var(--label-base-size);
+}
+
+.input-wrapper label {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: var(--label-transform);
+    font-size: var(--label-size);
+    color: var(--input-label);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.input-wrapper input:not(:placeholder-shown) + label,
+.input-wrapper input:focus + label {
+    transform: var(--label-transform);
+    font-size: var(--label-size);
+}
