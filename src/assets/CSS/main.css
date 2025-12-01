@@ -6,3 +6,59 @@
     padding: 0 !important;
     margin: 0 !important;
 }
+
+/* 全局滚动条优化 */
+body::-webkit-scrollbar,
+html::-webkit-scrollbar,
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+body::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb {
+    background-color: #ff7e22;
+    border-radius: 8px;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+body::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #ff9550; /* 更浅的橙色hover效果 */
+}
+body::-webkit-scrollbar-thumb:active,
+html::-webkit-scrollbar-thumb:active,
+*::-webkit-scrollbar-thumb:active {
+    background-color: #ff8a3c; /* 弱化active颜色，贴近主色 */
+}
+body::-webkit-scrollbar-button,
+html::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button {
+    display: none;
+}
+body::-webkit-scrollbar-corner,
+html::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-corner {
+    background: #f5f5f5;
+}
+body, html {
+    scrollbar-width: thin;
+    scrollbar-color: #ff7e22 #f5f5f5;
+}
+.el-container::-webkit-scrollbar,
+.el-main::-webkit-scrollbar,
+.el-aside::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.el-container, .el-main, .el-aside {
+    scrollbar-width: thin;
+    scrollbar-color: #ff7e22 #f5f5f5;
+}

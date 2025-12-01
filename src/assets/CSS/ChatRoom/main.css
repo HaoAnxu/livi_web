@@ -232,36 +232,6 @@
     background-color: #fff;
     border-top: 1px solid #f0d0b0;
 }
-
-/* 功能工具栏 */
-.chat-toolbar {
-    display: flex;
-    gap: 10px; /* 从12px缩小 */
-    margin-bottom: 12px; /* 从15px缩小 */
-}
-
-.tool-btn {
-    width: 36px; /* 从40px缩小 */
-    height: 36px; /* 从40px缩小 */
-    border-radius: 50%;
-    border: 1px solid #f0d0b0;
-    background-color: #fff5eb;
-    color: #ff7e22;
-    font-size: 16px; /* 从18px缩小 */
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* 强制按钮宽高比一致 */
-    aspect-ratio: 1/1;
-}
-
-.tool-btn:hover {
-    background-color: #ffede0;
-    border-color: #ff7e22;
-}
-
 /* 输入框容器（优化布局） */
 .input-container {
     display: flex;
@@ -281,29 +251,6 @@
     flex-shrink: 0;
     /* 强制按钮宽高比一致 */
     aspect-ratio: 1/1;
-}
-
-/* 滚动条美化 */
-.chat-content::-webkit-scrollbar,
-.member-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.chat-content::-webkit-scrollbar-track,
-.member-list::-webkit-scrollbar-track {
-    background: #fff5eb;
-    border-radius: 4px;
-}
-
-.chat-content::-webkit-scrollbar-thumb,
-.member-list::-webkit-scrollbar-thumb {
-    background: #ff9500;
-    border-radius: 4px;
-}
-
-.chat-content::-webkit-scrollbar-thumb:hover,
-.member-list::-webkit-scrollbar-thumb:hover {
-    background: #ff7e22;
 }
 
 /* 响应式适配 - 保留原有逻辑 */

@@ -98,7 +98,6 @@ const handleKeydown = (e) => {
           <img src="https://smarthomeunity.oss-cn-beijing.aliyuncs.com/image/CommunityLogo.png" alt="成员头像" />
           <span class="member-name">群成员{{i}}</span>
         </div>
-        <div class="more-members">+492人</div>
       </div>
     </div>
 
@@ -112,13 +111,12 @@ const handleKeydown = (e) => {
         </div>
         <div class="header-right">
           <button class="header-btn">设置</button>
-          <button class="header-btn">邀请</button>
           <button class="header-btn">清空记录</button>
         </div>
       </div>
 
       <!-- 聊天内容区域 -->
-      <div class="chat-content">
+      <div class="chat-content" id="chatContentScroll">
         <!-- 每条消息 -->
         <div
             class="chat-message"
@@ -142,23 +140,15 @@ const handleKeydown = (e) => {
         </div>
       </div>
 
-      <!-- 输入框+发送按钮区域（优化版） -->
+      <!-- 输入框+发送按钮区域 -->
       <div class="chat-input-area">
-        <!-- 功能工具栏 -->
-        <div class="chat-toolbar">
-          <button class="tool-btn">😊</button>
-          <button class="tool-btn">📎</button>
-          <button class="tool-btn">📷</button>
-          <button class="tool-btn">🔗</button>
-        </div>
-
         <!-- 输入框容器 -->
         <div class="input-container">
           <div class="input-wrapper">
             <input
                 class="input"
                 name="text"
-                placeholder="说点儿啥？按Shift+Enter换行，Enter发送"
+                placeholder="说点儿啥？"
                 type="text"
                 v-model="inputValue"
                 @keydown="handleKeydown"
@@ -177,4 +167,66 @@ const handleKeydown = (e) => {
 <style scoped>
 @import '@/assets/CSS/ChatRoom/input.css';
 @import '@/assets/CSS/ChatRoom/main.css';
+/* 通用滚动条样式 - 隐藏箭头 + 橙色主题 */
+/* 聊天内容区域 + 群成员区域 通用基础样式 */
+:deep(.chat-content),
+:deep(.member-list) {
+  /* 基础滚动配置 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 火狐浏览器适配 */
+  scrollbar-width: thin; /* 纤细滚动条 */
+  scrollbar-color: #ff7e22 #f8f8f8; /* 滑块颜色/轨道颜色 */
+  /* 隐藏火狐滚动条箭头（火狐本身无箭头，仅需控制宽度） */
+}
+
+/* Webkit内核（Chrome/Edge/Safari）- 滚动条整体 */
+:deep(.chat-content::-webkit-scrollbar),
+:deep(.member-list::-webkit-scrollbar) {
+  width: 6px; /* 垂直滚动条宽度 */
+  height: 6px; /* 水平滚动条高度（备用） */
+}
+
+/* Webkit - 滚动条轨道 */
+:deep(.chat-content::-webkit-scrollbar-track),
+:deep(.member-list::-webkit-scrollbar-track) {
+  background: #f8f8f8; /* 浅灰轨道，贴近淘宝背景 */
+  border-radius: 3px;
+}
+
+/* Webkit - 滚动条滑块（核心橙色） */
+:deep(.chat-content::-webkit-scrollbar-thumb),
+:deep(.member-list::-webkit-scrollbar-thumb) {
+  background-color: #ff7e22; /* 指定橙色 */
+  border-radius: 3px; /* 圆角更柔和 */
+  border: none; /* 去除默认边框 */
+  transition: background-color 0.2s ease; /*  hover过渡 */
+}
+
+/* Webkit - 滑块hover状态（加深橙色） */
+:deep(.chat-content::-webkit-scrollbar-thumb:hover),
+:deep(.member-list::-webkit-scrollbar-thumb:hover) {
+  background-color: #e86a10; /* 略深的橙色 */
+}
+
+/* Webkit - 滑块点击激活状态 */
+:deep(.chat-content::-webkit-scrollbar-thumb:active),
+:deep(.member-list::-webkit-scrollbar-thumb:active) {
+  background-color: #d45d00; /* 更深的橙色 */
+}
+
+/* Webkit - 隐藏滚动条箭头 + 角落样式 */
+:deep(.chat-content::-webkit-scrollbar-button), /* 隐藏上下箭头 */
+:deep(.member-list::-webkit-scrollbar-button) {
+  display: none;
+}
+:deep(.chat-content::-webkit-scrollbar-corner),
+:deep(.member-list::-webkit-scrollbar-corner) {
+  background: #f8f8f8; /* 角落与轨道同色 */
+}
+
+/* 补充：确保群成员区域高度适配，触发滚动 */
+:deep(.member-list) {
+  max-height: calc(100vh - 120px); /* 根据布局自适应高度 */
+}
 </style>
