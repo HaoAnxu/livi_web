@@ -1,6 +1,6 @@
 <script setup>
 import MyMessage from "@/utils/MyMessage.js"
-import { registerApi, sendCodeApi, verifyCodeApi } from "@/api/user.js";
+import {checkUsernameApi, registerApi, sendCodeApi, verifyCodeApi} from "@/api/user.js";
 import { ref,watch } from "vue";
 import { useRouter } from 'vue-router'
 import { MyLoading } from "@/utils/MyLoading.js";
@@ -14,19 +14,19 @@ const userInfo = ref({
 })
 const isVerifyCode = ref(false);
 const isRightEmail = ref(false);
-// 新增：验证码发送状态锁定 + 冷却倒计时
+// 验证码发送状态锁定 + 冷却倒计时
 const isSendingCode = ref(false);
 const codeCountdown = ref(0);
 let countdownTimer = null; // 倒计时定时器
-
+// 邮箱格式校验
 const isEmailValid = (email) => {
   const reg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+$/;
   return reg.test(email.trim());
 };
 
-// 发送验证码方法（修复加载动画 + 新增状态锁定/冷却）
+// 发送验证码方法
 const sendCode = async () => {
-  // 新增：邮箱无效/发送中/冷却中 直接返回
+  // 邮箱无效/发送中/冷却中 直接返回
   if (!isEmailValid(userInfo.value.email) || isSendingCode.value || codeCountdown.value > 0) {
     return;
   }
@@ -88,6 +88,12 @@ const register = async () => {
   MyLoading.value = true;
 
   try {
+    //先判断用户名是否存在
+    const checkUsernameResult = await checkUsernameApi(userInfo.value.username);
+    if (checkUsernameResult.code === 0) {
+      MyMessage.warn("用户名已存在");
+      return;
+    }
     const verifyResult = await verifyCodeApi(userInfo.value.email, codeText.value);
     if (verifyResult.code) {
       MyMessage.success("验证码验证成功");

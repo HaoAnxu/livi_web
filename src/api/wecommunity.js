@@ -24,3 +24,4 @@ export function joinCommunityApi(communityId,userId){
 export function exitCommunityApi(communityId,userId){
     return request.delete(`/permission/wecommunity/exitCommunity?communityId=${communityId}&userId=${userId}`)
 }
+

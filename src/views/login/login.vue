@@ -1,6 +1,6 @@
 <script setup>
-import Message from "@/utils/MyMessage.js"
-import YZcode from "@/utils/YZcode.vue";
+import MyMessage from "@/utils/MyMessage.js"
+import YZcode from "@/components/YZcode.vue";
 import { loginApi } from "@/api/user.js";
 import { ref, watch, onUnmounted } from "vue";
 import { useRouter } from 'vue-router'
@@ -13,24 +13,21 @@ const userInfo = ref({
 })
 const YZcodeRef = ref(null);
 const YZcodeText = ref("");
-// 新增：登录请求锁定（防止重复点击登录）
 const isLogining = ref(false);
 
 const login = async()=>{
-  // 1. 新增：请求中锁定，防止重复提交
   if (isLogining.value) return;
 
   // 校验表单
   if(!userInfo.value.username || !userInfo.value.password){
-    Message.warn("请填写完整信息");
+    MyMessage.warn("请填写完整信息");
     return;
   }
 
   // 先校验验证码
   if(!YZcodeRef.value?.checkCode(YZcodeText.value)){ // 新增：可选链防止null调用
-    Message.error("验证码错误");
-    // 新增：验证码错误时刷新验证码
-    YZcodeRef.value?.refresh();
+    MyMessage.error("验证码错误");
+    YZcodeRef.value.refreshCode();
     YZcodeText.value = "";
     return;
   }
@@ -44,8 +41,8 @@ const login = async()=>{
     // 再校验用户名和密码
     const result = await loginApi(userInfo.value);
     if(result.code){
-      Message.success("登录成功");
-      const userInfoData = { // 变量名避免和外层userInfo冲突
+      MyMessage.success("登录成功");
+      const userInfoData = {
         userId: result.data.userId,
         username: result.data.username,
         token: result.data.token
@@ -53,26 +50,20 @@ const login = async()=>{
       sessionStorage.setItem('loginUser', JSON.stringify(userInfoData));
       await router.push('/');
     } else {
-      Message.error(result.msg);
-      // 新增：登录失败时刷新验证码
-      YZcodeRef.value?.refresh();
+      MyMessage.error(result.msg);
+      YZcodeRef.value.refreshCode();
       YZcodeText.value = "";
     }
   } catch (error) {
-    // 新增：网络异常/请求失败处理
-    console.log('登录请求失败：', error);
-    let errorMsg = '登录失败，请稍后重试';
+    console.log('请求失败：', error);
+    let errorMsg = '请求失败，请稍后重试';
     if (error.message.includes('timeout')) {
-      errorMsg = '请求超时，请检查网络';
+      errorMsg = '请求超时，请检查网络或联系管理员';
     } else if (error.message.includes('Network Error')) {
       errorMsg = '网络错误，无法连接服务器';
     }
-    Message.error(errorMsg);
-    // 登录失败刷新验证码
-    YZcodeRef.value?.refresh();
-    YZcodeText.value = "";
+    MyMessage.error(errorMsg);
   } finally {
-    // 修复：无论成功/失败都关闭加载动画、解锁登录状态
     MyLoading.value = false;
     isLogining.value = false;
   }
@@ -86,8 +77,6 @@ const reset =()=>{
   userInfo.value.username = "";
   userInfo.value.password = "";
   YZcodeText.value = "";
-  // 新增：重置时刷新验证码
-  YZcodeRef.value?.refresh();
   // 重置登录按钮样式
   const loginBtn = document.querySelector('.button-submit');
   if (loginBtn) {

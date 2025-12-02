@@ -19,3 +19,7 @@ export const verifyCodeApi =(email,code)=>{
 export const queryUserInfoApi =(userId)=>{
     return request.get(`/permission/user/userCenter/basicInfo?userId=${userId}`)
 }
+//检查用户名是否存在
+export const checkUsernameApi =(username)=>{
+    return request.post(`/user/checkUsername?username=${username}`)
+}

@@ -10,15 +10,18 @@ import {
   subscribeMessage,
   unsubscribeMessage,
 } from '@/utils/websocket';
+import {MyLoading} from "@/utils/MyLoading.js";
+import {getCommunityDetailApi} from "@/api/wecommunity.js";
 
 const route = useRoute()
+// 从路由参数中获取communityId
 const communityId = Number(route.query.communityId);
 const loginUser = JSON.parse(sessionStorage.getItem('loginUser') || '{}');
 const userId = loginUser.userId;
 
 // 核心变量
 const messageList = ref([]);
-const message = ref('');
+const message = ref(''); // 输入框绑定的变量
 const onlineStatus = ref('未连接');
 let currentRealtimeCallback = null;
 let currentOfflineCallback = null;
@@ -28,19 +31,40 @@ const lastMsgId = ref(sessionStorage.getItem(`community_last_msgid_${communityId
 const hasMore = ref(true);
 const loading = ref(false);
 let currentHistoryCallback = null;
-// 消息列表DOM引用，控制滚动到底部
+// 消息列表DOM引用，控制滚动到底部（关键：绑定到模板的chat-content）
 const msgListRef = ref(null);
+//社区基础信息查询
+const communityInfo = ref({});
+const getCommunityInfo = async () => {
+  MyLoading.value = true;
+  try {
+    const result = await getCommunityDetailApi(communityId);
+    if (result.code) {
+      communityInfo.value = result.data;
+      MyLoading.value = false;
+    } else {
+      MyMessage.error(result.msg);
+      MyLoading.value = false;
+    }
+  } catch (e) {
+    MyLoading.value = false;
+  }
+}
 
 // 处理实时消息：追加到列表尾部 + 滚动到底部
 const realtimeMsg = (wrapperData) => {
   try {
-    const innerData = JSON.parse(wrapperData.data);
+    const jsonObject = JSON.parse(wrapperData.data);
     const newMsg = {
+      id: jsonObject.msgId,
       msgType: 'realtime',
-      content: innerData.content,
-      fromUserId: innerData.fromUserId,
-      communityId: innerData.communityId,
-      msgId: innerData.msgId
+      content: jsonObject.content,
+      fromUserId: jsonObject.fromUserId,
+      communityId: jsonObject.communityId,
+      msgId: jsonObject.msgId,
+      isSelf: jsonObject.fromUserId === userId, // 核心：判断是否是自己发的消息
+      avatar: jsonObject.avatar,
+      name: jsonObject.name,
     };
     messageList.value.push(newMsg);
     // 实时消息自动滚动到底部
@@ -54,13 +78,17 @@ const realtimeMsg = (wrapperData) => {
 // 处理离线消息：追加到列表尾部 + 滚动到底部
 const offlineMsg = (wrapperData) => {
   try {
-    const innerData = JSON.parse(wrapperData.data);
+    const jsonObject = JSON.parse(wrapperData.data);
     const newMsg = {
+      id: jsonObject.msgId, // 补充id用于v-for
       msgType: 'offline',
-      content: innerData.content,
-      fromUserId: innerData.fromUserId,
-      communityId: innerData.communityId,
-      msgId: innerData.msgId
+      content: jsonObject.content,
+      fromUserId: jsonObject.fromUserId,
+      communityId: jsonObject.communityId,
+      msgId: jsonObject.msgId,
+      isSelf: jsonObject.fromUserId === userId, // 判断是否是自己的消息
+      avatar: jsonObject.avatar,
+      name: jsonObject.name,
     };
     messageList.value.push(newMsg);
     scrollToBottom();
@@ -129,16 +157,32 @@ const requestChatHistory = async (isFirst = false) => {
 };
 
 // 处理历史记录返回
-const handleChatHistory = (jsonString) => {
+const handleChatHistory = (wrapperData) => { // 注意参数名改为wrapperData（更语义化）
   loading.value = false;
   try {
-    const jsonObject = JSON.parse(jsonString);
+    // 第一步：如果wrapperData是对象，直接取；如果是字符串，先解析外层
+    const wrapperObj = typeof wrapperData === 'string'
+        ? JSON.parse(wrapperData)
+        : wrapperData;
+
+    // 第二步：解析内层的data字段（后端返回的JSON字符串）
+    const jsonObject = JSON.parse(wrapperObj.data); // 关键：解析嵌套的data
+
     const {historyList, hasMore: hasMoreData, currentLastMsgId} = jsonObject;
     //如果历史聊天记录有数据
     if (historyList && historyList.length > 0) {
+      // 补全历史消息的isSelf/avatar/name字段
+      const formattedHistory = historyList.map(item => ({
+        ...item,
+        id: item.msgId,
+        isSelf: item.fromUserId === userId,
+        avatar: item.avatar,
+        name: item.name,
+      }));
+
       if (isFirstLoad.value) {
         // 首次加载，直接把历史聊天记录添加到消息列表
-        messageList.value = historyList;
+        messageList.value = formattedHistory;
         // 标记“首次加载完成”：后续再加载就是“上拉加载更多”了
         isFirstLoad.value = false;
         // 首次加载完成后滚动到底部（显示最新消息）
@@ -149,11 +193,11 @@ const handleChatHistory = (jsonString) => {
         // 上拉加载：追加到列表头部（更早的消息）
         // 先记录当前滚动高度，避免加载后跳屏
         const scrollTop = msgListRef.value?.scrollTop || 0;
-        messageList.value = [...ascHistory, ...messageList.value];
+        messageList.value = [...formattedHistory, ...messageList.value];
         // 保持滚动位置（加载更多后不自动跳到底部）
         nextTick(() => {
           if (msgListRef.value) {
-            msgListRef.value.scrollTop = msgListRef.value.scrollTop + scrollTop;
+            msgListRef.value.scrollTop = msgListRef.value.scrollHeight - (msgListRef.value.scrollHeight - scrollTop);
           }
         });
       }
@@ -163,7 +207,14 @@ const handleChatHistory = (jsonString) => {
     hasMore.value = hasMoreData;
   } catch (e) {
     console.error('解析历史记录失败：', e);
-    Message.error('解析历史记录失败，请刷新');
+    // 友好提示：区分空列表和解析错误
+    if (e.message.includes('currentLastMsgId')) {
+      // 实际是历史记录为空，非真正的解析错误
+      hasMore.value = false;
+      Message.info('暂无历史聊天记录');
+    } else {
+      Message.error('解析历史记录失败，请刷新');
+    }
   }
 };
 
@@ -181,10 +232,13 @@ const handleSendMessage = () => {
   const msg = {
     content: message.value.trim(),
     msgType: 'text',
+    fromUserId: userId,
+    communityId: communityId,
   };
 
   sendMessage(msg);
   message.value = '';
+  scrollToBottom();
 };
 
 // 加载更多历史
@@ -213,6 +267,14 @@ const scrollToBottom = () => {
   });
 };
 
+// 回车发送消息
+const handleKeydown = (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    handleSendMessage();
+  }
+};
+
 // 监听连接状态
 const unwatchStatus = watch(() => isConnected.value, (newVal) => {
   onlineStatus.value = newVal ? '已连接' : '已断开';
@@ -220,6 +282,7 @@ const unwatchStatus = watch(() => isConnected.value, (newVal) => {
 
 onMounted(() => {
   connectWebSocketCommunity();
+  getCommunityInfo();
 });
 
 onUnmounted(() => {
@@ -235,279 +298,105 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- From Uiverse.io by 0xnihilism -->
-  <div class="input-wrapper">
-    <input class="input" name="text" placeholder="Type here..." type="text" />
-  </div>
+  <!-- PC端淘宝风格群聊主容器 -->
+  <div class="pc-chat-room">
+    <!-- 左侧群聊信息栏 -->
+    <div class="chat-sidebar">
+      <div class="sidebar-header">
+        <div class="group-avatar">
+          <img src="https://smarthomeunity.oss-cn-beijing.aliyuncs.com/image/CommunityLogo.png" alt="群聊头像"/>
+        </div>
+        <h2 class="group-name">{{ communityInfo.communityName }}</h2>
+        <p class="group-desc">{{ communityInfo.communityDesc }}</p>
+        <p class="online-status">连接状态：{{ onlineStatus }}</p> <!-- 显示WS连接状态 -->
+      </div>
 
-  <!-- 消息列表容器：固定高度 + 滚动监听 + 引用绑定 -->
-  <div
-      class="message-list"
-      @scroll="handleScroll"
-      ref="msgListRef"
-  >
-    <!-- 每条消息 -->
-    <div
-        v-for="(item, index) in messageList"
-        :key="index"
-        class="message-item"
-    >
-      <!-- 区分自己和他人消息 -->
-      <div
-          :class="['msg-content', item.fromUserId === userId ? 'self' : 'other']"
-      >
-        {{ item.content }}
+      <div class="member-list">
+        <h3 class="member-title">群成员 ({{ communityInfo.communityMembers || 0 }})</h3>
+        <div class="member-item" v-for="i in 8" :key="i">
+          <img src="https://smarthomeunity.oss-cn-beijing.aliyuncs.com/image/CommunityLogo.png" alt="成员头像"/>
+          <span class="member-name">群成员{{ i }}</span>
+        </div>
       </div>
     </div>
-    <!-- 加载中提示 -->
-    <div v-if="loading" class="loading">加载中...</div>
-  </div>
 
-  <!-- 发送框 -->
-  <div class="send-area">
-    <input
-        v-model="message"
-        type="text"
-        placeholder="输入消息..."
-    >
-    <button @click="handleSendMessage">发送</button>
+    <!-- 右侧聊天主区域 -->
+    <div class="chat-main">
+      <!-- 聊天头部 -->
+      <div class="chat-header">
+        <div class="header-left">
+          <h2>{{ communityInfo.communityName }}</h2>
+        </div>
+        <div class="header-right">
+          <button class="header-btn">设置</button>
+          <button class="header-btn">清空记录</button>
+        </div>
+      </div>
+
+      <!-- 聊天内容区域：绑定ref + 滚动监听 + 加载状态 -->
+      <div
+          class="chat-content"
+          id="chatContentScroll"
+          ref="msgListRef"
+          @scroll="handleScroll"
+      >
+        <!-- 加载中提示 -->
+        <div v-if="loading" class="loading-tip">加载中...</div>
+        <!-- 无更多数据提示 -->
+        <div v-if="!hasMore && messageList.length > 0" class="no-more-tip">没有更多历史消息了</div>
+        <!-- 无消息提示 -->
+        <div v-if="!loading && messageList.length === 0" class="no-msg-tip">暂无聊天记录</div>
+
+        <!-- 每条消息 -->
+        <div
+            class="chat-message"
+            :class="{ 'self-message': msg.isSelf }"
+            v-for="msg in messageList"
+            :key="msg.id"
+        >
+          <!-- 头像 -->
+          <div class="message-avatar">
+            <img :src="msg.avatar" :alt="msg.name"/>
+          </div>
+
+          <!-- 消息内容 -->
+          <div class="message-content-wrapper">
+            <div class="message-name">{{ msg.name }}</div>
+            <div class="message-content">
+              {{ msg.content }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 输入框+发送按钮区域：绑定脚本变量和方法 -->
+      <div class="chat-input-area">
+        <!-- 输入框容器 -->
+        <div class="input-container">
+          <div class="input-wrapper">
+            <input
+                class="input"
+                name="text"
+                placeholder="说点儿啥？"
+                type="text"
+                v-model="message"
+                @keydown="handleKeydown"
+            />
+          </div>
+          <button
+              class="send-btn"
+              @click="handleSendMessage"
+          >
+            <span class="back"></span>
+            <span class="front">发送</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* From Uiverse.io by 0xnihilism */
-/* Fancy-ass Input Styling 10.0 - The Emoji Extravaganza */
-.input-wrapper {
-  position: relative;
-  width: 50%;
-  max-width: 300px;
-  padding: 3px;
-  border-radius: 1.7rem;
-  overflow: hidden;
-}
-
-.input-wrapper input {
-  background-color: #f5f5f5;
-  border: 2px solid #ddd;
-  padding: 1.2rem 1rem 1.2rem 3rem; /* Increased left padding for emoji */
-  font-size: 1.1rem;
-  width: 100%;
-  border-radius: 1.5rem;
-  color: #ff7f7f;
-  box-shadow: 0 0.4rem #dfd9d9, inset 0 0 0 transparent;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  position: relative;
-  z-index: 2;
-}
-
-.input-wrapper input:focus {
-  outline: none;
-  border-color: #4a90e2; /* Changed to blue */
-  box-shadow: 0 0.6rem #dfd9d9, 0 0 15px rgba(74, 144, 226, 0.7); /* Blue glow */
-  transform: translateY(-3px) scale(1.01);
-}
-
-.input-wrapper input::placeholder {
-  color: #a0c0e8; /* Lighter blue for placeholder */
-  transition: all 0.3s ease;
-}
-
-.input-wrapper input:focus::placeholder {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-/* Emoji styles */
-.input-wrapper::after {
-  content: "😎";
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.2rem;
-  z-index: 3;
-  transition: all 0.3s ease;
-}
-
-/* Emoji animations */
-@keyframes dance {
-  0%,
-  100% {
-    transform: translateY(-50%) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-50%) rotate(-20deg) scale(1.1);
-  }
-  75% {
-    transform: translateY(-50%) rotate(20deg) scale(1.1);
-  }
-}
-
-.input-wrapper:hover::after {
-  animation: dance 0.5s ease infinite;
-}
-
-.input-wrapper:focus-within::after {
-  content: "😂";
-  animation: dance 0.3s ease infinite;
-}
-
-.input-wrapper input::placeholder {
-  color: #ccc;
-  transition: all 0.3s ease;
-}
-
-.input-wrapper input:focus::placeholder {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-/* Psychedelic background effect */
-.input-wrapper::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: conic-gradient(
-      from 0deg,
-      #4a90e2,
-      #6aa9e9,
-      #8bc1f0,
-      #add9f7,
-      #d0f0ff,
-      #add9f7,
-      #8bc1f0,
-      #6aa9e9,
-      #4a90e2
-  );
-  animation: rotate 4s linear infinite;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-
-.input-wrapper:hover::before,
-.input-wrapper:focus-within::before {
-  opacity: 1;
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Shockwave effect on focus */
-@keyframes shockwave {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 127, 127, 0.4);
-  }
-  70% {
-    transform: scale(1.02);
-    box-shadow: 0 0 0 20px rgba(255, 127, 127, 0);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(255, 127, 127, 0);
-  }
-}
-
-.input-wrapper:focus-within {
-  animation: shockwave 0.5s ease-out;
-}
-
-/* Floating label effect */
-.input-wrapper {
-  --label-size: 0.8rem;
-  --label-transform: translateY(-170%) scale(0.8);
-}
-
-.input-wrapper input:placeholder-shown + label {
-  transform: translateY(-50%);
-  font-size: 1rem;
-}
-
-.input-wrapper label {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: var(--label-transform);
-  font-size: var(--label-size);
-  color: #ff7f7f;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.input-wrapper input:not(:placeholder-shown) + label,
-.input-wrapper input:focus + label {
-  transform: var(--label-transform);
-  font-size: var(--label-size);
-}
-
-.message-list {
-  height: 600px; /* 可根据页面调整 */
-  overflow-y: auto;
-  border: 1px solid #eee;
-  padding: 10px;
-  margin-bottom: 20px;
-}
-
-/* 消息项：区分自己和他人 */
-.message-item {
-  margin-bottom: 10px;
-}
-
-.msg-content {
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 8px;
-}
-
-/* 他人消息：左对齐 */
-.other {
-  background-color: #f5f5f5;
-  float: left;
-  clear: both;
-}
-
-/* 自己消息：右对齐 */
-.self {
-  background-color: #0088ff;
-  color: white;
-  float: right;
-  clear: both;
-}
-
-/* 加载中提示 */
-.loading {
-  text-align: center;
-  color: #999;
-  padding: 5px 0;
-}
-
-/* 发送区域 */
-.send-area {
-  display: flex;
-  gap: 10px;
-}
-
-.send-area input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-}
-
-.send-area button {
-  padding: 8px 20px;
-  background-color: #0088ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+@import '@/assets/CSS/ChatRoom/input.css';
+@import '@/assets/CSS/ChatRoom/main.css';
 </style>
