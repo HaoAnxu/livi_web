@@ -2,13 +2,13 @@
 import {useRoute} from 'vue-router'
 import {ref, onUnmounted, onMounted, watch, nextTick} from "vue";
 import MyMessage from "@/utils/MyMessage.js"
-import {connectWebSocket, sendMessage, closeWebSocket, isConnected, subscribeMessage, unsubscribeMessage,} from '@/utils/websocket';
+import {connectWebSocket, sendMessage, closeWebSocket, isConnected, subscribeMessage, unsubscribeMessage} from '@/utils/websocket';
 import {MyLoading} from "@/utils/MyLoading.js";
-import {getCommunityDetailApi, getCommunityMemberListApi} from "@/api/wecommunity.js";
+import {getCommunityDetailApi, getCommunityMemberListApi,exitCommunityApi} from "@/api/wecommunity.js";
 
-const route = useRoute()
+const router = useRoute()
 // 从路由参数中获取communityId
-const communityId = Number(route.query.communityId);
+const communityId = Number(router.query.communityId);
 const loginUser = JSON.parse(sessionStorage.getItem('loginUser') || '{}');
 const userId = loginUser.userId;
 
@@ -61,6 +61,24 @@ const getMemberList = async () => {
     }
   } catch (e) {
     console.error('获取群成员信息列表失败：', e);
+  } finally {
+    MyLoading.value = false;
+  }
+}
+
+// 退出群聊
+const exitCommunity = async () => {
+  MyLoading.value = true;
+  try {
+    const result = await exitCommunityApi(communityId);
+    if (result.code) {
+      MyMessage.success(result.msg);
+      router.push('/weCommunity')
+    } else {
+      MyMessage.error(result.msg);
+    }
+  } catch (e) {
+    console.error('退出群聊失败：', e);
   } finally {
     MyLoading.value = false;
   }
@@ -315,7 +333,7 @@ onUnmounted(() => {
         </div>
         <div class="header-right">
           <button class="header-btn">设置</button>
-          <button class="header-btn">清空记录</button>
+          <button class="header-btn" @click="exitCommunity">退出群聊</button>
         </div>
       </div>
 
