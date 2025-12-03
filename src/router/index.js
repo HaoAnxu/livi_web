@@ -26,7 +26,6 @@ const router = createRouter({
                 {path:'cart',name:'cart',component:CartView},
                 {path:'weCommunity',name:'weCommunity',component:WeCommunityView},
                 {path:'chatRoom',name:'chatRoom',component:ChatRoomView},
-                {path:'userCenter',name:'userCenter',component:UserCenterView},
                 {path:'smartHome',name:'smartHome',component:SmartHomeView},
                 {path:'shop',name:'shop',component:ShopView},
                 {path:'shortVideo',name:'shortVideo',component:ShortVideoView},
@@ -34,6 +33,7 @@ const router = createRouter({
                 {path:'ai',name:'ai',component:AIView}
             ]
         },
+        {path:'/userCenter',name:'userCenter',component:UserCenterView},
         {path:'/login',name:'login',component:LoginView},
         {path:'/register',name:'register',component:RegisterView}
     ],

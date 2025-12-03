@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref} from 'vue';
+import {onMounted, onUnmounted, ref} from 'vue';
 import router from "@/router/index.js";
 import {Menu, Avatar} from '@element-plus/icons-vue';
 
@@ -15,50 +15,66 @@ const navMenus = ref([
   {name: '短视频', path: '/shortVideo'},
   {name: '音乐', path: '/music'},
 ]);
+
 // 右侧功能菜单
 const commonFuncMenus = ref([
   {name: '购物车', path: '/cart'},
   {name: '待读消息', path: '/messages'},
   {name: '用户中心', path: '/userCenter'}
 ]);
-const isDropdownOpen = ref(false);
 
-// 切换下拉菜单
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value;
-};
 // 点击菜单项后关闭下拉菜单
 const closeDropdown = () => {
-  isDropdownOpen.value = false;
 };
 
 // 退出登录方法
 const logout = () => {
-  closeDropdown();
   sessionStorage.removeItem('loginUser');
   router.push('/login');
 };
-
+//导航栏滚动控制
+const lastScrollTop = ref(0)//记录上一次滚动位置
+const headerVisible = ref(true);//导航栏是否可见
+//滚动事件处理函数
+const handleScroll = () => {
+  if (window.innerWidth > 992) {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > lastScrollTop.value && scrollTop > 50) {
+      headerVisible.value = false;
+    } else {
+      headerVisible.value = true;
+    }
+    lastScrollTop.value = scrollTop;
+  }
+}
+// 组件挂载时添加滚动事件监听
 onMounted(() => {
   const userInfo = sessionStorage.getItem('loginUser');
   loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
-})
+  // 添加滚动事件监听
+  window.addEventListener('scroll', handleScroll);
+});
+// 组件卸载时移除滚动事件监听
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
   <div class="common-layout">
     <el-container>
-      <el-header class="top-header">
-        <!--PC端Menu-->
+      <!--“条件为真，就加类名；条件为假，就删类名”-->
+      <el-header class="top-header" :class="{'hidden': !headerVisible}">
+        <!-- PC端Menu -->
         <div class="top-nav-pc">
-          <!--左侧导航菜单-->
+          <!-- 左侧导航菜单 -->
           <ul class="nav-list nav-left">
-            <li v-for="(menu,index) in navMenus" :key="menu.path">
+            <li v-for="(menu, index) in navMenus" :key="menu.path">
               <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
               <span class="split" v-if="index < navMenus.length - 1"></span>
             </li>
           </ul>
-          <!--右侧功能菜单-->
+          <!-- 右侧功能菜单 -->
           <ul class="nav-list nav-right">
             <!-- 未登录：显示登录、注册 + 公共菜单 -->
             <template v-if="!loginUser">
@@ -70,7 +86,7 @@ onMounted(() => {
                 <router-link to="/register" class="nav-link">注册</router-link>
                 <span class="split"></span>
               </li>
-              <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+              <li v-for="(menu, index) in commonFuncMenus" :key="menu.path">
                 <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
                 <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
@@ -85,7 +101,7 @@ onMounted(() => {
                 <a href="javascript:;" class="nav-link logout-btn" @click="logout">退出登录</a>
                 <span class="split"></span>
               </li>
-              <li v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+              <li v-for="(menu, index) in commonFuncMenus" :key="menu.path">
                 <router-link :to="menu.path" class="nav-link">{{ menu.name }}</router-link>
                 <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
@@ -93,20 +109,20 @@ onMounted(() => {
           </ul>
         </div>
 
-        <!--移动端Menu-->
+        <!-- 移动端Menu -->
         <div class="top-nav-mobile">
-          <!--移动端logo-->
+          <!-- 移动端logo -->
           <div class="top-nav-mobile-logo">
             <router-link to="/" class="mobile-logo">Livi Unity</router-link>
           </div>
-          <!-- 新增按钮容器：让两个按钮紧密排列 -->
+          <!-- 按钮容器：让两个按钮紧密排列 -->
           <div class="mobile-btn-group">
             <el-config-provider>
               <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
                 <span><el-icon class="mobile-icon"><Menu/></el-icon></span>
                 <template #dropdown>
                   <el-dropdown-menu class="custom-menu">
-                    <el-dropdown-item v-for="(menu,index) in navMenus" :key="menu.path">
+                    <el-dropdown-item v-for="(menu) in navMenus" :key="menu.path">
                       <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -135,7 +151,7 @@ onMounted(() => {
                       </el-dropdown-item>
                     </template>
                     <!-- 移动端公共菜单 -->
-                    <el-dropdown-item v-for="(menu,index) in commonFuncMenus" :key="menu.path">
+                    <el-dropdown-item v-for="(menu) in commonFuncMenus" :key="menu.path">
                       <router-link :to="menu.path" class="nav-link" @click="closeDropdown">{{ menu.name }}</router-link>
                     </el-dropdown-item>
                   </el-dropdown-menu>
@@ -226,6 +242,12 @@ onMounted(() => {
   top: 0;
   z-index: 999;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease; /* 动画过渡 */
+  transform: translateY(0);
+}
+
+.top-header.hidden {
+  transform: translateY(-100%);
 }
 
 /* PC端导航容器 */
@@ -241,15 +263,15 @@ onMounted(() => {
   display: none;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10px; /* 减少左右内边距，避免挤压空间 */
+  padding: 0 10px;
   height: 100%;
   width: 100%;
-  box-sizing: border-box; /* 关键：内边距计入宽度，防止溢出 */
-  max-width: 100vw; /* 限制最大宽度为屏幕宽度 */
+  box-sizing: border-box;
+  max-width: 100vw;
 }
 
 .top-nav-mobile-logo {
-  font-size: 22px; /* 缩小logo字体，减少宽度占用 */
+  font-size: 22px;
   font-weight: 600;
 }
 
@@ -269,9 +291,9 @@ onMounted(() => {
 /* 移动端下拉菜单 - 缩小图标和按钮尺寸 */
 .mobile-dropdown {
   color: #333;
-  font-size: 14px; /* 缩小按钮文字尺寸 */
+  font-size: 14px;
   transition: color 0.2s;
-  padding: 0 8px; /* 给按钮加少量内边距，点击区域更友好 */
+  padding: 0 8px;
 }
 
 .mobile-dropdown:hover {
@@ -279,7 +301,7 @@ onMounted(() => {
 }
 
 .mobile-icon {
-  font-size: 20px; /* 缩小图标尺寸，减少宽度 */
+  font-size: 20px;
 }
 
 /* 自定义下拉菜单样式 - 小米浅灰风格 */
@@ -290,7 +312,7 @@ onMounted(() => {
   border-radius: 4px !important;
 }
 
-/* 导航列表样式（合并重复） */
+/* 导航列表样式 */
 .nav-list {
   display: flex;
   list-style: none;
@@ -298,7 +320,7 @@ onMounted(() => {
   padding: 0;
 }
 
-/* 导航链接基础样式（精简重复属性） */
+/* 导航链接基础样式 */
 .nav-link {
   color: #333;
   text-decoration: none;
@@ -311,7 +333,7 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-/* 链接hover效果 - 小米橙下划线+文字变色（合并伪类逻辑） */
+/* 链接hover效果 - 小米橙下划线+文字变色 */
 .nav-link:hover {
   color: #ff6700;
 }
@@ -338,7 +360,7 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* 退出登录按钮特殊样式（复用伪类，仅覆盖颜色） */
+/* 退出登录按钮特殊样式 */
 .logout-btn:hover {
   color: #ff4400;
 }
@@ -360,6 +382,10 @@ onMounted(() => {
 /* 移动端适配 */
 @media (max-width: 1200px) {
   .top-nav-pc {
+    width: 90%;
+  }
+
+  .footer-container {
     width: 90%;
   }
 }
@@ -386,7 +412,7 @@ onMounted(() => {
     padding: 0 8px;
   }
 
-  /* 移动端下拉菜单链接hover（仅覆盖差异样式） */
+  /* 移动端下拉菜单链接hover */
   .custom-menu .nav-link:hover {
     background-color: #f5f5f5;
   }
@@ -408,7 +434,7 @@ onMounted(() => {
   color: #666;
   padding: 40px 0 20px;
   font-size: 14px;
-  border-top: 2px solid #ff6700; /* 橙色顶边强化品牌 */
+  border-top: 2px solid #ff6700;
 }
 
 .footer-container {
@@ -528,12 +554,6 @@ onMounted(() => {
 }
 
 /* 页脚移动端适配 */
-@media (max-width: 1200px) {
-  .footer-container {
-    width: 90%;
-  }
-}
-
 @media (max-width: 768px) {
   .footer-links {
     flex-direction: column;
