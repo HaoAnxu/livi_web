@@ -1,4 +1,4 @@
-import {ref, onUnmounted} from 'vue';
+import {ref} from 'vue';
 import Message from "./MyMessage.js"
 import md5 from "js-md5";
 
@@ -70,7 +70,6 @@ export function connectWebSocket(userId, communityId, wsUrl) {
         wsInstance = new WebSocket(fullWsUrl);
         // 连接成功-@onOpen
         wsInstance.onopen = () => {
-            Message.success('建立连接!');
             isConnected.value = true;
             reconnectCount = 0;
             stopReconnect();

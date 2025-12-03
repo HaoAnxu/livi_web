@@ -1,8 +1,8 @@
-/* PC端整体布局 - 优化比例 */
+/* PC端整体布局 */
 .pc-chat-room {
     width: 90%;
     max-width: 1400px;
-    height: 85vh;
+    height: 88vh;
     margin: 1rem auto; /* 减少上下外边距 */
     border-radius: 16px;
     overflow: hidden;
@@ -219,13 +219,6 @@
     border-color: #ff7e22;
     box-shadow: 0 2px 8px rgba(230, 126, 34, 0.15);
 }
-
-.message-time {
-    font-size: 11px; /* 从12px缩小 */
-    color: #999;
-    margin-top: 6px; /* 从8px缩小 */
-}
-
 /* 输入框区域（优化版）- 微调间距 */
 .chat-input-area {
     padding: 15px 20px; /* 从20px 30px缩小 */
@@ -347,19 +340,6 @@
     .chat-input-area {
         padding: 12px 15px;
     }
-
-    .chat-toolbar {
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-
-    .tool-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
-        aspect-ratio: 1/1;
-    }
-
     .input-container {
         gap: 10px;
     }
@@ -382,32 +362,7 @@
     }
 }
 
-@media (max-width: 480px) {
-    /* 小屏手机极致适配 */
-    .chat-content {
-        padding: 10px 15px;
-    }
 
-    .message-avatar img {
-        width: 40px;
-        height: 40px;
-        aspect-ratio: 1/1;
-    }
-
-    .message-content {
-        padding: 6px 12px;
-        font-size: 13px;
-    }
-
-    .chat-toolbar {
-        overflow-x: auto;
-        padding-bottom: 5px;
-    }
-
-    .chat-toolbar::-webkit-scrollbar {
-        display: none;
-    }
-}
 /* 通用滚动条样式 - 隐藏箭头 + 橙色主题 */
 /* 聊天内容区域 + 群成员区域 通用基础样式 */
 :deep(.chat-content),
@@ -470,14 +425,39 @@
 :deep(.member-list) {
     max-height: calc(100vh - 120px); /* 根据布局自适应高度 */
 }
+
+.load-more-btn {
+    display: block;
+    width: 180px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    background-color: #ff6600;
+    color: #ffffff;
+    border: none;
+    border-radius: 18px;
+    margin: 10px auto;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(255, 68, 0, 0.15);
+}
+
+.load-more-btn:hover {
+    background-color: #ff4400;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 68, 0, 0.2);
+}
+
+.load-more-btn:disabled {
+    background-color: #ff9966;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
 /* 通用响应式优化 */
 @media (hover: none) {
-    /* 触屏设备移除hover效果，避免误触 */
-    .tool-btn:hover {
-        background-color: #fff5eb;
-        border-color: #f0d0b0;
-    }
-
     .header-btn:hover {
         background-color: rgba(255, 255, 255, 0.2);
     }

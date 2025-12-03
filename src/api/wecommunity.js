@@ -8,6 +8,10 @@ export function verifyIsLoginApi(){
 export function getCommunityListApi(){
     return request.get('/permission/wecommunity/getCommunityList')
 }
+//获取群成员列表
+export function getCommunityMemberListApi(communityId){
+    return request.get(`/permission/wecommunity/getCommunityMemberList?communityId=${communityId}`)
+}
 //查看社区详情
 export function getCommunityDetailApi(communityId){
     return request.get(`/permission/wecommunity/getCommunityDetail?communityId=${communityId}`)

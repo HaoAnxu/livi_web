@@ -1,17 +1,10 @@
 <script setup>
 import {useRoute} from 'vue-router'
 import {ref, onUnmounted, onMounted, watch, nextTick} from "vue";
-import Message from "@/utils/MyMessage.js"
-import {
-  connectWebSocket,
-  sendMessage,
-  closeWebSocket,
-  isConnected,
-  subscribeMessage,
-  unsubscribeMessage,
-} from '@/utils/websocket';
+import MyMessage from "@/utils/MyMessage.js"
+import {connectWebSocket, sendMessage, closeWebSocket, isConnected, subscribeMessage, unsubscribeMessage,} from '@/utils/websocket';
 import {MyLoading} from "@/utils/MyLoading.js";
-import {getCommunityDetailApi} from "@/api/wecommunity.js";
+import {getCommunityDetailApi, getCommunityMemberListApi} from "@/api/wecommunity.js";
 
 const route = useRoute()
 // 从路由参数中获取communityId
@@ -19,7 +12,7 @@ const communityId = Number(route.query.communityId);
 const loginUser = JSON.parse(sessionStorage.getItem('loginUser') || '{}');
 const userId = loginUser.userId;
 
-// 核心变量
+// 核心变量-websocket相关
 const messageList = ref([]);
 const message = ref(''); // 输入框绑定的变量
 const onlineStatus = ref('未连接');
@@ -29,24 +22,46 @@ let currentOfflineCallback = null;
 const isFirstLoad = ref(true); // 标记是否首次加载
 const lastMsgId = ref(sessionStorage.getItem(`community_last_msgid_${communityId}`) || 0);
 const hasMore = ref(true);
+//防止多次触发请求
 const loading = ref(false);
 let currentHistoryCallback = null;
-// 消息列表DOM引用，控制滚动到底部（关键：绑定到模板的chat-content）
+// 消息列表DOM引用，控制滚动到底部
 const msgListRef = ref(null);
-//社区基础信息查询
+//社区基础信息
 const communityInfo = ref({});
+//群成员列表
+const memberList = ref([]);
+
+// 获取社区信息
 const getCommunityInfo = async () => {
   MyLoading.value = true;
   try {
     const result = await getCommunityDetailApi(communityId);
     if (result.code) {
       communityInfo.value = result.data;
-      MyLoading.value = false;
     } else {
       MyMessage.error(result.msg);
-      MyLoading.value = false;
     }
   } catch (e) {
+    console.error('获取社区信息失败：', e);
+  } finally {
+    MyLoading.value = false;
+  }
+}
+
+// 获取群成员信息列表
+const getMemberList = async () => {
+  MyLoading.value = true;
+  try {
+    const result = await getCommunityMemberListApi(communityId);
+    if (result.code) {
+      memberList.value = result.data;
+    } else {
+      MyMessage.error(result.msg);
+    }
+  } catch (e) {
+    console.error('获取群成员信息列表失败：', e);
+  } finally {
     MyLoading.value = false;
   }
 }
@@ -71,7 +86,7 @@ const realtimeMsg = (wrapperData) => {
     scrollToBottom();
   } catch (e) {
     console.error('解析嵌套消息数据失败：', e);
-    Message.error('消息格式异常，请刷新重试');
+    MyMessage.error('消息格式异常，请刷新重试');
   }
 };
 
@@ -94,18 +109,18 @@ const offlineMsg = (wrapperData) => {
     scrollToBottom();
   } catch (e) {
     console.error('解析嵌套消息数据失败：', e);
-    Message.error('消息格式异常，请刷新重试');
+    MyMessage.error('消息格式异常，请刷新重试');
   }
 };
 
 // 连接WebSocket
 const connectWebSocketCommunity = () => {
   if (!userId) {
-    Message.error('请先登录！');
+    MyMessage.error('请先登录！');
     return;
   }
   if (!communityId || isNaN(communityId)) {
-    Message.error('缺少有效社区ID！');
+    MyMessage.error('缺少有效社区ID！');
     return;
   }
   // 取消旧订阅
@@ -138,7 +153,7 @@ const connectWebSocketCommunity = () => {
   }
 };
 
-// 请求历史记录（isFirst默认是false）
+// 请求历史记录（isFirst默认是false，页面刷新或者首次进入，isFirst=true，查询最新的5条）
 const requestChatHistory = async (isFirst = false) => {
   if (!isConnected.value || loading.value || (!hasMore.value && !isFirst)) return;
   loading.value = true;
@@ -151,81 +166,69 @@ const requestChatHistory = async (isFirst = false) => {
     };
     sendMessage(historyReq);
   } catch (e) {
-    Message.error('加载历史记录失败，请重试');
+    MyMessage.error('加载历史记录失败，请重试');
     loading.value = false;
   }
 };
 
-// 处理历史记录返回
-const handleChatHistory = (wrapperData) => { // 注意参数名改为wrapperData（更语义化）
+// 处理历史记录响应
+const handleChatHistory = (wrapperData) => {
   loading.value = false;
   try {
-    // 第一步：如果wrapperData是对象，直接取；如果是字符串，先解析外层
-    const wrapperObj = typeof wrapperData === 'string'
-        ? JSON.parse(wrapperData)
-        : wrapperData;
-
-    // 第二步：解析内层的data字段（后端返回的JSON字符串）
-    const jsonObject = JSON.parse(wrapperObj.data); // 关键：解析嵌套的data
-
-    const {historyList, hasMore: hasMoreData, currentLastMsgId} = jsonObject;
-    //如果历史聊天记录有数据
+    const jsonObject = JSON.parse(wrapperData.data);
+    const {historyList, hasMore: hasMoreData} = jsonObject;
+    //判断是否有历史记录
     if (historyList && historyList.length > 0) {
-      // 补全历史消息的isSelf/avatar/name字段
       const formattedHistory = historyList.map(item => ({
         ...item,
         id: item.msgId,
         isSelf: item.fromUserId === userId,
         avatar: item.avatar,
         name: item.name,
-      }));
+      }))
 
       if (isFirstLoad.value) {
-        // 首次加载，直接把历史聊天记录添加到消息列表
-        messageList.value = formattedHistory;
-        // 标记“首次加载完成”：后续再加载就是“上拉加载更多”了
+        // 首次加载：赋值消息列表 + 反转顺序
+        messageList.value = formattedHistory.reverse(); // 反转后72、73、74、75、76（最新在底部）
         isFirstLoad.value = false;
-        // 首次加载完成后滚动到底部（显示最新消息）
-        nextTick(() => {
-          scrollToBottom();
-        });
+        // 取本次列表中最小的msgId,作为下一次的lastMsgId
+        //...展开数组，取最小值
+        lastMsgId.value = Math.min(...formattedHistory.map(item=>(item.msgId)));
+        sessionStorage.setItem(`community_last_msgid_${communityId}`, lastMsgId.value);
+        // 异步滚动到底部（nextTick确保DOM更新后再滚动）
+        nextTick(() => scrollToBottom());
       } else {
-        // 上拉加载：追加到列表头部（更早的消息）
-        // 先记录当前滚动高度，避免加载后跳屏
-        const scrollTop = msgListRef.value?.scrollTop || 0;
-        messageList.value = [...formattedHistory, ...messageList.value];
-        // 保持滚动位置（加载更多后不自动跳到底部）
-        nextTick(() => {
-          if (msgListRef.value) {
-            msgListRef.value.scrollTop = msgListRef.value.scrollHeight - (msgListRef.value.scrollHeight - scrollTop);
-          }
-        });
+        // 加载更多（点击“加载更多”按钮），把查询到的数据放在列表上方，因为是历史数据，不能放在下面
+        messageList.value = [...formattedHistory.reverse(), ...messageList.value];
+        //取本次列表中最小的msgId,作为下一次的lastMsgId
+        lastMsgId.value = Math.min(...formattedHistory.map(item => item.msgId));
+        sessionStorage.setItem(`community_last_msgid_${communityId}`, lastMsgId.value);
       }
-      lastMsgId.value = currentLastMsgId;
-      sessionStorage.setItem(`community_last_msgid_${communityId}`, currentLastMsgId);
     }
+    // 更新是否有更多历史记录,这个值由后端返回
     hasMore.value = hasMoreData;
   } catch (e) {
     console.error('解析历史记录失败：', e);
-    // 友好提示：区分空列表和解析错误
-    if (e.message.includes('currentLastMsgId')) {
-      // 实际是历史记录为空，非真正的解析错误
-      hasMore.value = false;
-      Message.info('暂无历史聊天记录');
-    } else {
-      Message.error('解析历史记录失败，请刷新');
-    }
+    hasMore.value = false;
+    MyMessage.error('解析历史记录失败，请刷新');
+  }
+};
+
+// 手动加载更多历史记录（按钮点击触发）
+const manualLoadMore = () => {
+  if (hasMore.value && !loading.value && !isFirstLoad.value) {
+    requestChatHistory(false);
   }
 };
 
 // 发送消息
 const handleSendMessage = () => {
   if (!message.value.trim()) {
-    Message.error('请输入消息内容！');
+    MyMessage.error('请输入消息内容！');
     return;
   }
   if (!isConnected.value) {
-    Message.error('WebSocket未连接，无法发送消息！');
+    MyMessage.error('WebSocket未连接，无法发送消息！');
     return;
   }
 
@@ -241,27 +244,11 @@ const handleSendMessage = () => {
   scrollToBottom();
 };
 
-// 加载更多历史
-const loadMoreHistory = () => {
-  if (hasMore.value && !loading.value && !isFirstLoad.value) {
-    requestChatHistory(false);
-  }
-};
-
-// 滚动监听：上拉加载（滚动到顶部时加载更多）
-const handleScroll = (e) => {
-  const {scrollTop} = e.target;
-  // 滚动到顶部（距离顶部<10px）时加载更多
-  if (scrollTop <= 10) {
-    loadMoreHistory();
-  }
-};
-
 // 滚动视口到底部
 const scrollToBottom = () => {
   nextTick(() => {
     if (msgListRef.value) {
-      // 滚动到最大高度（底部）
+      //把滚动条的垂直位置设为最大，即到底部
       msgListRef.value.scrollTop = msgListRef.value.scrollHeight;
     }
   });
@@ -283,6 +270,7 @@ const unwatchStatus = watch(() => isConnected.value, (newVal) => {
 onMounted(() => {
   connectWebSocketCommunity();
   getCommunityInfo();
+  getMemberList();
 });
 
 onUnmounted(() => {
@@ -298,7 +286,6 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- PC端淘宝风格群聊主容器 -->
   <div class="pc-chat-room">
     <!-- 左侧群聊信息栏 -->
     <div class="chat-sidebar">
@@ -308,14 +295,13 @@ onUnmounted(() => {
         </div>
         <h2 class="group-name">{{ communityInfo.communityName }}</h2>
         <p class="group-desc">{{ communityInfo.communityDesc }}</p>
-        <p class="online-status">连接状态：{{ onlineStatus }}</p> <!-- 显示WS连接状态 -->
       </div>
 
       <div class="member-list">
         <h3 class="member-title">群成员 ({{ communityInfo.communityMembers || 0 }})</h3>
-        <div class="member-item" v-for="i in 8" :key="i">
-          <img src="https://smarthomeunity.oss-cn-beijing.aliyuncs.com/image/CommunityLogo.png" alt="成员头像"/>
-          <span class="member-name">群成员{{ i }}</span>
+        <div class="member-item" v-for="member in memberList" :key="member.id">
+          <img :src="member.avatar" alt="成员头像"/>
+          <span class="member-name">{{ member.username }}</span>
         </div>
       </div>
     </div>
@@ -333,17 +319,27 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- 聊天内容区域：绑定ref + 滚动监听 + 加载状态 -->
+      <!-- 聊天内容区域 -->
       <div
           class="chat-content"
           id="chatContentScroll"
           ref="msgListRef"
-          @scroll="handleScroll"
       >
+        <!-- 手动加载更多按钮（淘宝风格） -->
+        <button
+            v-if="hasMore && !loading && messageList.length > 0"
+            class="load-more-btn"
+            @click="manualLoadMore"
+        >
+          加载更多历史消息
+        </button>
+
         <!-- 加载中提示 -->
         <div v-if="loading" class="loading-tip">加载中...</div>
+
         <!-- 无更多数据提示 -->
         <div v-if="!hasMore && messageList.length > 0" class="no-more-tip">没有更多历史消息了</div>
+
         <!-- 无消息提示 -->
         <div v-if="!loading && messageList.length === 0" class="no-msg-tip">暂无聊天记录</div>
 
@@ -369,9 +365,8 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- 输入框+发送按钮区域：绑定脚本变量和方法 -->
+      <!-- 输入框+发送按钮区域 -->
       <div class="chat-input-area">
-        <!-- 输入框容器 -->
         <div class="input-container">
           <div class="input-wrapper">
             <input
