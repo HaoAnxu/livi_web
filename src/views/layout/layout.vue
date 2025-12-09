@@ -167,62 +167,16 @@ onUnmounted(() => {
       </el-main>
 
       <el-footer class="app-footer">
-        <!-- 重构页脚内容 - 围绕Livi Unity团结改造家主题 -->
         <div class="footer-container">
-          <!-- 品牌核心信息 -->
+          <!-- 品牌信息 -->
           <div class="footer-brand">
-            <h2 class="brand-name">Livi Unity 团结改造家</h2>
-            <p class="brand-slogan">用团结的力量，改造理想生活空间</p>
-          </div>
-
-          <!-- 快捷链接 -->
-          <div class="footer-links">
-            <div class="link-group">
-              <h3 class="link-title">关于我们</h3>
-              <ul>
-                <li><a href="javascript:;">品牌故事</a></li>
-                <li><a href="javascript:;">团队介绍</a></li>
-                <li><a href="javascript:;">加入我们</a></li>
-              </ul>
-            </div>
-            <div class="link-group">
-              <h3 class="link-title">服务支持</h3>
-              <ul>
-                <li><a href="javascript:;">售后保障</a></li>
-                <li><a href="javascript:;">常见问题</a></li>
-                <li><a href="javascript:;">联系客服</a></li>
-              </ul>
-            </div>
-            <div class="link-group">
-              <h3 class="link-title">法律声明</h3>
-              <ul>
-                <li><a href="javascript:;">隐私政策</a></li>
-                <li><a href="javascript:;">用户协议</a></li>
-                <li><a href="javascript:;">版权声明</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- 联系方式 -->
-          <div class="footer-contact">
-            <div class="contact-item">
-              <i class="el-icon-phone"></i>
-              <span>400-123-4567</span>
-            </div>
-            <div class="contact-item">
-              <i class="el-icon-mail"></i>
-              <span>service@liviunity.com</span>
-            </div>
-            <div class="contact-item">
-              <i class="el-icon-location"></i>
-              <span>北京市朝阳区团结湖路88号改造家创意中心</span>
-            </div>
+            <h2 class="brand-name">Livi Unity</h2>
+            <p class="brand-slogan">团结改造家 · 理想生活空间</p>
           </div>
 
           <!-- 版权信息 -->
           <div class="footer-copyright">
             <p>©2025 Livi Unity 团结改造家 版权所有 | 京ICP备12345678号</p>
-            <p>本网站支持IPv6访问 | 营业执照：91110105XXXXXXXXXX</p>
           </div>
         </div>
       </el-footer>
@@ -231,7 +185,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* 基础布局 - 小米风格橙白主调 */
+/* 核心布局：小米橙白主调，导航+页脚样式 */
+/* 顶部导航 - 粘性定位+动画 */
 .top-header {
   height: 60px;
   line-height: 60px;
@@ -242,7 +197,7 @@ onUnmounted(() => {
   top: 0;
   z-index: 999;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease; /* 动画过渡 */
+  transition: transform 0.3s ease;
   transform: translateY(0);
 }
 
@@ -258,7 +213,7 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-/* 移动端导航容器 - 核心修复溢出问题 */
+/* 移动端导航容器 - 防溢出 */
 .top-nav-mobile {
   display: none;
   justify-content: space-between;
@@ -275,7 +230,7 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-/* 移动端按钮容器 - 紧凑排列+防溢出 */
+/* 移动端按钮组 */
 .mobile-btn-group {
   display: flex;
   align-items: center;
@@ -288,7 +243,7 @@ onUnmounted(() => {
   transition: color 0.2s;
 }
 
-/* 移动端下拉菜单 - 缩小图标和按钮尺寸 */
+/* 移动端下拉菜单 */
 .mobile-dropdown {
   color: #333;
   font-size: 14px;
@@ -304,7 +259,7 @@ onUnmounted(() => {
   font-size: 20px;
 }
 
-/* 自定义下拉菜单样式 - 小米浅灰风格 */
+/* 自定义下拉菜单样式 */
 .custom-menu {
   background-color: #fff !important;
   border: 1px solid #e5e5e5 !important;
@@ -312,7 +267,7 @@ onUnmounted(() => {
   border-radius: 4px !important;
 }
 
-/* 导航列表样式 */
+/* 导航列表 */
 .nav-list {
   display: flex;
   list-style: none;
@@ -320,7 +275,7 @@ onUnmounted(() => {
   padding: 0;
 }
 
-/* 导航链接基础样式 */
+/* 导航链接 - 下划线hover效果 */
 .nav-link {
   color: #333;
   text-decoration: none;
@@ -333,7 +288,6 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-/* 链接hover效果 - 小米橙下划线+文字变色 */
 .nav-link:hover {
   color: #ff6700;
 }
@@ -354,13 +308,12 @@ onUnmounted(() => {
   width: 80%;
 }
 
-/* 用户名样式 */
+/* 用户名/退出按钮样式 */
 .user-name {
   color: #ff6700;
   font-weight: 500;
 }
 
-/* 退出登录按钮特殊样式 */
 .logout-btn:hover {
   color: #ff4400;
 }
@@ -369,7 +322,7 @@ onUnmounted(() => {
   background-color: #ff4400;
 }
 
-/* 分隔线样式 - 小米浅灰 */
+/* 分隔线 */
 .split {
   display: inline-block;
   height: 14px;
@@ -379,56 +332,13 @@ onUnmounted(() => {
   vertical-align: middle;
 }
 
-/* 移动端适配 */
-@media (max-width: 1200px) {
-  .top-nav-pc {
-    width: 90%;
-  }
-
-  .footer-container {
-    width: 90%;
-  }
-}
-
-@media (max-width: 992px) {
-  .top-nav-pc {
-    display: none;
-  }
-
-  .top-nav-mobile {
-    display: flex;
-  }
-
-  .top-header {
-    height: 55px;
-    line-height: 55px;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  .nav-link {
-    height: 45px;
-    line-height: 45px;
-    padding: 0 8px;
-  }
-
-  /* 移动端下拉菜单链接hover */
-  .custom-menu .nav-link:hover {
-    background-color: #f5f5f5;
-  }
-
-  .custom-menu .nav-link::after {
-    display: none;
-  }
-}
-
-/* 主内容区留白 */
+/* 主体内容区 */
 .el-main {
   padding: 20px 0;
   min-height: 85vh;
 }
 
-/* 重构页脚样式 - Livi Unity团结改造家主题 */
+/* 页脚核心样式 */
 .app-footer {
   background-color: #f8f8f8;
   color: #666;
@@ -438,18 +348,25 @@ onUnmounted(() => {
 }
 
 .footer-container {
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  box-sizing: border-box;
 }
 
-/* 品牌核心信息 */
+/* 页脚品牌信息 */
 .footer-brand {
   text-align: center;
-  padding-bottom: 20px;
+  padding-bottom: 15px;
   border-bottom: 1px solid #e5e5e5;
+  width: 100%;
+  max-width: 600px;
 }
 
 .brand-name {
@@ -466,114 +383,102 @@ onUnmounted(() => {
   font-weight: 500;
 }
 
-/* 快捷链接 */
-.footer-links {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.link-group {
-  flex: 1;
-  min-width: 200px;
-}
-
-.link-title {
-  font-size: 16px;
-  color: #333;
-  margin: 0 0 15px;
-  font-weight: 600;
-  position: relative;
-  padding-bottom: 8px;
-}
-
-.link-title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 30px;
-  height: 2px;
-  background-color: #ff6700;
-}
-
-.footer-links ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.footer-links li {
-  margin-bottom: 10px;
-}
-
-.footer-links a {
-  color: #666;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-links a:hover {
-  color: #ff6700;
-}
-
-/* 联系方式 */
-.footer-contact {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-  padding: 20px 0;
-  border-top: 1px solid #e5e5e5;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #333;
-}
-
-.contact-item i {
-  font-size: 18px;
-  color: #ff6700;
-}
-
-/* 版权信息 */
+/* 页脚版权信息 */
 .footer-copyright {
   text-align: center;
-  padding-top: 20px;
+  padding-top: 10px;
   font-size: 12px;
   color: #999;
+  width: 100%;
 }
 
 .footer-copyright p {
-  margin: 5px 0;
+  margin: 0;
+  line-height: 1.5;
 }
 
-/* 页脚移动端适配 */
+/* 响应式适配 */
+@media (max-width: 1200px) {
+  .top-nav-pc {
+    width: 90%;
+  }
+}
+
+@media (max-width: 992px) {
+  /* 导航适配 */
+  .top-nav-pc {
+    display: none;
+  }
+  .top-nav-mobile {
+    display: flex;
+  }
+  .top-header {
+    height: 55px;
+    line-height: 55px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .nav-link {
+    height: 45px;
+    line-height: 45px;
+    padding: 0 8px;
+  }
+  .custom-menu .nav-link:hover {
+    background-color: #f5f5f5;
+  }
+  .custom-menu .nav-link::after {
+    display: none;
+  }
+
+  /* 页脚适配 */
+  .footer-brand {
+    padding-bottom: 10px;
+  }
+  .brand-name {
+    font-size: 22px;
+  }
+  .brand-slogan {
+    font-size: 14px;
+  }
+}
+
 @media (max-width: 768px) {
-  .footer-links {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .link-title::after {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .footer-contact {
-    gap: 20px;
-    flex-direction: column;
-    align-items: center;
-  }
-
+  /* 页脚适配 */
   .app-footer {
     padding: 30px 0 15px;
+  }
+  .footer-container {
+    gap: 15px;
+  }
+  .footer-brand {
+    padding-bottom: 8px;
+  }
+  .brand-name {
+    font-size: 20px;
+  }
+  .brand-slogan {
+    font-size: 13px;
+  }
+  .footer-copyright {
+    padding-top: 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 页脚适配 */
+  .app-footer {
+    padding: 20px 0 10px;
+  }
+  .brand-name {
+    font-size: 18px;
+  }
+  .brand-slogan {
+    font-size: 12px;
+  }
+  .footer-copyright p {
+    padding: 0 10px;
+    word-break: break-all;
   }
 }
 </style>

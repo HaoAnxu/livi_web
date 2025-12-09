@@ -124,69 +124,87 @@ onUnmounted(() => {
 
 <template>
   <div class="bg">
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
-    <form class="form">
-      <h1 class="title">Livi Unity</h1>
-      <div class="flex-column">
-        <label>用户名</label></div>
-      <div class="inputForm">
-        <el-icon><User /></el-icon>
-        <input type="text" class="input" placeholder="请输入用户名"
-               v-model="userInfo.username"
-               required
-               minlength="1"
-               maxlength="12"
-               pattern="^[a-zA-Z0-9_]+$"
-               title="用户名只能包含字母、数字或下划线，长度3-16位">
-      </div>
-      <div class="flex-column">
-        <label>密码</label></div>
-      <div class="inputForm">
-        <el-icon><Hide /></el-icon>
-        <input type="password" class="input" placeholder="(6-12)位任意字符"
-               v-model="userInfo.password"
-               required
-               minlength="6"
-               maxlength="12"
-               title="密码长度6-12位">
-      </div>
+    <!-- 背景文字添加响应式类名 -->
+    <div class="fade-text responsive-hidden">团结改造家</div>
+    <div class="fade-text responsive-hidden">Livi Unity</div>
+    <div class="fade-text responsive-hidden">团结改造家</div>
+    <div class="fade-text responsive-hidden">Livi Unity</div>
+    <div class="fade-text responsive-hidden">团结改造家</div>
+    <div class="fade-text responsive-hidden">Livi Unity</div>
 
-      <div class="flex-column">
-        <label>验证码</label></div>
-      <div class="inputForm">
-        <YZcode ref="YZcodeRef" difficulty="10"></YZcode>
-        <input type="text" class="input" placeholder="请输入验证码(注意大小写)" v-model="YZcodeText" required>
-      </div>
-      <div class="flex-row">
-        <div>
-          <input type="checkbox">
-          <label>记住密码</label>
+    <!-- 表单容器添加响应式样式 -->
+    <div class="form-container">
+      <form class="form">
+        <h1 class="title">Livi Unity</h1>
+        <div class="flex-column">
+          <label>用户名</label></div>
+        <div class="inputForm">
+          <el-icon><User /></el-icon>
+          <input type="text" class="input" placeholder="请输入用户名"
+                 v-model="userInfo.username"
+                 required
+                 minlength="1"
+                 maxlength="12"
+                 pattern="^[a-zA-Z0-9_]+$"
+                 title="用户名只能包含字母、数字或下划线，长度3-16位">
         </div>
-        <button @click="reset" class="reset">重置</button>
-        <span class="span">忘记密码？</span>
-      </div>
-      <button class="button-submit" @click.prevent="login">登录</button>
-      <p class="p">没有账号？ <span class="span" @click="register">注册~</span></p>
-      <p class="p line">或者？</p>
-      <div class="flex-row">
-        <button class="btn" @click="goIndex">
-          <el-icon><ChatLineSquare /></el-icon>我就逛逛不登陆~
-        </button>
-        <button class="btn" @click="contactAdmin">
-          <el-icon><CoffeeCup /></el-icon>联系管理员
-        </button>
-      </div>
-    </form>
+        <div class="flex-column">
+          <label>密码</label></div>
+        <div class="inputForm">
+          <el-icon><Hide /></el-icon>
+          <input type="password" class="input" placeholder="(6-12)位任意字符"
+                 v-model="userInfo.password"
+                 required
+                 minlength="6"
+                 maxlength="12"
+                 title="密码长度6-12位">
+        </div>
+
+        <div class="flex-column">
+          <label>验证码</label></div>
+        <div class="inputForm">
+          <YZcode ref="YZcodeRef" difficulty="10"></YZcode>
+          <input type="text" class="input" placeholder="请输入验证码(注意大小写)" v-model="YZcodeText" required>
+        </div>
+        <div class="flex-row">
+          <div>
+            <input type="checkbox">
+            <label>记住密码</label>
+          </div>
+          <button @click="reset" class="reset">重置</button>
+          <span class="span">忘记密码？</span>
+        </div>
+        <button class="button-submit" @click.prevent="login">登录</button>
+        <p class="p">没有账号？ <span class="span" @click="register">注册~</span></p>
+        <p class="p line">或者？</p>
+        <div class="flex-row">
+          <button class="btn" @click="goIndex">
+            <el-icon><ChatLineSquare /></el-icon>我就逛逛不登陆~
+          </button>
+          <button class="btn" @click="contactAdmin">
+            <el-icon><CoffeeCup /></el-icon>联系管理员
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 <style scoped>
 @import '@/assets/CSS/Login_Register/bg.css';
+
+/* 响应式表单容器 - 核心优化 */
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0 auto; /* 居中 */
+  padding: 20px; /* 添加工厂边距，防止表单贴边 */
+  box-sizing: border-box;
+  max-width: 1200px; /* 限制最大宽度，避免超大屏拉伸 */
+}
+
 .title {
   background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ff6b6b);
   background-size: 400% 400%;
@@ -196,6 +214,7 @@ onUnmounted(() => {
   animation: breathColor 8s ease-in-out infinite;
   text-align: center;
 }
+
 /* 定义动画关键帧 */
 @keyframes breathColor {
   0% {
@@ -211,15 +230,17 @@ onUnmounted(() => {
     opacity: 0.9; /* 回到初始状态 */
   }
 }
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 30px;
-  width: 450px;
+  width: 500px;
   border: 1px solid rgba(14, 14, 14, 0.3);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
+  box-sizing: border-box; /* 确保padding不影响宽度 */
 }
 
 .form button {
@@ -331,4 +352,40 @@ onUnmounted(() => {
   border: 1px solid rgb(68, 255, 57);
 }
 
+/* 响应式样式  */
+/* 小屏幕下禁用背景文字 + 表单自适应 */
+@media (max-width: 768px) {
+  .responsive-hidden {
+    display: none !important;
+  }
+  /* 小屏幕表单宽度自适应 */
+  .form {
+    width: 100%;
+    max-width: 450px; /* 最大不超过原有宽度 */
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 20px 15px;
+  }
+
+  .form-container {
+    padding: 10px;
+  }
+}
+
+/* 确保body和html占满全屏 */
+:deep(html), :deep(body) {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* 确保bg容器占满全屏 */
+.bg {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
 </style>

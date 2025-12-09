@@ -171,69 +171,73 @@ onUnmounted(() => {
 
 <template>
   <div class="bg">
-    <div class="fade-text">团结</div>
-    <div class="fade-text">Livi</div>
-    <div class="fade-text">改造家</div>
-    <div class="fade-text">Unity</div>
-    <div class="fade-text">团结改造家</div>
-    <div class="fade-text">Livi Unity</div>
+    <!-- 背景文字添加响应式隐藏类名 -->
+    <div class="fade-text responsive-hidden">团结</div>
+    <div class="fade-text responsive-hidden">Livi</div>
+    <div class="fade-text responsive-hidden">改造家</div>
+    <div class="fade-text responsive-hidden">Unity</div>
+    <div class="fade-text responsive-hidden">团结改造家</div>
+    <div class="fade-text responsive-hidden">Livi Unity</div>
 
-    <form class="form">
-      <h1 class="title">Livi Unity</h1>
+    <!-- 表单容器：居中 + 边距优化 -->
+    <div class="form-container">
+      <form class="form">
+        <h1 class="title">Livi Unity</h1>
 
-      <div class="flex-column">
-        <label>用户名</label></div>
-      <div class="inputForm">
-        <el-icon>
-          <User/>
-        </el-icon>
-        <input type="text" class="input" placeholder="请输入用户名"
-               v-model="userInfo.username"
-               required
-               minlength="1"
-               maxlength="12"
-               pattern="^[a-zA-Z0-9_]+$"
-               title="用户名只能包含字母、数字或下划线，长度3-16位">
-      </div>
+        <div class="flex-column">
+          <label>用户名</label></div>
+        <div class="inputForm">
+          <el-icon>
+            <User/>
+          </el-icon>
+          <input type="text" class="input" placeholder="请输入用户名"
+                 v-model="userInfo.username"
+                 required
+                 minlength="1"
+                 maxlength="12"
+                 pattern="^[a-zA-Z0-9_]+$"
+                 title="用户名只能包含字母、数字或下划线，长度3-16位">
+        </div>
 
-      <div class="flex-column">
-        <label>密码</label></div>
-      <div class="inputForm">
-        <el-icon>
-          <Hide/>
-        </el-icon>
-        <input type="password" class="input" placeholder="(6-12)位任意字符"
-               v-model="userInfo.password"
-               required
-               minlength="6"
-               maxlength="12"
-               title="密码长度6-12位">
-      </div>
+        <div class="flex-column">
+          <label>密码</label></div>
+        <div class="inputForm">
+          <el-icon>
+            <Hide/>
+          </el-icon>
+          <input type="password" class="input" placeholder="(6-12)位任意字符"
+                 v-model="userInfo.password"
+                 required
+                 minlength="6"
+                 maxlength="12"
+                 title="密码长度6-12位">
+        </div>
 
-      <div class="flex-column">
-        <label>邮箱</label></div>
-      <div class="inputForm">
-        <el-icon>
-          <Hide/>
-        </el-icon>
-        <input type="email" class="input" placeholder="请输入邮箱"
-               v-model="userInfo.email"
-               required
-               title="请输入正确的邮箱格式">
-      </div>
+        <div class="flex-column">
+          <label>邮箱</label></div>
+        <div class="inputForm">
+          <el-icon>
+            <Hide/>
+          </el-icon>
+          <input type="email" class="input" placeholder="请输入邮箱"
+                 v-model="userInfo.email"
+                 required
+                 title="请输入正确的邮箱格式">
+        </div>
 
-      <div class="flex-column">
-        <label>邮箱验证码</label></div>
-      <div class="inputForm">
-        <!-- 修复：按钮禁用逻辑增加发送中/冷却判断 -->
-        <button @click="sendCode" class="code_button" type="button"
-                :disabled="!isRightEmail || isSendingCode || codeCountdown > 0">
-          {{ codeCountdown > 0 ? `${codeCountdown}s后重发` : '发送' }}
-        </button>
-        <input type="text" class="input" placeholder="请输入邮箱验证码" v-model="codeText" required>
-      </div>
-      <button class="button-submit" @click.prevent="register" :disabled="!isVerifyCode">注册</button>
-    </form>
+        <div class="flex-column">
+          <label>邮箱验证码</label></div>
+        <div class="inputForm">
+          <!-- 修复：按钮禁用逻辑增加发送中/冷却判断 -->
+          <button @click="sendCode" class="code_button" type="button"
+                  :disabled="!isRightEmail || isSendingCode || codeCountdown > 0">
+            {{ codeCountdown > 0 ? `${codeCountdown}s后重发` : '发送' }}
+          </button>
+          <input type="text" class="input" placeholder="请输入邮箱验证码" v-model="codeText" required>
+        </div>
+        <button class="button-submit" @click.prevent="register" :disabled="!isVerifyCode">注册</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -264,15 +268,29 @@ onUnmounted(() => {
     opacity: 0.9; /* 回到初始状态 */
   }
 }
+
+/* 表单容器：居中 + 边距优化 */
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 20px; /* 添加工厂边距，防止表单贴边 */
+  box-sizing: border-box;
+  max-width: 1200px; /* 限制最大宽度 */
+}
+
 .form {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 30px;
-  width: 450px;
+  width: 500px; /* PC端固定500px宽度 */
   border: 1px solid rgba(14, 14, 14, 0.3);
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
   border-radius: 20px;
+  box-sizing: border-box; /* 确保padding不影响宽度 */
 }
 
 .form button {
@@ -363,5 +381,41 @@ onUnmounted(() => {
 
 .code_button:disabled {
   cursor: not-allowed;
+}
+
+/* 响应式样式 */
+/* 小屏幕下隐藏背景文字 + 表单自适应 */
+@media (max-width: 768px) {
+  .responsive-hidden {
+    display: none !important;
+  }
+  /* 小屏幕表单宽度自适应 */
+  .form {
+    width: 100%;
+    max-width: 500px; /* 最大不超过原有500px宽度 */
+  }
+}
+
+@media (max-width: 480px) {
+  .form {
+    padding: 20px 15px;
+  }
+
+  .form-container {
+    padding: 10px;
+  }
+}
+
+/* 确保页面容器占满全屏 */
+:deep(html), :deep(body) {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.bg {
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 </style>

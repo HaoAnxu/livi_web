@@ -13,6 +13,7 @@ import ShopView from '@/views/shop/shop.vue'
 import ShortVideoView from '@/views/shortVideo/shortVideo.vue'
 import MusicView from '@/views/music/music.vue'
 import AIView from '@/views/AI/ai.vue'
+import DeviceControlView from '@/views/smartHome/deviceControl.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,7 @@ const router = createRouter({
                 {path:'weCommunity',name:'weCommunity',component:WeCommunityView},
                 {path:'chatRoom',name:'chatRoom',component:ChatRoomView},
                 {path:'smartHome',name:'smartHome',component:SmartHomeView},
+                {path:'deviceControl',name:'deviceControl',component:DeviceControlView},
                 {path:'shop',name:'shop',component:ShopView},
                 {path:'shortVideo',name:'shortVideo',component:ShortVideoView},
                 {path:'music',name:'music',component:MusicView},
