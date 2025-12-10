@@ -1,38 +1,84 @@
 <script setup>
-import {ref, onMounted} from "vue"
+import {ref, reactive, onMounted, watch} from "vue"
 import {useRouter} from 'vue-router'
 import {MyLoading} from "@/utils/MyLoading.js"
 import MyMessage from "@/utils/MyMessage.js"
 import {
   getAllDeviceInfoListByUserIdApi,
   deleteDeviceByDeviceIdApi,
+  addNewDeviceApi,
+  getRoomInfoByFamilyIdApi,
+  getAllFamilyInfoByUserIdApi
 } from "@/api/device.js"
 
 const router = useRouter()
 const deviceInfoList = ref([])
-const userId = ref('')
+const userId = ref(0) // 改为数字类型，匹配后端Integer
+// 默认设备图片
+const defaultDeviceImg = ref("https://smarthomeunity.oss-cn-beijing.aliyuncs.com/image/LiVi%20Unity.png");
+const familyInfoList = ref([])
+const currentFamilyId = ref(0) // 改为数字类型，初始值0
 
-// 默认设备图片（device.deviceImage为空时显示）
-const defaultDeviceImg = ref("https://img07.360buyimg.com/n1/jfs/t1/195432/36/26345/105678/64836f57Fe5f6a7b8/0e1f2a3b4c5d6e7f.jpg");
+// 获取用户家庭信息列表
+const getFamilyInfoList = async () => {
+  try {
+    MyLoading.value = true;
+    const loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
+    if (!loginUser) {
+      MyMessage.error('请先登录');
+      await router.push('/login');
+      return;
+    }
+    userId.value = loginUser.userId;
+    const result = await getAllFamilyInfoByUserIdApi(userId.value);
+    if (result.code) {
+      familyInfoList.value = result.data || [];
+      // 有家庭数据则赋值，否则置0
+      currentFamilyId.value = familyInfoList.value.length > 0 ? familyInfoList.value[0].familyId : 0;
+    } else {
+      MyMessage.error(result.msg);
+      familyInfoList.value = [];
+      currentFamilyId.value = 0;
+    }
+  } catch (error) {
+    MyMessage.error('获取家庭信息失败：' + error.message);
+    familyInfoList.value = [];
+    currentFamilyId.value = 0;
+  } finally {
+    MyLoading.value = false; // 无论成功失败都关闭loading
+  }
+}
 
 // 获取用户设备列表
 const getDeviceInfoList = async () => {
-  MyLoading.value = true;
-  const loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
-  if (!loginUser) {
-    MyMessage.error('请先登录');
-    router.push('/login');
-    MyLoading.value = false;
-    return;
-  }
-  userId.value = loginUser.userId;
-  const result = await getAllDeviceInfoListByUserIdApi(userId.value);
-  if (result.code) {
-    deviceInfoList.value = result.data || [];
-    MyLoading.value = false;
-  } else {
-    MyMessage.error(result.msg);
+  try {
+    MyLoading.value = true;
+    const loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
+    if (!loginUser) {
+      MyMessage.error('请先登录');
+      await router.push('/login');
+      return;
+    }
+    userId.value = loginUser.userId;
+
+    // 校验familyId是否有效，无效则提示
+    if (currentFamilyId.value === 0 || !currentFamilyId.value) {
+      MyMessage.warning('暂无可用家庭，请先添加家庭');
+      deviceInfoList.value = [];
+      return;
+    }
+
+    const result = await getAllDeviceInfoListByUserIdApi(currentFamilyId.value);
+    if (result.code) {
+      deviceInfoList.value = result.data || [];
+    } else {
+      MyMessage.error(result.msg);
+      deviceInfoList.value = [];
+    }
+  } catch (error) {
+    MyMessage.error('获取设备列表失败：' + error.message);
     deviceInfoList.value = [];
+  } finally {
     MyLoading.value = false;
   }
 }
@@ -45,40 +91,230 @@ const toDeviceControl = (deviceId) => {
   })
 }
 
-// 删除设备（带确认弹窗）
+// 删除设备
 const deleteDevice = async (deviceId) => {
-  MyLoading.value = true;
-  const result = await deleteDeviceByDeviceIdApi(deviceId);
-  if (result.code) {
-    MyMessage.success(result.msg);
-    await getDeviceInfoList();
-    MyLoading.value = false;
-  } else {
-    MyMessage.error(result.msg);
+  try {
+    MyLoading.value = true;
+    const result = await deleteDeviceByDeviceIdApi(deviceId);
+    if (result.code) {
+      MyMessage.success(result.msg);
+      await getDeviceInfoList(); // 刷新列表
+    } else {
+      MyMessage.error(result.msg);
+    }
+  } catch (error) {
+    MyMessage.error('删除设备失败：' + error.message);
+  } finally {
     MyLoading.value = false;
   }
 }
 
-// 页面挂载时加载设备列表
-onMounted(() => {
-  getDeviceInfoList();
+// 对话框相关
+const dialogFormVisible = ref(false)
+const deviceInfo = reactive({
+  deviceName: '',
+  deviceType: '',
+  roomId: '',
+  deviceImage: '',
+  familyId: 0 // 关联当前家庭ID
 })
+const deviceFormRef = ref(null)
+const formRules = {
+  deviceName: [{required: true, message: '请输入设备名称', trigger: 'blur'}],
+  deviceType: [{required: true, message: '请选择设备类型', trigger: 'change'}],
+  roomId: [{required: true, message: '请选择所属房间', trigger: 'change'}],
+  deviceImage: [{required: false}]
+}
+// 添加新设备
+const addDevice = async () => {
+  try {
+    MyLoading.value = true;
+    // 校验前先赋值当前家庭ID
+    deviceInfo.familyId = currentFamilyId.value;
+    //赋值userId
+    deviceInfo.userId = userId.value;
+    // 将validate转为Promise，适配async/await
+    const valid = await new Promise((resolve) => {
+      deviceFormRef.value.validate((isValid) => {
+        resolve(isValid);
+      });
+    });
+    if (!valid) {
+      MyMessage.error('请填写完整信息');
+      return;
+    }
+    const result = await addNewDeviceApi(deviceInfo);
+    if (result.code) {
+      MyMessage.success(result.msg);
+      await getDeviceInfoList(); // 刷新列表
+      dialogFormVisible.value = false;
+      // 重置表单，清空脏数据
+      deviceFormRef.value.resetFields();
+      // 重置表单对象
+      Object.assign(deviceInfo, {
+        deviceName: '',
+        deviceType: '',
+        roomId: '',
+        deviceImage: '',
+        familyId: currentFamilyId.value
+      });
+    } else {
+      MyMessage.error(result.msg);
+    }
+  } catch (error) {
+    MyMessage.error('添加设备失败：' + error.message);
+  } finally {
+    MyLoading.value = false;
+  }
+}
+
+//查询家庭匹配房间
+const roomInfoList = ref([])
+const getRoomInfoList = async () => {
+  try {
+    MyLoading.value = true;
+    const result = await getRoomInfoByFamilyIdApi(currentFamilyId.value);
+    if (result.code) {
+      roomInfoList.value = result.data || [];
+    } else {
+      MyMessage.error(result.msg);
+      roomInfoList.value = [];
+    }
+  } catch (error) {
+    MyMessage.error('获取房间列表失败：' + error.message);
+    roomInfoList.value = [];
+  } finally {
+    MyLoading.value = false;
+  }
+}
+
+// 页面挂载
+onMounted(() => {
+  getFamilyInfoList();
+});
+
+watch(currentFamilyId, (newVal) => {
+  if (newVal !== 0) {
+    getDeviceInfoList();
+  }
+}, {immediate: true});
 </script>
 
 <template>
-  <div class="device-container">
-    <!-- 页面标题区 -->
-    <div class="page-header">
-      <h2>我的智能设备</h2>
-    </div>
+  <!-- 添加设备对话框 -->
+  <el-dialog
+      v-model="dialogFormVisible"
+      title="添加智能设备"
+      width="90%"
+      max-width="550px"
+      :close-on-click-modal="false"
+      class="device-add-dialog"
+  >
+    <el-form
+        ref="deviceFormRef"
+        :model="deviceInfo"
+        :rules="formRules"
+        label-position="top"
+        label-width="auto"
+        class="device-form"
+    >
+      <!-- 设备名称 -->
+      <el-form-item label="设备名称" prop="deviceName">
+        <el-input v-model="deviceInfo.deviceName" placeholder="请输入设备名称" class="form-input"/>
+      </el-form-item>
 
-    <!-- 设备列表区（含空状态） -->
+      <!-- 设备类型 -->
+      <el-form-item label="设备类型" prop="deviceType">
+        <el-select v-model="deviceInfo.deviceType" placeholder="请选择设备类型" class="form-select">
+          <el-option label="基础家具类" value="基础家具类"/>
+          <el-option label="厨房电器类" value="厨房电器类"/>
+          <el-option label="生活电器类" value="生活电器类"/>
+          <el-option label="影音娱乐类" value="影音娱乐类"/>
+          <el-option label="照明灯具类" value="照明灯具类"/>
+          <el-option label="安防监控类" value="安防监控类"/>
+          <el-option label="智能控制类" value="智能控制类"/>
+          <el-option label="厨卫五金类" value="厨卫五金类"/>
+          <el-option label="其它" value="其它"/>
+        </el-select>
+      </el-form-item>
+
+      <!-- 所属房间 -->
+      <el-form-item label="所属房间" prop="roomId">
+        <el-select v-model="deviceInfo.roomId" placeholder="请选择所属房间" class="form-select" @click="getRoomInfoList">
+          <el-option v-for="room in roomInfoList" :key="room.roomId" :label="room.roomName" :value="room.roomId"/>
+        </el-select>
+      </el-form-item>
+
+      <!-- 设备图片上传 -->
+      <el-form-item label="设备图片" prop="deviceImage">
+        <el-upload
+            :limit="1"
+            accept="image/png,image/jpg,image/jpeg"
+            list-type="picture-card"
+            class="avatar-uploader"
+        >
+          <div class="upload-placeholder">
+            <el-icon class="upload-icon">
+              <Plus/>
+            </el-icon>
+            <div class="upload-text">点击上传<br/>设备图片</div>
+          </div>
+          <img
+              v-if="deviceInfo.deviceImage"
+              :src="deviceInfo.deviceImage"
+              class="uploaded-image"
+              alt="设备图片"
+          />
+        </el-upload>
+        <div class="upload-tip">
+          <span>支持PNG/JPG/JPEG格式，建议尺寸200*200px</span>
+        </div>
+      </el-form-item>
+    </el-form>
+
+    <!-- 底部按钮 -->
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">关闭</el-button>
+        <el-button type="primary" @click="addDevice">确认添加</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+  <div class="device-container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <h2 class="title-gradient">智能设备</h2>
+      <div class="header-btn-group">
+        <!--添加设备按钮-->
+        <el-button type="primary" @click="dialogFormVisible = true">添加设备</el-button>
+        <div>
+          <el-dropdown trigger="click">
+            <el-button type="primary" @click="getRoomInfoList">
+              选择家庭组
+              <el-icon class="el-icon--right">
+                <arrow-down/>
+              </el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item v-for="family in familyInfoList" :key="family.familyId" :value="family.familyId"
+                                  @click="currentFamilyId = family.familyId">
+                  {{ family.familyName }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </div>
+    </div>
+    <!-- 设备列表区 -->
     <div class="device-list">
       <div class="device-card" v-for="device in deviceInfoList" :key="device.deviceId">
-        <!-- 设备图片（直接用device.deviceImage） -->
+        <!-- 设备图片 -->
         <div class="device-img">
           <img :src="device.deviceImage || defaultDeviceImg" alt="设备图片">
-          <!-- 状态色点（v-if判断） -->
+          <!-- 状态色点 -->
           <div class="status-dot" v-if="device.deviceStatus === 0" style="background-color: #ff4d4f;"></div>
           <div class="status-dot" v-else-if="device.deviceStatus === 1" style="background-color: #52c41a;"></div>
           <div class="status-dot" v-else-if="device.deviceStatus === 2" style="background-color: #faad14;"></div>
@@ -86,7 +322,7 @@ onMounted(() => {
           <div class="status-dot" v-else style="background-color: #999;"></div>
         </div>
 
-        <!-- 设备信息模块（状态v-if直接显示） -->
+        <!-- 设备信息模块 -->
         <div class="device-info">
           <h3 class="device-name">{{ device.deviceName }}</h3>
           <div class="info-row">
@@ -127,195 +363,14 @@ onMounted(() => {
 
       <!-- 空状态提示 -->
       <div class="empty-state" v-if="deviceInfoList.length === 0">
-        <img
-            src="https://img11.360buyimg.com/imagetools/jfs/t1/215743/33/25289/101784/647e1337F6b6a0044/8f093d4d2f590e85.png"
-            alt="暂无设备">
         <p>暂无智能设备</p>
       </div>
     </div>
   </div>
+
 </template>
 
-<style scoped>
-/* 核心样式 */
-.device-container {
-  width: 1200px;
-  margin: 0 auto;
-  padding: 20px 0;
-  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-}
+<style>
+@import '@/assets/CSS/SmartHome/main.css';
 
-/* 页面标题区 */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.page-header h2 {
-  font-size: 20px;
-  color: #333;
-  font-weight: 600;
-}
-
-/* 设备列表区 */
-.device-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-}
-
-.device-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition: box-shadow 0.3s;
-}
-
-.device-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* 设备图片区 */
-.device-img {
-  position: relative;
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
-}
-
-.device-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  transition: transform 0.3s;
-}
-
-.device-card:hover .device-img img {
-  transform: scale(1.05);
-}
-
-/* 状态色点 */
-.status-dot {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
-}
-
-/* 设备信息区 */
-.device-info {
-  padding: 16px;
-}
-
-.device-name {
-  font-size: 16px;
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.info-row {
-  display: flex;
-  font-size: 13px;
-  margin-bottom: 8px;
-  color: #666;
-}
-
-.info-row .label {
-  width: 70px;
-  color: #999;
-}
-
-.info-row .value {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* 操作按钮区 */
-.device-actions {
-  display: flex;
-  padding: 0 16px 16px;
-  gap: 8px;
-}
-
-.control-btn {
-  flex: 1;
-  background-color: #fff;
-  color: #ff4400;
-  border: 1px solid #ff4400;
-  padding: 8px 0;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.control-btn:hover {
-  background-color: #fff6f2;
-}
-
-.delete-btn {
-  width: 60px;
-  background-color: #fff;
-  color: #999;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.delete-btn:hover {
-  color: #ff4d4f;
-  border-color: #ffccc7;
-}
-
-/* 空状态 */
-.empty-state {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80px 0;
-  color: #999;
-  font-size: 14px;
-}
-
-.empty-state img {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 16px;
-  opacity: 0.6;
-  object-fit: fill;
-}
-
-/* 响应式适配 */
-@media (max-width: 1200px) {
-  .device-container {
-    width: 95%;
-  }
-}
-
-@media (max-width: 768px) {
-  .device-list {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  }
-  .device-img {
-    height: 150px;
-  }
-}
 </style>

@@ -7,16 +7,16 @@
     border-radius: 16px;
     overflow: hidden;
     background-color: #fff;
-    box-shadow: 0 8px 30px rgba(230, 126, 34, 0.15);
+    box-shadow: 0 8px 30px rgba(92, 173, 240, 0.15); /* 淡蓝阴影 */
     display: flex;
-    border: 1px solid #f0d0b0;
+    border: 1px solid #eaf5fb; /* 淡蓝边框 */
 }
 
 /* 左侧侧边栏 - 缩小尺寸 */
 .chat-sidebar {
     width: 200px; /* 从280px缩小 */
-    background: linear-gradient(180deg, #fff5eb, #ffede0);
-    border-right: 1px solid #f0d0b0;
+    background: linear-gradient(180deg, #d2eaff, #aee3ff);
+    border-right: 1px solid #eaf5fb; /* 淡蓝边框 */
     padding: 15px; /* 从20px缩小 */
     display: flex;
     flex-direction: column;
@@ -25,7 +25,7 @@
 .sidebar-header {
     text-align: center;
     padding-bottom: 15px; /* 从20px缩小 */
-    border-bottom: 1px solid #f0d0b0;
+    border-bottom: 1px solid #eaf5fb; /* 淡蓝边框 */
     margin-bottom: 15px; /* 从20px缩小 */
 }
 
@@ -37,14 +37,14 @@
     object-position: center; /* 居中裁剪 */
     margin-bottom: 8px; /* 从10px缩小 */
     border: 2px solid #fff; /* 从3px缩小 */
-    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.2);
+    box-shadow: 0 2px 8px rgba(92, 173, 240, 0.2); /* 淡蓝阴影 */
     /* 强制宽高比一致 */
     aspect-ratio: 1/1;
 }
 
 .group-name {
     font-size: 18px; /* 从20px缩小 */
-    color: #e67e22;
+    color: #2a78c7; /* 深蓝文字 */
     margin: 0 0 6px 0; /* 从8px缩小 */
     font-weight: 600;
 }
@@ -91,13 +91,13 @@
 
 .more-members {
     font-size: 13px; /* 从14px缩小 */
-    color: #ff7e22;
+    color: #5cadf0; /* 主蓝文字 */
     text-align: center;
     margin-top: 8px; /* 从10px缩小 */
     padding: 6px; /* 从8px缩小 */
     background-color: #fff;
     border-radius: 8px;
-    border: 1px solid #f0d0b0;
+    border: 1px solid #eaf5fb; /* 淡蓝边框 */
 }
 
 /* 右侧聊天主区域 */
@@ -110,7 +110,7 @@
 /* 聊天头部 - 缩小尺寸 */
 .chat-header {
     padding: 12px 20px; /* 从18px 25px缩小 */
-    background: linear-gradient(90deg, #ff7e22, #ff9500);
+    background: linear-gradient(180deg, #d2eaff, #aee3ff);
     color: #fff;
     display: flex;
     justify-content: space-between;
@@ -153,7 +153,7 @@
 .chat-content {
     flex: 1;
     padding: 20px 25px; /* 从30px 40px缩小 */
-    background-color: #fff5eb;
+    background-color: #f9fcff; /* 极浅蓝背景 */
     overflow-y: auto;
     scrollbar-width: thin;
 }
@@ -200,30 +200,30 @@
 }
 
 .self-message .message-name {
-    color: #ff7e22;
+    color: #5cadf0; /* 主蓝文字 */
 }
 
 .message-content {
     padding: 10px 15px; /* 从12px 18px缩小 */
     border-radius: 14px; /* 从16px缩小 */
     background-color: #fff;
-    border: 1px solid #f0d0b0;
+    border: 1px solid #eaf5fb; /* 淡蓝边框 */
     line-height: 1.5; /* 从1.6缩小，减少行高 */
     font-size: 15px; /* 从16px缩小 */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .self-message .message-content {
-    background: linear-gradient(90deg, #ff9500, #ff7e22);
+    background: linear-gradient(90deg, #5cadf0, #4a98e8); /* 蓝渐变 */
     color: #fff;
-    border-color: #ff7e22;
-    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.15);
+    border-color: #5cadf0; /* 主蓝边框 */
+    box-shadow: 0 2px 8px rgba(92, 173, 240, 0.15); /* 淡蓝阴影 */
 }
 /* 输入框区域（优化版）- 微调间距 */
 .chat-input-area {
     padding: 15px 20px; /* 从20px 30px缩小 */
     background-color: #fff;
-    border-top: 1px solid #f0d0b0;
+    border-top: 1px solid #eaf5fb; /* 淡蓝边框 */
 }
 /* 输入框容器（优化布局） */
 .input-container {
@@ -286,7 +286,7 @@
     /* 移动端适配 - 隐藏侧边栏，优化布局 */
     .pc-chat-room {
         width: 100%;
-        height: 100vh;
+        height: 95vh;
         margin: 0;
         border-radius: 0;
     }
@@ -363,7 +363,7 @@
 }
 
 
-/* 通用滚动条样式 - 隐藏箭头 + 橙色主题 */
+/* 通用滚动条样式 - 隐藏箭头 + 蓝色主题 */
 /* 聊天内容区域 + 群成员区域 通用基础样式 */
 :deep(.chat-content),
 :deep(.member-list) {
@@ -372,7 +372,7 @@
     overflow-x: hidden;
     /* 火狐浏览器适配 */
     scrollbar-width: thin; /* 纤细滚动条 */
-    scrollbar-color: #ff7e22 #f8f8f8; /* 滑块颜色/轨道颜色 */
+    scrollbar-color: #5cadf0 #f8f8f8; /* 滑块颜色/轨道颜色（主蓝） */
     /* 隐藏火狐滚动条箭头（火狐本身无箭头，仅需控制宽度） */
 }
 
@@ -386,29 +386,29 @@
 /* Webkit - 滚动条轨道 */
 :deep(.chat-content::-webkit-scrollbar-track),
 :deep(.member-list::-webkit-scrollbar-track) {
-    background: #f8f8f8; /* 浅灰轨道，贴近淘宝背景 */
+    background: #f8f8f8; /* 浅灰轨道 */
     border-radius: 3px;
 }
 
-/* Webkit - 滚动条滑块（核心橙色） */
+/* Webkit - 滚动条滑块（核心蓝色） */
 :deep(.chat-content::-webkit-scrollbar-thumb),
 :deep(.member-list::-webkit-scrollbar-thumb) {
-    background-color: #ff7e22; /* 指定橙色 */
+    background-color: #5cadf0; /* 主蓝 */
     border-radius: 3px; /* 圆角更柔和 */
     border: none; /* 去除默认边框 */
     transition: background-color 0.2s ease; /*  hover过渡 */
 }
 
-/* Webkit - 滑块hover状态（加深橙色） */
+/* Webkit - 滑块hover状态（加深蓝色） */
 :deep(.chat-content::-webkit-scrollbar-thumb:hover),
 :deep(.member-list::-webkit-scrollbar-thumb:hover) {
-    background-color: #e86a10; /* 略深的橙色 */
+    background-color: #4a98e8; /* 深一点的蓝 */
 }
 
 /* Webkit - 滑块点击激活状态 */
 :deep(.chat-content::-webkit-scrollbar-thumb:active),
 :deep(.member-list::-webkit-scrollbar-thumb:active) {
-    background-color: #d45d00; /* 更深的橙色 */
+    background-color: #3a87d8; /* 更深的蓝 */
 }
 
 /* Webkit - 隐藏滚动条箭头 + 角落样式 */
@@ -432,7 +432,7 @@
     height: 36px;
     line-height: 36px;
     text-align: center;
-    background-color: #ff6600;
+    background-color: #5cadf0; /* 主蓝背景 */
     color: #ffffff;
     border: none;
     border-radius: 18px;
@@ -441,17 +441,17 @@
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(255, 68, 0, 0.15);
+    box-shadow: 0 2px 4px rgba(92, 173, 240, 0.15); /* 淡蓝阴影 */
 }
 
 .load-more-btn:hover {
-    background-color: #ff4400;
+    background-color: #4a98e8; /* 深一点的蓝 */
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(255, 68, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(92, 173, 240, 0.2); /* 加深阴影 */
 }
 
 .load-more-btn:disabled {
-    background-color: #ff9966;
+    background-color: #a8d4f7; /* 浅蓝禁用色 */
     cursor: not-allowed;
     transform: none;
     box-shadow: none;

@@ -2,63 +2,382 @@
     margin: 0;
     padding: 0;
 }
+
 .el-container, .el-header, .el-main, .el-footer, .el-aside {
     padding: 0 !important;
     margin: 0 !important;
 }
 
-/* 全局滚动条优化 */
+/* 顶部导航 - 核心样式 */
+.top-header {
+    height: 60px;
+    line-height: 60px;
+    background: #fff;
+    border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 1px 3px rgba(145, 200, 230, 0.08); /* 清新蓝浅阴影 */
+    transition: transform 0.3s ease;
+    transform: translateY(0);
+}
+
+.top-header.hidden {
+    transform: translateY(-100%);
+}
+
+/* PC端导航容器 */
+.top-nav-pc {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* 移动端导航容器 */
+.top-nav-mobile {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100vw;
+}
+
+.top-nav-mobile-logo {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* 移动端按钮组 */
+.mobile-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 核心主色：清新淡蓝（主视觉） */
+.mobile-logo {
+    color: #5cadf0;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+/* 移动端下拉菜单 */
+.mobile-dropdown {
+    color: #333;
+    font-size: 14px;
+    transition: color 0.2s;
+    padding: 0 8px;
+}
+
+.mobile-dropdown:hover {
+    color: #5cadf0; /* 主色hover */
+}
+
+.mobile-icon {
+    font-size: 20px;
+}
+
+/* 自定义下拉菜单样式 */
+.custom-menu {
+    background-color: #fff !important;
+    border: 1px solid #eaf5fb !important; /* 超淡蓝边框 */
+    box-shadow: 0 2px 12px rgba(92, 173, 240, 0.12) !important; /* 清新蓝阴影 */
+    border-radius: 4px !important;
+}
+
+/* 导航列表 */
+.nav-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* 导航链接 */
+.nav-link {
+    color: #333;
+    text-decoration: none;
+    padding: 0 12px;
+    transition: all 0.2s ease;
+    display: inline-block;
+    height: 60px;
+    line-height: 60px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.nav-link:hover {
+    color: #5cadf0; /* 主色hover */
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: #5cadf0; /* 主色下划线 */
+    transition: width 0.2s ease;
+}
+
+.nav-link:hover::after {
+    width: 80%;
+}
+
+/* 用户名样式：稍深的清新蓝强调 */
+.user-name {
+    color: #4a98e8;
+    font-weight: 500;
+}
+
+/* 退出按钮：略深的清新蓝（保证对比度） */
+.logout-btn:hover {
+    color: #3a87d8;
+}
+
+.logout-btn::after {
+    background-color: #3a87d8;
+}
+
+/* 分隔线 */
+.split {
+    display: inline-block;
+    height: 14px;
+    width: 1px;
+    background-color: #eaf5fb; /* 超淡蓝分隔线 */
+    margin: 0 8px;
+    vertical-align: middle;
+}
+
+/* 主体内容区 */
+.el-main {
+    padding: 20px 0;
+    min-height: 85vh;
+}
+
+/* 页脚核心样式：极淡的清新蓝背景 */
+.app-footer {
+    background-color: #f5faff;
+    color: #666;
+    padding: 40px 0 20px;
+    font-size: 14px;
+    border-top: 2px solid #5cadf0; /* 主色顶部边框 */
+}
+
+.footer-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    box-sizing: border-box;
+}
+
+/* 页脚品牌信息 */
+.footer-brand {
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
+    width: 100%;
+    max-width: 600px;
+}
+
+.brand-name {
+    font-size: 24px;
+    color: #5cadf0; /* 主色品牌名 */
+    margin: 0 0 10px;
+    font-weight: 700;
+}
+
+.brand-slogan {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* 页脚版权信息 */
+.footer-copyright {
+    text-align: center;
+    padding-top: 10px;
+    font-size: 12px;
+    color: #8eb8e5; /* 灰调清新蓝（保证可读性） */
+    width: 100%;
+}
+
+.footer-copyright p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* 全局滚动条优化 - 清新蓝配色 */
 body::-webkit-scrollbar,
 html::-webkit-scrollbar,
 *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
+
 body::-webkit-scrollbar-track,
 html::-webkit-scrollbar-track,
 *::-webkit-scrollbar-track {
-    background: #f5f5f5;
+    background: #f5faff; /* 极淡蓝轨道背景，与页脚统一 */
     border-radius: 8px;
 }
+
 body::-webkit-scrollbar-thumb,
 html::-webkit-scrollbar-thumb,
 *::-webkit-scrollbar-thumb {
-    background-color: #ff7e22;
+    background-color: #5cadf0; /* 主色滚动条 */
     border-radius: 8px;
     border: none;
     transition: background-color 0.2s ease;
 }
+
 body::-webkit-scrollbar-thumb:hover,
 html::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:hover {
-    background-color: #ff9550; /* 更浅的橙色hover效果 */
+    background-color: #4a98e8; /* 稍深淡蓝hover效果 */
 }
+
 body::-webkit-scrollbar-thumb:active,
 html::-webkit-scrollbar-thumb:active,
 *::-webkit-scrollbar-thumb:active {
-    background-color: #ff8a3c; /* 弱化active颜色，贴近主色 */
+    background-color: #3a87d8; /* 略深淡蓝active效果 */
 }
+
 body::-webkit-scrollbar-button,
 html::-webkit-scrollbar-button,
 *::-webkit-scrollbar-button {
     display: none;
 }
+
 body::-webkit-scrollbar-corner,
 html::-webkit-scrollbar-corner,
 *::-webkit-scrollbar-corner {
-    background: #f5f5f5;
+    background: #f5faff; /* 极淡蓝角落背景 */
 }
+
 body, html {
     scrollbar-width: thin;
-    scrollbar-color: #ff7e22 #f5f5f5;
+    scrollbar-color: #5cadf0 #f5faff; /* 主色 + 极淡蓝轨道 */
 }
+
 .el-container::-webkit-scrollbar,
 .el-main::-webkit-scrollbar,
 .el-aside::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
+
 .el-container, .el-main, .el-aside {
     scrollbar-width: thin;
-    scrollbar-color: #ff7e22 #f5f5f5;
+    scrollbar-color: #5cadf0 #f5faff; /* 适配element组件内滚动条 */
+}
+
+/* 响应式适配 */
+@media (max-width: 1200px) {
+    .top-nav-pc {
+        width: 90%;
+    }
+}
+
+@media (max-width: 992px) {
+    .top-nav-pc {
+        display: none;
+    }
+
+    .top-nav-mobile {
+        display: flex;
+    }
+
+    .top-header {
+        height: 55px;
+        line-height: 55px;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .nav-link {
+        height: 45px;
+        line-height: 45px;
+        padding: 0 8px;
+    }
+
+    .custom-menu .nav-link:hover {
+        background-color: #f5faff; /* 极淡蓝hover背景 */
+    }
+
+    .custom-menu .nav-link::after {
+        display: none;
+    }
+
+    .footer-brand {
+        padding-bottom: 10px;
+    }
+
+    .brand-name {
+        font-size: 22px;
+    }
+
+    .brand-slogan {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-footer {
+        padding: 30px 0 15px;
+    }
+
+    .footer-container {
+        gap: 15px;
+    }
+
+    .footer-brand {
+        padding-bottom: 8px;
+    }
+
+    .brand-name {
+        font-size: 20px;
+    }
+
+    .brand-slogan {
+        font-size: 13px;
+    }
+
+    .footer-copyright {
+        padding-top: 8px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .app-footer {
+        padding: 20px 0 10px;
+    }
+
+    .brand-name {
+        font-size: 18px;
+    }
+
+    .brand-slogan {
+        font-size: 12px;
+    }
+
+    .footer-copyright p {
+        padding: 0 10px;
+        word-break: break-all;
+    }
 }

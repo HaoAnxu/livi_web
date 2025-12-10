@@ -1,14 +1,14 @@
 /* 父容器样式 - 调整背景色提升对比度 */
 .chat-input-container {
-    /* 稍深的浅橙色背景，与输入框形成对比 */
-    background: linear-gradient(135deg, #ffede0 0%, #ffd8b8 100%);
-    /* 调整边框色为更深的橙色，增强轮廓 */
-    border: 2px solid #e67e22;
+    /* 渐变蓝背景，柔和清新 */
+    background: linear-gradient(135deg, #e8f4f8 0%, #d8eaf8 100%);
+    /* 淡蓝边框增强轮廓，与背景形成层次 */
+    border: 2px solid #5cadf0;
     border-radius: 2rem;
     padding: 12px 15px;
     width: fit-content;
     max-width: 90%;
-    box-shadow: 0 4px 12px rgba(230, 126, 34, 0.15);
+    box-shadow: 0 4px 12px rgba(92, 173, 240, 0.15);
     margin: 20px auto;
 }
 
@@ -20,11 +20,11 @@
     width: fit-content;
 }
 
-/* 发送按钮样式（颜色同步调整） */
+/* 发送按钮样式（同步蓝紫渐变） */
 .send-btn {
-    /* 调整为新的主橙色系 */
-    --primary: 255, 143, 54;    /* 深橙色 #e67e22 */
-    --secondary: 200, 100, 20;  /* 更深的橙色 #c86414 */
+    /* 蓝紫渐变主色 */
+    --primary: 92, 173, 240;    /* 主蓝 #5cadf0 */
+    --secondary: 74, 152, 232;  /* 深一点的蓝 #4a98e8 */
     width: 60px;
     height: 50px;
     border: none;
@@ -77,18 +77,18 @@
 
 /* 输入框样式调整 - 核心优化 */
 .input-wrapper {
-    /* 调整主色调变量为新的橙色系，提升对比度 */
-    --input-primary: #e67e22;      /* 深橙色（原ff9500） */
-    --input-light-1: #f39c12;      /* 浅橙1 */
-    --input-light-2: #f1c40f;      /* 浅橙2（带点黄调） */
-    --input-light-3: #f8e9a1;      /* 浅橙3 */
-    --input-light-4: #ffeead;      /* 浅橙4 */
-    --input-placeholder: #d35400;  /* 占位符色（更深） */
-    --input-shadow: #f0d0b0;       /* 阴影色适配新背景 */
-    --input-shockwave: #e67e22;    /* 冲击波色同步 */
-    --input-label: #c0392b;        /* 标签色加深 */
+    /* 蓝紫渐变系变量，柔和高级 */
+    --input-primary: #5cadf0;      /* 主蓝 */
+    --input-light-1: #6ab4f2;      /* 浅蓝1 */
+    --input-light-2: #7bbcf3;      /* 浅蓝2 */
+    --input-light-3: #a8d4f7;      /* 浅蓝3 */
+    --input-light-4: #c9e2f9;      /* 浅蓝4 */
+    --input-placeholder: #8eb8e5;  /* 占位符浅蓝 */
+    --input-shadow: #eaf5fb;       /* 阴影色适配新背景 */
+    --input-shockwave: #5cadf0;    /* 冲击波主蓝 */
+    --input-label: #2a78c7;        /* 标签深蓝 */
 
-    /* 布局变量 */
+    /* 布局变量（保留） */
     --label-base-size: 1rem;
     --label-active-size: 0.8rem;
     --label-active-transform: translateY(-170%) scale(0.8);
@@ -102,12 +102,12 @@
     flex-grow: 1;
 }
 
-/* 输入框未激活时：淡橙色背景 + 浅边框 */
+/* 输入框未激活时：淡蓝背景 + 浅边框 */
 .input-wrapper input {
-    /* 淡橙色背景，与父容器形成对比 */
-    background-color: #fff5eb;
-    /* 未激活时浅橙色边框 */
-    border: 2px solid #f39c12;
+    /* 超浅蓝背景，清新柔和 */
+    background-color: #f5faff;
+    /* 未激活时浅蓝边框 */
+    border: 2px solid #6ab4f2;
     padding: 1.2rem 1rem 1.2rem 3rem;
     font-size: 1.1rem;
     width: 100%;
@@ -119,12 +119,12 @@
     z-index: 2;
 }
 
-/* 聚焦时边框改为新的深橙色 + 发光效果 */
+/* 聚焦时边框改为主蓝 + 发光效果 */
 .input-wrapper input:focus {
     outline: none;
     border-color: var(--input-primary);
-    /* 调整发光色为新主色 */
-    box-shadow: 0 0.6rem var(--input-shadow), 0 0 15px rgba(230, 126, 34, 0.7);
+    /* 主蓝发光效果，柔和不刺眼 */
+    box-shadow: 0 0.6rem var(--input-shadow), 0 0 15px rgba(92, 173, 240, 0.5);
     transform: translateY(-3px) scale(1.01);
 }
 
@@ -171,7 +171,7 @@
     animation: emoji-dance 0.3s ease infinite;
 }
 
-/* 背景渐变调整为新的橙色系 */
+/* 背景渐变改为蓝系渐变，柔和循环 */
 .input-wrapper::before {
     content: "";
     position: absolute;
@@ -208,19 +208,19 @@
     }
 }
 
-/* 冲击波效果调整为新主色 */
+/* 冲击波效果改为主蓝，柔和不刺眼 */
 @keyframes shockwave {
     0% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4);
+        box-shadow: 0 0 0 0 rgba(92, 173, 240, 0.4);
     }
     70% {
         transform: scale(1.02);
-        box-shadow: 0 0 0 20px rgba(230, 126, 34, 0);
+        box-shadow: 0 0 0 20px rgba(92, 173, 240, 0);
     }
     100% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0);
+        box-shadow: 0 0 0 0 rgba(92, 173, 240, 0);
     }
 }
 

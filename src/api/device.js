@@ -1,8 +1,18 @@
 import request from '@/utils/request'
 
+//根据用户id获取其家庭信息
+export const getAllFamilyInfoByUserIdApi =(userId)=>{
+    return request.get(`/permission/device/queryMyFamilyList?userId=${userId}`)
+}
+
 //获取所有设备信息
-export const getAllDeviceInfoListByUserIdApi =(userId)=>{
-    return request.get(`/permission/device/queryMyDeviceList?userId=${userId}`)
+export const getAllDeviceInfoListByUserIdApi =(familyId)=>{
+    return request.get(`/permission/device/queryMyDeviceList?familyId=${familyId}`)
+}
+
+//根据家庭id获取其匹配房间信息
+export const getRoomInfoByFamilyIdApi =(familyId)=>{
+    return request.get(`/permission/device/queryMyRoomList?familyId=${familyId}`)
 }
 
 //获取单个设备信息

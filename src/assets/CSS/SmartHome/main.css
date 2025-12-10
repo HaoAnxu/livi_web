@@ -1,118 +1,139 @@
-/* 全局样式 */
+/* ========================= 基础布局样式 ========================= */
+/* 核心容器 - 页面纯白背景 */
 .device-container {
     width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
+    padding: 30px 0;
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    background-color: #ffffff;
 }
 
-/* 页面标题区 */
+/* 页面标题区 - 布局+渐变文字动画 */
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f7fc;
+    flex-wrap: nowrap;
 }
 
-.page-header h2 {
-    font-size: 20px;
-    color: #333;
+/* 右侧按钮组布局 */
+.header-btn-group {
+    display: flex;
+    gap: 12px; /* 按钮间距 */
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 2px 0;
+    scrollbar-width: none; /* 隐藏滚动条 */
+}
+.header-btn-group::-webkit-scrollbar {
+    display: none; /* 隐藏webkit滚动条 */
+}
+
+/* 渐变标题文字 */
+.title-gradient {
+    font-size: 24px;
+    color: #5cadf0;
     font-weight: 600;
+    position: relative;
+    background: linear-gradient(90deg, #5cadf0, #4a98e8, #3a87d8, #5cadf0);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientMove 3s linear infinite;
+}
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
 }
 
-.add-btn {
-    background-color: #ff4400;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.add-btn:hover {
-    background-color: #ff6633;
-}
-
-/* 设备列表区 */
+/* ========================= 设备列表样式 ========================= */
+/* 设备列表网格布局 */
 .device-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
+    gap: 24px;
 }
 
+/* 设备卡片样式 */
 .device-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    background-color: #f5faff;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(92, 173, 240, 0.06);
     overflow: hidden;
-    transition: box-shadow 0.3s;
+    transition: all 0.4s ease;
+    border: 1px solid #eaf5fb;
 }
-
 .device-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 20px rgba(92, 173, 240, 0.12);
+    transform: translateY(-3px);
+    border-color: #f5faff;
 }
 
-/* 设备图片区 */
+/* 设备图片容器 */
 .device-img {
     position: relative;
     width: 100%;
     height: 180px;
     overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    padding: 4px;
+    box-sizing: border-box;
+    background-color: #ffffff;
 }
-
 .device-img img {
     width: 100%;
     height: 100%;
     object-fit: fill;
-    transition: transform 0.3s;
+    transition: transform 0.4s ease;
+    border-radius: 8px;
+    border: 1px solid #eaf5fb;
 }
-
 .device-card:hover .device-img img {
-    transform: scale(1.05);
+    transform: scale(1.08);
 }
 
-/* 状态色点 */
+/* 设备状态色点 */
 .status-dot {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 12px;
-    height: 12px;
+    top: 18px;
+    right: 18px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(0, 0, 0, 0.08);
+    z-index: 9;
 }
 
-/* 设备信息区 */
+/* 设备信息区域 */
 .device-info {
-    padding: 16px;
+    padding: 20px 20px 12px;
 }
-
 .device-name {
-    font-size: 16px;
-    color: #333;
+    font-size: 17px;
+    color: #2a78c7;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
 .info-row {
     display: flex;
-    font-size: 13px;
-    margin-bottom: 8px;
-    color: #666;
+    font-size: 14px;
+    margin-bottom: 10px;
+    color: #5a6b7d;
+    line-height: 1.5;
 }
-
 .info-row .label {
-    width: 70px;
-    color: #999;
+    width: 75px;
+    color: #8eb8e5;
+    font-weight: 500;
 }
-
 .info-row .value {
     flex: 1;
     white-space: nowrap;
@@ -120,61 +141,191 @@
     text-overflow: ellipsis;
 }
 
-/* 操作按钮区 */
+/* 设备操作按钮区 */
 .device-actions {
     display: flex;
-    padding: 0 16px 16px;
-    gap: 8px;
+    padding: 12px 20px 20px;
+    gap: 10px;
 }
-
 .control-btn {
     flex: 1;
-    background-color: #fff;
-    color: #ff6329;
-    border: 1px solid #ff6933;
-    padding: 8px 0;
-    border-radius: 4px;
+    background: linear-gradient(90deg, #5cadf0, #4a98e8);
+    color: #ffffff;
+    border: none;
+    padding: 10px 0;
+    border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(92, 173, 240, 0.15);
 }
-
 .control-btn:hover {
-    background-color: #fff6f2;
+    background: linear-gradient(90deg, #4a98e8, #3a87d8);
+    box-shadow: 0 4px 10px rgba(92, 173, 240, 0.2);
 }
-
 .delete-btn {
-    width: 60px;
-    background-color: #fff;
-    color: #999;
-    border: 1px solid #eee;
-    border-radius: 4px;
+    width: 70px;
+    background-color: #ffffff;
+    color: #8eb8e5;
+    border: 1px solid #eaf5fb;
+    border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s ease;
 }
-
 .delete-btn:hover {
-    color: #ff4d4f;
-    border-color: #ffccc7;
+    color: #3a87d8;
+    border-color: #d8eaf8;
+    background-color: #f8fbff;
 }
 
-/* 空状态 */
+/* 空状态提示 */
 .empty-state {
     grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 80px 0;
-    color: #999;
-    font-size: 14px;
+    padding: 90px 0;
+    color: #8eb8e5;
+    font-size: 15px;
+    background-color: #f8fbff;
+    border-radius: 12px;
+    border: 1px dashed #eaf5fb;
+    margin: 20px 0;
+}
+.empty-state img {
+    width: 130px;
+    height: 130px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+    object-fit: cover;
+}
+/* 添加设备按钮加号样式 */
+.add-device-btn .add-icon {
+    font-size: 18px;
+    font-weight: bold;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.empty-state img {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 16px;
-    opacity: 0.6;
-    object-fit: fill;
+/* ========================= 响应式适配 ========================= */
+@media (max-width: 1200px) {
+    .device-container {
+        width: 95%;
+        padding: 20px 0;
+    }
+    .header-btn-group {
+        gap: 8px;
+    }
+    .main {
+        width: 10rem;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 768px) {
+    .title-gradient {
+        font-size: 22px;
+    }
+    .device-list {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    .device-img {
+        height: 180px;
+    }
+    .main {
+        width: 9rem;
+        height: 2.2rem;
+        padding: 3px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title-gradient {
+        font-size: 18px;
+        flex-shrink: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .device-list {
+        grid-template-columns: 1fr;
+    }
+    .device-img {
+        height: 200px;
+    }
+    .main {
+        width: 8rem;
+        height: 2.2rem;
+        font-size: 0.85em;
+        padding: 3px 8px;
+    }
+    .family-menu .menu-container {
+        top: 100%;
+        z-index: 1002;
+    }
+}
+
+/* ========================= 对话框样式 ========================= */
+.device-add-dialog {
+    --el-dialog-padding-primary: 15px;
+}
+.device-form {
+    --el-form-item-margin-bottom: 15px;
+    padding: 5px 0;
+}
+.form-input, .form-select {
+    width: 100%;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.avatar-uploader {
+    --el-upload-picture-card-width: 100px;
+    --el-upload-picture-card-height: 100px;
+}
+.upload-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.upload-icon {
+    font-size: 20px;
+    margin-bottom: 5px;
+    color: #8c939d;
+}
+.upload-text {
+    font-size: 11px;
+    color: #8c939d;
+    line-height: 1.2;
+    text-align: center;
+}
+.uploaded-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.upload-tip {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #8c939d;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 10px;
 }

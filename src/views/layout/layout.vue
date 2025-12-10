@@ -185,18 +185,17 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* 核心布局：小米橙白主调，导航+页脚样式 */
-/* 顶部导航 - 粘性定位+动画 */
+/* 顶部导航 - 核心样式 */
 .top-header {
   height: 60px;
   line-height: 60px;
   background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
   font-size: 14px;
   position: sticky;
   top: 0;
   z-index: 999;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px rgba(145, 200, 230, 0.08); /* 清新蓝浅阴影 */
   transition: transform 0.3s ease;
   transform: translateY(0);
 }
@@ -213,7 +212,7 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-/* 移动端导航容器 - 防溢出 */
+/* 移动端导航容器 */
 .top-nav-mobile {
   display: none;
   justify-content: space-between;
@@ -237,8 +236,9 @@ onUnmounted(() => {
   gap: 10px;
 }
 
+/* 核心主色：清新淡蓝（主视觉） */
 .mobile-logo {
-  color: #ff6700;
+  color: #5cadf0;
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -252,7 +252,7 @@ onUnmounted(() => {
 }
 
 .mobile-dropdown:hover {
-  color: #ff6700;
+  color: #5cadf0; /* 主色hover */
 }
 
 .mobile-icon {
@@ -262,8 +262,8 @@ onUnmounted(() => {
 /* 自定义下拉菜单样式 */
 .custom-menu {
   background-color: #fff !important;
-  border: 1px solid #e5e5e5 !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #eaf5fb !important; /* 超淡蓝边框 */
+  box-shadow: 0 2px 12px rgba(92, 173, 240, 0.12) !important; /* 清新蓝阴影 */
   border-radius: 4px !important;
 }
 
@@ -275,7 +275,7 @@ onUnmounted(() => {
   padding: 0;
 }
 
-/* 导航链接 - 下划线hover效果 */
+/* 导航链接 */
 .nav-link {
   color: #333;
   text-decoration: none;
@@ -289,7 +289,7 @@ onUnmounted(() => {
 }
 
 .nav-link:hover {
-  color: #ff6700;
+  color: #5cadf0; /* 主色hover */
 }
 
 .nav-link::after {
@@ -300,7 +300,7 @@ onUnmounted(() => {
   transform: translateX(-50%);
   width: 0;
   height: 2px;
-  background-color: #ff6700;
+  background-color: #5cadf0; /* 主色下划线 */
   transition: width 0.2s ease;
 }
 
@@ -308,18 +308,19 @@ onUnmounted(() => {
   width: 80%;
 }
 
-/* 用户名/退出按钮样式 */
+/* 用户名样式：稍深的清新蓝强调 */
 .user-name {
-  color: #ff6700;
+  color: #4a98e8;
   font-weight: 500;
 }
 
+/* 退出按钮：略深的清新蓝（保证对比度） */
 .logout-btn:hover {
-  color: #ff4400;
+  color: #3a87d8;
 }
 
 .logout-btn::after {
-  background-color: #ff4400;
+  background-color: #3a87d8;
 }
 
 /* 分隔线 */
@@ -327,7 +328,7 @@ onUnmounted(() => {
   display: inline-block;
   height: 14px;
   width: 1px;
-  background-color: #e5e5e5;
+  background-color: #eaf5fb; /* 超淡蓝分隔线 */
   margin: 0 8px;
   vertical-align: middle;
 }
@@ -338,13 +339,13 @@ onUnmounted(() => {
   min-height: 85vh;
 }
 
-/* 页脚核心样式 */
+/* 页脚核心样式：极淡的清新蓝背景 */
 .app-footer {
-  background-color: #f8f8f8;
+  background-color: #f5faff;
   color: #666;
   padding: 40px 0 20px;
   font-size: 14px;
-  border-top: 2px solid #ff6700;
+  border-top: 2px solid #5cadf0; /* 主色顶部边框 */
 }
 
 .footer-container {
@@ -364,14 +365,14 @@ onUnmounted(() => {
 .footer-brand {
   text-align: center;
   padding-bottom: 15px;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
   width: 100%;
   max-width: 600px;
 }
 
 .brand-name {
   font-size: 24px;
-  color: #ff6700;
+  color: #5cadf0; /* 主色品牌名 */
   margin: 0 0 10px;
   font-weight: 700;
 }
@@ -388,7 +389,7 @@ onUnmounted(() => {
   text-align: center;
   padding-top: 10px;
   font-size: 12px;
-  color: #999;
+  color: #8eb8e5; /* 灰调清新蓝（保证可读性） */
   width: 100%;
 }
 
@@ -405,7 +406,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 992px) {
-  /* 导航适配 */
   .top-nav-pc {
     display: none;
   }
@@ -424,13 +424,12 @@ onUnmounted(() => {
     padding: 0 8px;
   }
   .custom-menu .nav-link:hover {
-    background-color: #f5f5f5;
+    background-color: #f5faff; /* 极淡蓝hover背景 */
   }
   .custom-menu .nav-link::after {
     display: none;
   }
 
-  /* 页脚适配 */
   .footer-brand {
     padding-bottom: 10px;
   }
@@ -443,7 +442,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  /* 页脚适配 */
   .app-footer {
     padding: 30px 0 15px;
   }
@@ -466,7 +464,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
-  /* 页脚适配 */
   .app-footer {
     padding: 20px 0 10px;
   }
