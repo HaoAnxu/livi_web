@@ -5,16 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35df4d7d-3806-4f90-a3c8-7afa995ba8e7" name="更改" comment="日常更新">
-      <change afterPath="$PROJECT_DIR$/src/assets/CSS/CheckBox/tiaojieqi.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/device.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/device.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/ChatRoom/input.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/ChatRoom/input.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/ChatRoom/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/ChatRoom/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/SmartHome/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/SmartHome/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/AI/ai.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/AI/ai.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/layout/layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/layout/layout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/smartHome/smartHome.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/smartHome/smartHome.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/weCommunity/weCommunity.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +82,7 @@
       <workItem from="1765156208527" duration="11596000" />
       <workItem from="1765256562575" duration="13790000" />
       <workItem from="1765327927923" duration="17471000" />
-      <workItem from="1765355768487" duration="2967000" />
+      <workItem from="1765355768487" duration="4700000" />
     </task>
     <task id="LOCAL-00001" summary="日常更新">
       <option name="closed" value="true" />
@@ -147,7 +140,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765271901461</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="日常更新">
+      <option name="closed" value="true" />
+      <created>1765358962607</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1765358962607</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

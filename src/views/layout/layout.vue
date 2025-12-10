@@ -162,7 +162,7 @@ onUnmounted(() => {
         </div>
       </el-header>
 
-      <el-main>
+      <el-main class="bg">
         <router-view></router-view>
       </el-main>
 
@@ -185,6 +185,14 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+.bg {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  background-image: radial-gradient(rgba(121, 11, 82, 0.2) 2px, transparent 0);
+  background-size: 30px 30px;
+  background-position: -5px -5px;
+}
 /* 顶部导航 - 核心样式 */
 .top-header {
   height: 60px;

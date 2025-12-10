@@ -127,7 +127,6 @@ onMounted(() => {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #f3f3f3;
 }
 
 /* 社区容器：适配页脚高度，基础内边距 */
