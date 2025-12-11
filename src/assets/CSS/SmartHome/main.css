@@ -1,103 +1,172 @@
-/* ========================= 基础布局样式 ========================= */
-/* 核心容器 - 页面纯白背景 */
+/* 上传区域容器 - 固定正方形尺寸 + 银白配色 + 动画 */
+.avatar-uploader {
+    width: 200px;
+    height: 150px;
+    --el-upload-picture-card-width: 100px;
+    --el-upload-picture-card-height: 100px;
+    border: 1px dashed var(--el-border-color, #e0e0e0); /* 银灰虚线 */
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease; /* 增强过渡动画 */
+    background-color: #f9f9f9; /* 浅银灰背景 */
+}
+
+.avatar-uploader:hover {
+    border-color: #c0c0c0; /* hover加深边框 */
+    background-color: #f5f5f5;
+    transform: translateY(-2px); /* 轻微上移 */
+}
+
+/* 上传回显图片 + 动画 */
+.avatar-uploader img.avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    transition: transform 0.4s ease; /* 图片缩放过渡 */
+}
+
+.avatar-uploader:hover img.avatar {
+    transform: scale(1.03); /* hover轻微缩放 */
+}
+
+/* 上传图标样式 - 居中显示 + 银灰配色 */
+.avatar-uploader-icon {
+    font-size: 24px;
+    color: #888888; /* 银灰色图标 */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: color 0.3s ease;
+}
+
+.avatar-uploader:hover .avatar-uploader-icon {
+    color: #666666; /* hover加深图标色 */
+}
+
+/* 核心容器 - 页面纯白背景（保留） + 入场动画 */
 .device-container {
     width: 1200px;
     margin: 0 auto;
     padding: 30px 0;
     font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-    background-color: #ffffff;
+    background-color: #ffffff; /* 纯白背景 */
+    animation: containerFadeIn 0.6s ease-out; /* 容器淡入 */
 }
 
-/* 页面标题区 - 布局+渐变文字动画 */
+/* 页面标题区 - 布局 + 银白渐变文字动画（替换原蓝色渐变） */
 .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #f0f7fc;
+    border-bottom: 1px solid #f0f0f0; /* 浅银灰底边框 */
     flex-wrap: nowrap;
+    animation: headerFadeIn 0.7s ease-out 0.1s; /* 标题栏延迟淡入 */
+    animation-fill-mode: both;
+    opacity: 0;
 }
 
-/* 右侧按钮组布局 */
+/* 右侧按钮组布局（保留） */
 .header-btn-group {
     display: flex;
-    gap: 12px; /* 按钮间距 */
+    gap: 12px;
     align-items: center;
     flex-wrap: nowrap;
     overflow-x: auto;
     padding: 2px 0;
-    scrollbar-width: none; /* 隐藏滚动条 */
-}
-.header-btn-group::-webkit-scrollbar {
-    display: none; /* 隐藏webkit滚动条 */
+    scrollbar-width: none;
 }
 
-/* 渐变标题文字 */
+.header-btn-group::-webkit-scrollbar {
+    display: none;
+}
+
+/* 渐变标题文字 - 替换为银白渐变 */
 .title-gradient {
     font-size: 24px;
-    color: #5cadf0;
     font-weight: 600;
     position: relative;
-    background: linear-gradient(90deg, #5cadf0, #4a98e8, #3a87d8, #5cadf0);
+    background: linear-gradient(90deg, #888888, #666666, #888888); /* 银灰渐变 */
     background-size: 200% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: gradientMove 3s linear infinite;
-}
-@keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 200% 50%; }
+    animation: gradientMove 6s linear infinite; /* 放慢渐变速度更柔和 */
 }
 
-/* ========================= 设备列表样式 ========================= */
-/* 设备列表网格布局 */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+/* 设备列表网格布局,每行五个（保留） */
 .device-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 24px;
 }
 
-/* 设备卡片样式 */
+/* 设备卡片样式 - 银白配色 + 增强动画 */
 .device-card {
-    background-color: #f5faff;
+    background-color: #ffffff; /* 纯白卡片 */
     border-radius: 12px;
-    box-shadow: 0 3px 12px rgba(92, 173, 240, 0.06);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05); /* 轻微阴影 */
     overflow: hidden;
     transition: all 0.4s ease;
-    border: 1px solid #eaf5fb;
-}
-.device-card:hover {
-    box-shadow: 0 6px 20px rgba(92, 173, 240, 0.12);
-    transform: translateY(-3px);
-    border-color: #f5faff;
+    border: 1px solid #e0e0e0; /* 银灰边框 */
+    animation: cardFadeIn 0.6s ease-out; /* 卡片淡入 */
+    animation-fill-mode: both;
+    opacity: 0;
 }
 
-/* 设备图片容器 */
+/* 卡片逐行延迟入场 */
+.device-card:nth-child(5n+1) { animation-delay: 0.1s; }
+.device-card:nth-child(5n+2) { animation-delay: 0.2s; }
+.device-card:nth-child(5n+3) { animation-delay: 0.3s; }
+.device-card:nth-child(5n+4) { animation-delay: 0.4s; }
+.device-card:nth-child(5n+5) { animation-delay: 0.5s; }
+
+.device-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* 加深阴影 */
+    transform: translateY(-3px);
+    border-color: #d0d0d0; /* 加深边框 */
+}
+
+/* 设备图片容器 - 银白配色 + 动画 */
 .device-img {
     position: relative;
     width: 100%;
     height: 180px;
     overflow: hidden;
     border-radius: 12px 12px 0 0;
-    padding: 4px;
+    padding: 10px;
     box-sizing: border-box;
-    background-color: #ffffff;
+    background-color: #f9f9f9; /* 浅银灰背景 */
 }
+
 .device-img img {
     width: 100%;
     height: 100%;
     object-fit: fill;
     transition: transform 0.4s ease;
     border-radius: 8px;
-    border: 1px solid #eaf5fb;
+    border: 1px solid #e0e0e0; /* 银灰边框 */
 }
+
 .device-card:hover .device-img img {
     transform: scale(1.08);
 }
 
-/* 设备状态色点 */
+/* 设备状态色点 - 银白配色调整 */
 .status-dot {
     position: absolute;
     top: 18px;
@@ -107,49 +176,78 @@
     border-radius: 50%;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 0 6px rgba(0, 0, 0, 0.08);
     z-index: 9;
+    /* 状态色适配银白风格：在线-浅绿，离线-浅灰 */
+    background-color: #e0e0e0; /* 默认离线灰 */
 }
 
-/* 设备信息区域 */
+.status-dot.online {
+    background-color: #a0c980; /* 浅绿（银白系适配） */
+}
+
+/* 设备信息区域 - 银白配色 + 动画 */
 .device-info {
     padding: 20px 20px 12px;
 }
+
 .device-name {
     font-size: 17px;
-    color: #2a78c7;
+    color: #333333; /* 深灰文字 */
     font-weight: 600;
     margin-bottom: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.3s ease;
 }
+
+.device-card:hover .device-name {
+    color: #666666; /* hover变浅 */
+}
+
 .info-row {
     display: flex;
     font-size: 14px;
     margin-bottom: 10px;
-    color: #5a6b7d;
+    color: #555555; /* 中灰文字 */
     line-height: 1.5;
+    transition: all 0.2s ease;
+    animation: infoRowFade 0.5s ease-out; /* 信息行淡入 */
+    animation-fill-mode: both;
+    opacity: 0;
 }
+
+/* 信息行逐行延迟 */
+.info-row:nth-child(1) { animation-delay: 0.1s; }
+.info-row:nth-child(2) { animation-delay: 0.2s; }
+.info-row:nth-child(3) { animation-delay: 0.3s; }
+
 .info-row .label {
     width: 75px;
-    color: #8eb8e5;
+    color: #888888; /* 银灰标签 */
     font-weight: 500;
 }
+
 .info-row .value {
     flex: 1;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* 设备操作按钮区 */
+.device-card:hover .info-row {
+    color: #444444; /* hover加深文字 */
+}
+
+/* 设备操作按钮区（按钮配色保留原有渐变） */
 .device-actions {
     display: flex;
     padding: 12px 20px 20px;
     gap: 10px;
 }
+
+/* 控制按钮 - 保留原有渐变配色 + 增强动画 */
 .control-btn {
     flex: 1;
-    background: linear-gradient(90deg, #5cadf0, #4a98e8);
+    background: linear-gradient(90deg, #5cadf0, #4a98e8); /* 保留原渐变 */
     color: #ffffff;
     border: none;
     padding: 10px 0;
@@ -158,28 +256,56 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 6px rgba(92, 173, 240, 0.15);
+    position: relative;
+    overflow: hidden;
 }
+
+/* 新增按钮点击波纹动画 */
+.control-btn::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.control-btn:active::after {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+}
+
 .control-btn:hover {
-    background: linear-gradient(90deg, #4a98e8, #3a87d8);
+    background: linear-gradient(90deg, #4a98e8, #3a87d8); /* 保留原渐变 */
     box-shadow: 0 4px 10px rgba(92, 173, 240, 0.2);
+    transform: translateY(-1px);
 }
+
+/* 删除按钮 - 银白配色调整 + 动画 */
 .delete-btn {
     width: 70px;
     background-color: #ffffff;
-    color: #8eb8e5;
-    border: 1px solid #eaf5fb;
+    color: #888888; /* 银灰文字 */
+    border: 1px solid #e0e0e0; /* 银灰边框 */
     border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
+
 .delete-btn:hover {
-    color: #3a87d8;
-    border-color: #d8eaf8;
-    background-color: #f8fbff;
+    color: #666666; /* 深灰文字 */
+    border-color: #c0c0c0; /* 加深边框 */
+    background-color: #f9f9f9; /* 浅灰背景 */
+    transform: translateY(-1px);
 }
 
-/* 空状态提示 */
+/* 空状态提示 - 银白配色 + 动画 */
 .empty-state {
     grid-column: 1 / -1;
     display: flex;
@@ -187,40 +313,144 @@
     align-items: center;
     justify-content: center;
     padding: 90px 0;
-    color: #8eb8e5;
+    color: #888888; /* 银灰文字 */
     font-size: 15px;
-    background-color: #f8fbff;
+    background-color: #f9f9f9; /* 浅银灰背景 */
     border-radius: 12px;
-    border: 1px dashed #eaf5fb;
+    border: 1px dashed #e0e0e0; /* 银灰虚线 */
     margin: 20px 0;
+    animation: emptyStateFade 0.8s ease-out; /* 空状态淡入 */
+    transition: all 0.3s ease;
 }
+
+.empty-state:hover {
+    border-color: #c0c0c0;
+    background-color: #f5f5f5;
+}
+
 .empty-state img {
     width: 130px;
     height: 130px;
     margin-bottom: 20px;
     opacity: 0.7;
     object-fit: cover;
-}
-/* 添加设备按钮加号样式 */
-.add-device-btn .add-icon {
-    font-size: 18px;
-    font-weight: bold;
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transition: opacity 0.3s ease, transform 0.4s ease;
 }
 
-/* ========================= 响应式适配 ========================= */
+.empty-state:hover img {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+/* 对话框样式 - 银白配色 */
+.device-add-dialog {
+    --el-dialog-padding-primary: 15px;
+    --el-dialog-bg-color: #ffffff; /* 纯白对话框 */
+    --el-dialog-border-color: #e0e0e0; /* 银灰边框 */
+}
+
+.device-form {
+    --el-form-item-margin-bottom: 15px;
+    padding: 5px 0;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    border-radius: 6px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0; /* 银灰边框 */
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus, .form-select:focus {
+    border-color: #c0c0c0; /* 聚焦加深边框 */
+}
+
+.upload-tip {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #888888; /* 银灰提示文字 */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0; /* 浅银灰分隔线 */
+}
+
+/* ===================== 新增动画关键帧 ===================== */
+@keyframes containerFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes headerFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes infoRowFade {
+    from {
+        opacity: 0;
+        transform: translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes emptyStateFade {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 响应式适配 - 保留原有所有规则 */
 @media (max-width: 1200px) {
     .device-container {
         width: 95%;
         padding: 20px 0;
     }
+
     .header-btn-group {
         gap: 8px;
     }
+
     .main {
         width: 10rem;
         font-size: 0.9em;
@@ -231,13 +461,16 @@
     .title-gradient {
         font-size: 22px;
     }
+
     .device-list {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
     }
+
     .device-img {
-        height: 180px;
+        height: 300px;
     }
+
     .main {
         width: 9rem;
         height: 2.2rem;
@@ -253,79 +486,12 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .device-list {
         grid-template-columns: 1fr;
     }
-    .device-img {
-        height: 200px;
-    }
-    .main {
-        width: 8rem;
-        height: 2.2rem;
-        font-size: 0.85em;
-        padding: 3px 8px;
-    }
-    .family-menu .menu-container {
-        top: 100%;
-        z-index: 1002;
-    }
-}
 
-/* ========================= 对话框样式 ========================= */
-.device-add-dialog {
-    --el-dialog-padding-primary: 15px;
-}
-.device-form {
-    --el-form-item-margin-bottom: 15px;
-    padding: 5px 0;
-}
-.form-input, .form-select {
-    width: 100%;
-    border-radius: 6px;
-    font-size: 14px;
-}
-.avatar-uploader {
-    --el-upload-picture-card-width: 100px;
-    --el-upload-picture-card-height: 100px;
-}
-.upload-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.upload-icon {
-    font-size: 20px;
-    margin-bottom: 5px;
-    color: #8c939d;
-}
-.upload-text {
-    font-size: 11px;
-    color: #8c939d;
-    line-height: 1.2;
-    text-align: center;
-}
-.uploaded-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 6px;
-}
-.upload-tip {
-    margin-top: 5px;
-    font-size: 11px;
-    color: #8c939d;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-.dialog-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding-top: 10px;
+    .device-img {
+        height: 300px;
+    }
 }

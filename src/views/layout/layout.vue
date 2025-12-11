@@ -185,34 +185,39 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* 背景纹理 - 银灰渐变替换原有粉色 + 动画 */
 .bg {
   width: 100%;
   height: 100%;
   background-color: #ffffff;
-  background-image: radial-gradient(rgba(121, 11, 82, 0.2) 2px, transparent 0);
+  background-image: radial-gradient(rgba(12, 86, 16, 0.2) 2px, transparent 0); /* 银灰纹理 */
   background-size: 30px 30px;
   background-position: -5px -5px;
+  animation: bgFadeIn 1s ease-out; /* 背景淡入 */
 }
-/* 顶部导航 - 核心样式 */
+
+/* 顶部导航 - 核心样式 + 银白配色 + 增强动画 */
 .top-header {
   height: 60px;
   line-height: 60px;
   background: #fff;
-  border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
+  border-bottom: 1px solid #e0e0e0; /* 银灰底部分隔线 */
   font-size: 14px;
   position: sticky;
   top: 0;
   z-index: 999;
-  box-shadow: 0 1px 3px rgba(145, 200, 230, 0.08); /* 清新蓝浅阴影 */
-  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 银白风格浅阴影 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更顺滑的过渡 */
   transform: translateY(0);
+  animation: headerFadeIn 0.6s ease-out; /* 导航栏入场动画 */
 }
 
 .top-header.hidden {
   transform: translateY(-100%);
+  box-shadow: none; /* 隐藏时移除阴影 */
 }
 
-/* PC端导航容器 */
+/* PC端导航容器（保留布局） */
 .top-nav-pc {
   width: 1200px;
   margin: 0 auto;
@@ -220,7 +225,7 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
-/* 移动端导航容器 */
+/* 移动端导航容器（保留布局） */
 .top-nav-mobile {
   display: none;
   justify-content: space-between;
@@ -235,47 +240,65 @@ onUnmounted(() => {
 .top-nav-mobile-logo {
   font-size: 22px;
   font-weight: 600;
+  transition: transform 0.2s ease; /* logo轻微缩放 */
 }
 
-/* 移动端按钮组 */
+.top-nav-mobile-logo:hover {
+  transform: scale(1.05);
+}
+
+/* 移动端按钮组（保留布局） */
 .mobile-btn-group {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-/* 核心主色：清新淡蓝（主视觉） */
+/* 核心主色：银灰（替换原淡蓝） + hover动画 */
 .mobile-logo {
-  color: #5cadf0;
+  color: #888888; /* 银灰主色 */
   text-decoration: none;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
 }
 
-/* 移动端下拉菜单 */
+.mobile-logo:hover {
+  color: #666666; /* 深灰hover */
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.03);
+}
+
+/* 移动端下拉菜单 + 动画 */
 .mobile-dropdown {
   color: #333;
   font-size: 14px;
-  transition: color 0.2s;
+  transition: all 0.2s ease;
   padding: 0 8px;
+  cursor: pointer;
 }
 
 .mobile-dropdown:hover {
-  color: #5cadf0; /* 主色hover */
+  color: #666666; /* 深灰hover（替换原淡蓝） */
+  transform: translateY(-1px);
 }
 
 .mobile-icon {
   font-size: 20px;
+  transition: color 0.2s ease;
 }
 
-/* 自定义下拉菜单样式 */
+.mobile-dropdown:hover .mobile-icon {
+  color: #666666;
+}
+
+/* 自定义下拉菜单样式 - 银白配色 */
 .custom-menu {
   background-color: #fff !important;
-  border: 1px solid #eaf5fb !important; /* 超淡蓝边框 */
-  box-shadow: 0 2px 12px rgba(92, 173, 240, 0.12) !important; /* 清新蓝阴影 */
+  border: 1px solid #e0e0e0 !important; /* 银灰边框（替换原淡蓝） */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important; /* 银白风格阴影 */
   border-radius: 4px !important;
+  animation: menuFadeIn 0.3s ease-out; /* 菜单淡入 */
 }
 
-/* 导航列表 */
+/* 导航列表（保留布局） */
 .nav-list {
   display: flex;
   list-style: none;
@@ -283,12 +306,12 @@ onUnmounted(() => {
   padding: 0;
 }
 
-/* 导航链接 */
+/* 导航链接 - 增强动画 + 银白配色 */
 .nav-link {
   color: #333;
   text-decoration: none;
   padding: 0 12px;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* 顺滑过渡 */
   display: inline-block;
   height: 60px;
   line-height: 60px;
@@ -297,7 +320,8 @@ onUnmounted(() => {
 }
 
 .nav-link:hover {
-  color: #5cadf0; /* 主色hover */
+  color: #75dbff;
+  transform: translateY(-1px);
 }
 
 .nav-link::after {
@@ -308,52 +332,75 @@ onUnmounted(() => {
   transform: translateX(-50%);
   width: 0;
   height: 2px;
-  background-color: #5cadf0; /* 主色下划线 */
-  transition: width 0.2s ease;
+  background-color: #75dbff; /* 银灰下划线（替换原淡蓝） */
+  transition: width 0.25s ease;
+  border-radius: 1px;
 }
 
 .nav-link:hover::after {
   width: 80%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* 用户名样式：稍深的清新蓝强调 */
+/* 用户名样式：深灰强调（替换原淡蓝） */
 .user-name {
-  color: #4a98e8;
+  color: #ffa9a9;
   font-weight: 500;
+  position: relative;
 }
 
-/* 退出按钮：略深的清新蓝（保证对比度） */
+.user-name::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.nav-link:hover .user-name::before {
+  opacity: 1;
+}
+
+/* 退出按钮：深灰（替换原淡蓝） + 动画 */
 .logout-btn:hover {
-  color: #3a87d8;
+  color: #555555; /* 更深灰hover（替换原淡蓝） */
 }
 
 .logout-btn::after {
-  background-color: #3a87d8;
+  background-color: #666666; /* 深灰下划线（替换原淡蓝） */
 }
 
-/* 分隔线 */
+/* 分隔线 - 银灰配色 */
 .split {
   display: inline-block;
   height: 14px;
   width: 1px;
-  background-color: #eaf5fb; /* 超淡蓝分隔线 */
+  background-color: #e0e0e0; /* 银灰分隔线（替换原淡蓝） */
   margin: 0 8px;
   vertical-align: middle;
+  transition: background-color 0.2s ease;
 }
 
-/* 主体内容区 */
-.el-main {
-  padding: 20px 0;
-  min-height: 85vh;
+.nav-list:hover .split {
+  background-color: #d0d0d0; /* hover加深 */
 }
 
-/* 页脚核心样式：极淡的清新蓝背景 */
+/* 页脚核心样式 */
 .app-footer {
-  background-color: #f5faff;
-  color: #666;
+  background-color: #f9f9f9; /* 浅灰背景（替换原淡蓝） */
+  color: #75dbff;
   padding: 40px 0 20px;
   font-size: 14px;
-  border-top: 2px solid #5cadf0; /* 主色顶部边框 */
+  border-top: 2px solid #aeeaff; /* 银灰顶部边框（替换原淡蓝） */
+  animation: footerFadeIn 0.8s ease-out 0.2s; /* 页脚延迟淡入 */
+  animation-fill-mode: both;
+  opacity: 0;
 }
 
 .footer-container {
@@ -369,36 +416,77 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-/* 页脚品牌信息 */
+/* 页脚品牌信息 + 动画 */
 .footer-brand {
   text-align: center;
   padding-bottom: 15px;
-  border-bottom: 1px solid #eaf5fb; /* 超淡蓝底部分隔线 */
+  border-bottom: 1px solid #aeeaff;
   width: 100%;
   max-width: 600px;
+  transition: all 0.3s ease;
+}
+
+.footer-brand:hover {
+  border-bottom-color: #aeeaff;;
 }
 
 .brand-name {
   font-size: 24px;
-  color: #5cadf0; /* 主色品牌名 */
+  color: #75dbff;
   margin: 0 0 10px;
   font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.brand-name:hover {
+  color: #75dbff;
+  transform: scale(1.02);
+}
+
+/* 品牌名轻微呼吸动画 */
+.brand-name::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -5px;
+  left: 0;
+  background-color: #aeeaff;
+  border-radius: 1px;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+  transform-origin: center;
+}
+
+.footer-brand:hover .brand-name::after {
+  transform: scaleX(1);
 }
 
 .brand-slogan {
   font-size: 16px;
-  color: #333;
+  color: #75dbff;
   margin: 0;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 
-/* 页脚版权信息 */
+.footer-brand:hover .brand-slogan {
+  color: #75dbff;
+}
+
+/* 页脚版权信息 - 银白配色 + 动画 */
 .footer-copyright {
   text-align: center;
   padding-top: 10px;
   font-size: 12px;
-  color: #8eb8e5; /* 灰调清新蓝（保证可读性） */
+  color: #888888; /* 银灰版权文字（替换原淡蓝） */
   width: 100%;
+  transition: color 0.2s ease;
+}
+
+.footer-copyright:hover {
+  color: #666666;
 }
 
 .footer-copyright p {
@@ -406,7 +494,66 @@ onUnmounted(() => {
   line-height: 1.5;
 }
 
-/* 响应式适配 */
+/* ===================== 新增动画关键帧 ===================== */
+/* 背景淡入 */
+@keyframes bgFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 导航栏入场 */
+@keyframes headerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 下拉菜单淡入 */
+@keyframes menuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 主体内容淡入 */
+@keyframes mainFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页脚入场 */
+@keyframes footerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式适配 - 保留原有逻辑 + 银白配色调整 */
 @media (max-width: 1200px) {
   .top-nav-pc {
     width: 90%;
@@ -431,8 +578,10 @@ onUnmounted(() => {
     line-height: 45px;
     padding: 0 8px;
   }
+  /* 移动端菜单hover背景 - 银白风格 */
   .custom-menu .nav-link:hover {
-    background-color: #f5faff; /* 极淡蓝hover背景 */
+    background-color: #f5f5f5; /* 浅灰hover背景（替换原淡蓝） */
+    color: #666666;
   }
   .custom-menu .nav-link::after {
     display: none;

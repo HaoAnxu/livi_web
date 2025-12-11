@@ -10,6 +10,7 @@ import {
   getRoomInfoByFamilyIdApi,
   getAllFamilyInfoByUserIdApi
 } from "@/api/device.js"
+import md5 from "js-md5";
 
 const router = useRouter()
 const deviceInfoList = ref([])
@@ -125,6 +126,50 @@ const formRules = {
   roomId: [{required: true, message: '请选择所属房间', trigger: 'change'}],
   deviceImage: [{required: false}]
 }
+// 上传前校验
+const beforeUpload = (file) => {
+  getUploadHeaders();
+  // 校验文件大小（例如限制1MB）
+  const isLt1M = file.size / 1024 / 1024 < 1
+  if (!isLt1M) {
+    MyMessage.error('设备图片大小不能超过1MB!')
+    return false
+  }
+  // 校验文件类型
+  const isImage = ['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)
+  if (!isImage) {
+    MyMessage.error('仅支持上传jpg/jpeg/png格式的图片!')
+    return false
+  }
+  return true
+}
+// 上传成功后的处理
+const handleAvatarSuccess = (response) => {
+  // response是后端返回的Result对象
+  if (response.code) {
+    deviceInfo.deviceImage = response.msg;
+    MyMessage.success('图片上传成功');
+  } else {
+    MyMessage.error(response.msg || '图片上传失败');
+  }
+};
+// 获取请求头
+const uploadHeaders = ref({})
+const getUploadHeaders = () => {
+  const headers = {};
+  let loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
+  if (loginUser) {
+    headers.token = loginUser.token;
+  }
+  const timestamp = Date.now().toString()
+  const nonce = Math.random().toString(36).substring(2, 12);
+  const signSecret = import.meta.env.VITE_SIGN_SECRET;
+  const sign = md5(timestamp + nonce + signSecret);
+  headers.timestamp = timestamp;
+  headers.nonce = nonce;
+  headers.sign = sign;
+  uploadHeaders.value = headers;
+}
 // 添加新设备
 const addDevice = async () => {
   try {
@@ -143,6 +188,7 @@ const addDevice = async () => {
       MyMessage.error('请填写完整信息');
       return;
     }
+
     const result = await addNewDeviceApi(deviceInfo);
     if (result.code) {
       MyMessage.success(result.msg);
@@ -166,6 +212,17 @@ const addDevice = async () => {
   } finally {
     MyLoading.value = false;
   }
+}
+// 重置表单
+const resetForm = () => {
+  deviceFormRef.value.resetFields();
+  Object.assign(deviceInfo, {
+    deviceName: '',
+    deviceType: '',
+    roomId: '',
+    deviceImage: '',
+    familyId: currentFamilyId.value
+  });
 }
 
 //查询家庭匹配房间
@@ -206,7 +263,6 @@ watch(currentFamilyId, (newVal) => {
       v-model="dialogFormVisible"
       title="添加智能设备"
       width="90%"
-      max-width="550px"
       :close-on-click-modal="false"
       class="device-add-dialog"
   >
@@ -240,7 +296,8 @@ watch(currentFamilyId, (newVal) => {
 
       <!-- 所属房间 -->
       <el-form-item label="所属房间" prop="roomId">
-        <el-select v-model="deviceInfo.roomId" placeholder="请选择所属房间" class="form-select" @click="getRoomInfoList">
+        <el-select v-model="deviceInfo.roomId" placeholder="请选择所属房间" class="form-select"
+                   @click="getRoomInfoList">
           <el-option v-for="room in roomInfoList" :key="room.roomId" :label="room.roomName" :value="room.roomId"/>
         </el-select>
       </el-form-item>
@@ -248,23 +305,19 @@ watch(currentFamilyId, (newVal) => {
       <!-- 设备图片上传 -->
       <el-form-item label="设备图片" prop="deviceImage">
         <el-upload
-            :limit="1"
-            accept="image/png,image/jpg,image/jpeg"
-            list-type="picture-card"
             class="avatar-uploader"
+            action="/api/permission/device/uploadImage"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeUpload"
+            :headers="uploadHeaders"
         >
-          <div class="upload-placeholder">
-            <el-icon class="upload-icon">
-              <Plus/>
-            </el-icon>
-            <div class="upload-text">点击上传<br/>设备图片</div>
-          </div>
-          <img
-              v-if="deviceInfo.deviceImage"
-              :src="deviceInfo.deviceImage"
-              class="uploaded-image"
-              alt="设备图片"
-          />
+          <!-- 图片回显 -->
+          <img v-if="deviceInfo.deviceImage" :src="deviceInfo.deviceImage" class="avatar"/>
+          <!-- 未上传时的占位 -->
+          <el-icon v-else class="avatar-uploader-icon">
+            <Plus/>
+          </el-icon>
         </el-upload>
         <div class="upload-tip">
           <span>支持PNG/JPG/JPEG格式，建议尺寸200*200px</span>
@@ -275,7 +328,7 @@ watch(currentFamilyId, (newVal) => {
     <!-- 底部按钮 -->
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">关闭</el-button>
+        <el-button @click="dialogFormVisible = false, resetForm()">关闭</el-button>
         <el-button type="primary" @click="addDevice">确认添加</el-button>
       </div>
     </template>
@@ -369,8 +422,7 @@ watch(currentFamilyId, (newVal) => {
   </div>
 
 </template>
-
-<style>
+<style scoped>
+/* 引入基础样式 */
 @import '@/assets/CSS/SmartHome/main.css';
-
 </style>

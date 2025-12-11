@@ -24,6 +24,11 @@ request.interceptors.request.use(
         config.headers.timestamp = timestamp;
         config.headers.nonce = nonce;
         config.headers.sign = sign;
+        // 如果是 FormData 类型，axios 会自动设置 Content-Type 为 multipart/form-data
+        if (config.data instanceof FormData) {
+            config.headers['Content-Type'] = undefined; // 让axios自动生成multipart/form-data + 边界符
+        }
+
         return config;
     },
     (error)=>{
