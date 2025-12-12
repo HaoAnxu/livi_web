@@ -5,17 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35df4d7d-3806-4f90-a3c8-7afa995ba8e7" name="更改" comment="日常更新">
-      <change afterPath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/Button.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/Switch.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/main.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/device.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/device.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/CSS/SmartHome/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/SmartHome/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/utils/request.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/utils/request.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/layout/layout.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/layout/layout.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/shortVideo/shortVideo.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/shortVideo/shortVideo.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/Button.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/Button.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/CSS/DeviceControl/main.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/smartHome/deviceControl.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/smartHome/deviceControl.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/smartHome/smartHome.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/smartHome/smartHome.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +85,9 @@
       <workItem from="1765327927923" duration="17471000" />
       <workItem from="1765355768487" duration="5026000" />
       <workItem from="1765414812713" duration="17010000" />
-      <workItem from="1765439038910" duration="7786000" />
+      <workItem from="1765439038910" duration="7860000" />
+      <workItem from="1765447032544" duration="210000" />
+      <workItem from="1765506577409" duration="17078000" />
     </task>
     <task id="LOCAL-00001" summary="日常更新">
       <option name="closed" value="true" />
@@ -166,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765360545373</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="日常更新">
+      <option name="closed" value="true" />
+      <created>1765446935850</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1765446935850</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
