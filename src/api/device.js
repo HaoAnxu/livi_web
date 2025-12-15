@@ -51,6 +51,6 @@ export const getTaskListApi =(deviceId)=>{
 }
 
 //停止设备任务long类型
-export const stopTaskApi =()=>{
-    return request.put('/permission/device/stopLongTask')
+export const stopTaskApi =(deviceId)=>{
+    return request.put(`/permission/device/stopRunningTask?deviceId=${deviceId}`)
 }

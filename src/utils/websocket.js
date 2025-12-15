@@ -20,17 +20,34 @@ const WS_CONFIG = {
 let reconnectTimer = null;
 let heartbeatTimer = null;
 let reconnectCount = 0; // 重连计数器
-// 定义指令消息类型列表, 用于判断是否需要特殊处理
 
 // 定义指令消息类型列表, 用于判断是否需要特殊处理
-const COMMAND_MSG_TYPES = [
-    'request_chat_history', // 查询历史记录指令
+// 前端→后端的指令（无需校验content）
+const FRONTEND_COMMANDS = [
+    'request_chat_history',
+    'check_task',
+    'change_status',
+    'create_long_task',
+    'stop_task',
+    'create_once_task', // 新增
+    'create_for_task'   // 新增
 ];
+// 后端→前端的消息类型
+const BACKEND_MSG_TYPES = [
+    'device_status',
+    'realtime',
+    'offline',
+    'chat_history_data',
+    'success',
+    'error'
+];
+// 合并为指令白名单
+const COMMAND_MSG_TYPES = [...FRONTEND_COMMANDS, ...BACKEND_MSG_TYPES];
 // 导出连接状态
 export {isConnected}
 
 // 拼接WebSocket完整URL,因为WebSocket没有header，所以只能在URL中拼接安全校验所需参数
-const buildWsUrl = (baseWsUrl, userId, communityId, token) => {
+const buildWsUrl = (baseWsUrl, userId, businessId, token) => {
     const timestamp = Date.now().toString();
     const nonce = Math.random().toString(36).substring(2, 12);
     const sign = md5(timestamp + nonce + WS_CONFIG.signSecret);
@@ -45,8 +62,8 @@ const buildWsUrl = (baseWsUrl, userId, communityId, token) => {
 };
 
 // 连接WebSocket（接受组件传递的参数）
-export function connectWebSocket(userId, communityId, wsUrl) {
-    if (!userId || !communityId || !wsUrl) {
+export function connectWebSocket(userId, businessId, wsUrl) {
+    if (!userId || !businessId || !wsUrl) {
         Message.error('缺少必要参数，无法建立WebSocket连接');
         return;
     }
@@ -62,7 +79,7 @@ export function connectWebSocket(userId, communityId, wsUrl) {
         wsInstance = null;
     }
     //使用参数，构建完整的WebSocketUrl
-    const fullWsUrl = buildWsUrl(wsUrl, userId, communityId, loginUser.token);
+    const fullWsUrl = buildWsUrl(wsUrl, userId, businessId, loginUser.token);
     WS_CONFIG.userId = userId;
 
     // 建立WebSocket连接
@@ -110,7 +127,7 @@ export function connectWebSocket(userId, communityId, wsUrl) {
 
             isConnected.value = false;
             stopHeartbeat();
-            startReconnect(userId, communityId, wsUrl); // 触发重连
+            startReconnect(userId, businessId, wsUrl); // 触发重连
         };
     } catch (e) {
         Message.error(`服务器连接失败：${e.message}`);
@@ -118,7 +135,7 @@ export function connectWebSocket(userId, communityId, wsUrl) {
 }
 
 // 启动断线重连
-function startReconnect(userId, communityId, wsUrl) {
+function startReconnect(userId, businessId, wsUrl) {
     // 已达最大重连次数：终止并重置状态
     if (reconnectCount >= WS_CONFIG.maxReconnectTimes) {
         Message.error(`重连失败：已尝试${WS_CONFIG.maxReconnectTimes}次，请检查网络连接稍后再次尝试`);
@@ -132,7 +149,7 @@ function startReconnect(userId, communityId, wsUrl) {
     Message.warn(`连接断开，第${reconnectCount}/${WS_CONFIG.maxReconnectTimes}次重连`);
     // setTimeout：每次重连完成后再触发下一次
     reconnectTimer = setTimeout(() => {
-        connectWebSocket(userId, communityId, wsUrl);
+        connectWebSocket(userId, businessId, wsUrl);
         // 重连后清空定时器（connect里会处理成功/失败）
         reconnectTimer = null;
     }, WS_CONFIG.reconnectInterval);
@@ -209,7 +226,7 @@ function handleReceivedMessage(jsonString) {
 
         //错误类型直接提示
         if (msgType === 'error') {
-            Message.error(`服务端错误：${data}`);
+            Message.error(`${data}`);
             return;
         }
 
@@ -226,7 +243,7 @@ function handleReceivedMessage(jsonString) {
     }
 }
 
-// 发送消息（适配后端：补充字段，确保JSON格式正确）
+// 发送消息
 export function sendMessage(message) {
     if (!isConnected.value || !wsInstance) {
         Message.error('服务端未连接，无法发送消息');

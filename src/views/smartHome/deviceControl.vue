@@ -1,24 +1,29 @@
 <script setup>
 import {
-  getDeviceInfoByDeviceIdApi,
-  changeDeviceStatusApi,
   getAllFamilyInfoByUserIdApi,
-  createTaskApi,
-  getTaskListApi,
-  stopTaskApi
+  getDeviceInfoByDeviceIdApi,
 } from "@/api/device.js"
-import {ref, onMounted, watch} from "vue"
+import {onMounted, onUnmounted, ref, watch} from "vue"
 import {useRoute, useRouter} from 'vue-router'
 import {MyLoading} from "@/utils/MyLoading.js"
 import MyMessage from "@/utils/MyMessage.js"
 import {ElNotification} from 'element-plus'
+import {
+  closeWebSocket,
+  connectWebSocket,
+  isConnected,
+  sendMessage,
+  subscribeMessage,
+  unsubscribeMessage
+} from '@/utils/websocket';
 
 const route = useRoute()
 const router = useRouter()
-const selectTime = ref([])
-const onceDate = ref('')
 const deviceId = ref(null)
 const userId = ref(null)
+// 核心变量-websocket相关
+let currentDeviceStatusCallback = null;
+let currentTaskListCallback = null;
 
 // 检查用户登录状态并获取userId
 const checkUserLogin = () => {
@@ -65,6 +70,7 @@ const taskInfo = ref({
   permit: 1,
   taskType: '',
   onceStartDate: '',
+  selectTime: [],
   forModel: '',
   beginTime: '',
   endTime: ''
@@ -74,7 +80,7 @@ const isRightShow = ref(false)
 const taskList = ref([])
 const isRun = ref(false)
 
-// 检查权限时先验证设备ID
+// 检查权限
 const checkFamily = async () => {
   if (!deviceId.value || !userId.value) {
     MyMessage.error('设备信息或用户信息不完整')
@@ -115,51 +121,11 @@ const checkFamily = async () => {
   }
 };
 
-// 切换面板时重新获取数据
-const toggleRightPanel = async () => {
+// 切换面板
+const toggleRightPanel = () => {
   isRightShow.value = !isRightShow.value;
-  await getDeviceDetail();
-  await getTaskList()
 };
-// 获取设备详情
-const getDeviceDetail = async () => {
-  if (!deviceId.value) return
 
-  MyLoading.value = true;
-  try {
-    const result = await getDeviceInfoByDeviceIdApi(deviceId.value);
-    if (result.code) {
-      deviceDetail.value = result.data;
-      isRun.value = deviceDetail.value.deviceStatus === 1
-    } else {
-      MyMessage.error(result.msg);
-    }
-  } catch (e) {
-    console.error('获取设备详情失败:', e)
-    MyMessage.error('获取设备详情失败');
-  } finally {
-    MyLoading.value = false;
-  }
-}
-// 获取任务列表
-const getTaskList = async () => {
-  if (!deviceId.value) return
-
-  MyLoading.value = true;
-  try {
-    const result = await getTaskListApi(deviceId.value);
-    if (result.code) {
-      taskList.value = result.data;
-    } else {
-      MyMessage.error(result.msg);
-    }
-  } catch (e) {
-    console.error('获取任务列表失败:', e)
-    MyMessage.error('获取任务列表失败');
-  } finally {
-    MyLoading.value = false;
-  }
-}
 // 通知用户设备状态更新
 const notify = () => {
   ElNotification({
@@ -175,6 +141,7 @@ watch(() => deviceDetail.value.deviceStatus,
       isRun.value = newVal === 1
     }
 )
+
 // 切换设备状态
 const changeDeviceStatus = async () => {
   if (!deviceId.value) {
@@ -188,70 +155,13 @@ const changeDeviceStatus = async () => {
   // 如果状态没变化，不执行
   if (oldStatus === newStatus) return
 
-  MyLoading.value = true
-  try {
-    const result = await changeDeviceStatusApi(deviceId.value, newStatus)
-    if (result.code) {
-      MyMessage.success(result.msg || '状态修改成功')
-      deviceDetail.value.deviceStatus = newStatus
-
-      // 开启时创建长效任务
-      if (isRun.value) {
-        await createLongTask()
-      } else {
-        await stopLongTask()
-      }
-      notify()
-    } else {
-      MyMessage.error(result.msg || '状态修改失败')
-      isRun.value = oldStatus === 1
-    }
-  } catch (e) {
-    console.error('修改设备状态失败:', e)
-    MyMessage.error('网络异常，修改状态失败')
-    isRun.value = oldStatus === 1
-  } finally {
-    MyLoading.value = false
-  }
-}
-
-const createLongTask = async () => {
-  if (!deviceId.value || !userId.value) {
-    MyMessage.error('设备或用户信息不完整')
-    return
-  }
-
-  const taskData = {
+  const changeStatusCmd = {
+    msgType: "change_status",
     deviceId: deviceId.value,
-    userId: userId.value,
-    permit: 1,
-    taskType: 'long',
-    beginTime: new Date().toLocaleTimeString('zh-CN', {hour12: false})
+    deviceStatus: newStatus
   }
-
-  try {
-    const result = await createTaskApi(taskData)
-    if (result.code) {
-      MyMessage.success(result.msg || '长效任务创建成功')
-    } else {
-      MyMessage.error(result.msg || '长效任务创建失败')
-    }
-  } catch (e) {
-    console.error('创建长效任务失败:', e)
-    MyMessage.error('创建长效任务失败')
-  }
-}
-
-const stopLongTask = async () => {
-  if (!deviceId.value) return
-  try {
-    const result = await stopTaskApi()
-    if (result.code) {
-      MyMessage.success(result.msg || '任务已停止')
-    }
-  } catch (e) {
-    console.error('停止任务失败:', e)
-  }
+  sendMessage(changeStatusCmd)
+  notify()
 }
 
 //一次性任务规则
@@ -273,60 +183,207 @@ const onceRules = ref({
     }
   ]
 })
-
-//创建一次性任务
+// 创建一次性任务
 const createOnceTask = async () => {
   if (!deviceId.value || !userId.value) {
     MyMessage.error('设备或用户信息不完整')
     return
   }
-  if (!onceDate.value) {
+  // 从taskInfo取日期和时间段
+  if (!taskInfo.value.onceStartDate) {
     MyMessage.warn('请选择执行日期')
     return
   }
-  if (!selectTime.value || selectTime.value.length < 2) {
+  if (!taskInfo.value.selectTime || taskInfo.value.selectTime.length < 2) {
     MyMessage.warn('请选择完整的执行时间段')
     return
   }
-  MyLoading.value = true
+
+  // 构造任务创建指令并通过WS发送
+  const createTaskCmd = {
+    msgType: "create_once_task",
+    deviceId: deviceId.value,
+    userId: userId.value,
+    permit: 1,
+    taskType: 'once',
+    forModel: '',
+    onceStartDate: taskInfo.value.onceStartDate,
+    beginTime: taskInfo.value.selectTime[0],
+    endTime: taskInfo.value.selectTime[1]
+  }
+
+  // 临时订阅创建结果
+  const handleCreateResult = (data) => {
+    if (data.msgType === 'success') {
+      MyMessage.success('一次性任务创建成功');
+    } else if (data.msgType === 'error') {
+      MyMessage.error(`创建失败：${data.data}`);
+    }
+    // 取消临时订阅
+    unsubscribeMessage('success', handleCreateResult);
+    unsubscribeMessage('error', handleCreateResult);
+  };
+  subscribeMessage('success', handleCreateResult);
+  subscribeMessage('error', handleCreateResult);
+
+  sendMessage(createTaskCmd);
+  if (data.msgType === 'success') {
+    notify()
+  }
+  // 重置表单
+  resetTaskInfo();
+  // 发送检查任务指令更新列表
+  sendCheckTaskCommand();
+}
+
+// 循环任务规则
+const forRules = ref({
+  forModel: [
+    {required: true, message: '请选择周期模式', trigger: 'change',defaultValue: 'day'}
+  ],
+  selectTime: [
+    {
+      required: true,
+      validator: (rule, value, callback) => {
+        if (!value || value.length < 2) {
+          callback(new Error('请选择完整的执行时间段'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
+  ]
+})
+//创建循环任务
+const createForTask = async () => {
+  if (!deviceId.value || !userId.value) {
+    MyMessage.error('设备或用户信息不完整')
+    return
+  }
+  // 从taskInfo取日期和时间段
+  if (!taskInfo.value.forModel) {
+    MyMessage.warn('请选择周期模式')
+    return
+  }
+  if (!taskInfo.value.selectTime || taskInfo.value.selectTime.length < 2) {
+    MyMessage.warn('请选择完整的执行时间段')
+    return
+  }
+
+  // 构造任务创建指令并通过WS发送
+  const createTaskCmd = {
+    msgType: "create_for_task",
+    deviceId: deviceId.value,
+    userId: userId.value,
+    permit: 1,
+    taskType: 'for',
+    forModel: taskInfo.value.forModel,
+    beginTime: taskInfo.value.selectTime[0],
+    endTime: taskInfo.value.selectTime[1]
+  }
+
+  // 临时订阅创建结果
+  const handleCreateResult = (data) => {
+    if (data.msgType === 'success') {
+      MyMessage.success('循环任务创建成功');
+    } else if (data.msgType === 'error') {
+      MyMessage.error(`创建失败：${data.data}`);
+    }
+    // 取消临时订阅
+    unsubscribeMessage('success', handleCreateResult);
+    unsubscribeMessage('error', handleCreateResult);
+  };
+  subscribeMessage('success', handleCreateResult);
+  subscribeMessage('error', handleCreateResult);
+
+  sendMessage(createTaskCmd);
+  if (data.msgType === 'success') {
+    notify()
+  }
+  // 重置表单
+  resetTaskInfo();
+  // 发送检查任务指令更新列表
+  sendCheckTaskCommand();
+}
+
+// 连接WebSocket
+const connectWebSocketDevice = () => {
+  if (!deviceId.value || !userId.value) {
+    MyMessage.error('设备ID或用户ID为空，无法建立连接');
+    return;
+  }
+  if (window.unwatchDeviceStatus) {
+    window.unwatchDeviceStatus(); // 执行watch返回的销毁函数
+    window.unwatchDeviceStatus = null; // 清空引用
+  }
+  // 取消旧订阅
+  if (currentDeviceStatusCallback) {
+    unsubscribeMessage('device_status', currentDeviceStatusCallback);
+    currentDeviceStatusCallback = null;
+  }
+  if (currentTaskListCallback) {
+    unsubscribeMessage('task_list', currentTaskListCallback);
+    currentTaskListCallback = null;
+  }
+  // 拼接ws路径
+  const wsUrl = `/ws/device/${deviceId.value}/${userId.value}`;
+  // 建立连接
+  connectWebSocket(userId.value, deviceId.value, wsUrl);
+
+  // 订阅设备状态消息
+  currentDeviceStatusCallback = handleDeviceStatus
+  subscribeMessage('device_status', handleDeviceStatus);
+  // 订阅任务列表消息
+  currentTaskListCallback = handleTaskList
+  subscribeMessage('task_list', handleTaskList);
+
+  // 监听连接状态
+  window.unwatchDeviceStatus = watch(() => isConnected.value, (newVal) => {
+    if (newVal) {
+      sendCheckTaskCommand(); // 仅触发一次
+    }
+  }, {immediate: true});
+};
+
+// 发送「检查设备任务」指令
+const sendCheckTaskCommand = () => {
+  if (!isConnected.value) {
+    MyMessage.warn('WebSocket未连接，暂无法检查任务');
+    return;
+  }
+  const checkTaskCmd = {
+    msgType: "check_task",
+    deviceId: deviceId.value
+  };
+  sendMessage(checkTaskCmd);
+};
+
+//处理设备状态消息
+const handleDeviceStatus = (data) => {
   try {
-    const taskData = {
-      deviceId: deviceId.value,
-      userId: userId.value,
-      permit: 1,
-      taskType: 'once',
-      onceStartDate: onceDate.value,
-      beginTime: selectTime.value[0],
-      endTime: selectTime.value[1]
-    }
-    const result = await createTaskApi(taskData)
-    if (result.code) {
-      MyMessage.success('单次定时任务创建成功')
-      // 重置表单
-      onceDate.value = ''
-      selectTime.value = []
-      // 重新获取任务列表
-      await getTaskList()
-    } else {
-      MyMessage.error(result.msg || '任务创建失败')
-    }
+    const deviceVO = JSON.parse(data.data)
+    deviceDetail.value = deviceVO
+    isRun.value = deviceVO.deviceStatus === 1
   } catch (e) {
-    console.error('创建单次任务异常：', e)
-    MyMessage.error('创建任务时发生异常，请重试')
-  } finally {
-    MyLoading.value = false
+    MyMessage.error('处理设备状态消息失败：' + e)
   }
 }
 
-const createForTask = async () => {
-  // TODO: 实现循环任务创建
-  MyMessage.warn('循环任务功能暂未实现')
-}
+// 处理任务列表消息
+const handleTaskList = (data) => {
+  try {
+    const taskListVO = JSON.parse(data.data);
+    taskList.value = taskListVO;
+  } catch (e) {
+    MyMessage.error('处理任务列表消息失败：' + e);
+  }
+};
 
+//工具方法
 const getStatusClass = (status) => {
   return `status-${status}`
 }
-
 const resetTaskInfo = () => {
   taskInfo.value = {
     deviceId: 0,
@@ -338,20 +395,25 @@ const resetTaskInfo = () => {
     beginTime: '',
     endTime: ''
   }
-  onceDate.value = ''
-  selectTime.value = []
 }
 
 onMounted(async () => {
   if (!checkUserLogin()) return
-
   if (!validateAndInitDeviceId()) return
 
   await checkFamily()
+  // 初始化WebSocket连接
+  connectWebSocketDevice()
+})
 
-  await getTaskList()
-
-  await getDeviceDetail()
+onUnmounted(() => {
+  if (currentDeviceStatusCallback) unsubscribeMessage('device_status', currentDeviceStatusCallback);
+  if (currentTaskListCallback) unsubscribeMessage('task_list', currentTaskListCallback);
+  if (window.unwatchDeviceStatus) {
+    window.unwatchDeviceStatus();
+    window.unwatchDeviceStatus = null;
+  }
+  closeWebSocket()
 })
 </script>
 
@@ -391,7 +453,7 @@ onMounted(async () => {
                   class="value"
                   :class="getStatusClass(deviceDetail.deviceStatus)"
                   :style="{ color: deviceDetail.deviceStatus === 0 ? '#d1d1d1': deviceDetail.deviceStatus === 1 ? '#5dff44': deviceDetail.deviceStatus === 2 ? '#ff4d53': '#79baff'}">
-  {{
+                {{
                   deviceDetail.deviceStatus === 0 ? '关闭' : deviceDetail.deviceStatus === 1 ? '执行中' : deviceDetail.deviceStatus === 2 ? '异常' : '等待执行'
                 }}
               </span>
@@ -438,19 +500,19 @@ onMounted(async () => {
 
       <!-- 右侧区域-->
       <div class="right-panel">
-        <div class="radio-inputs" v-if="isRightShow" @click="resetTaskInfo">
+        <div class="radio-inputs" v-if="isRightShow">
           <label class="radio">
-            <input type="radio" name="radio" checked=""/>
+            <input type="radio" name="radio" @click="resetTaskInfo" checked/>
             <span class="name">
               <span class="pre-name"></span>
               <span class="pos-name"></span>
-              <span> 长效任务 </span>
+              <span> 设备状态 </span>
             </span>
             <div class="content">
               <div class="long-term-task">
                 <div class="task-desc">
-                  <p class="desc-title">设备长效执行控制</p>
-                  <p class="desc-tip">开启后设备将持续执行任务，关闭则终止所有长效任务</p>
+                  <p class="desc-title">设备状态控制</p>
+                  <p class="desc-tip">开启后设备将持续执行任务，关闭则终止所有设备状态任务</p>
                 </div>
                 <!--长效任务开启/关闭开关，值变化就触发方法-->
                 <div class="custom-reactor-widget">
@@ -469,20 +531,54 @@ onMounted(async () => {
             </div>
           </label>
           <label class="radio">
-            <input type="radio" name="radio"/>
+            <input type="radio" name="radio" @click="resetTaskInfo"/>
             <span class="name">
               <span class="pre-name"></span>
               <span class="pos-name"></span>
               <span> 循环定时任务 </span>
             </span>
             <div class="content">
-              <div>
-                <div>请创建设备任务</div>
+              <div class="once-term-task-wrap">
+                <div class="task-intro">
+                  <h3 class="intro-title">单次定时任务配置</h3>
+                  <p class="intro-desc">
+                    配置设备的单次执行任务，选择指定日期和时间段，设备将在该时段内自动执行任务，执行完成后任务自动终止。
+                  </p>
+                </div>
+                <!-- 表单区域 -->
+                <div class="once_term_task">
+                  <el-form :model="taskInfo" :rules="forRules" label-width="120px" class="once-task-form">
+                    <el-form-item label="周期模式" prop="forModel">
+                      <el-radio-group v-model="taskInfo.forModel">
+                        <el-radio label="day">每天执行</el-radio>
+                        <el-radio label="week">每周执行</el-radio>
+                        <el-radio label="month">每月执行</el-radio>
+                      </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="执行时间" prop="selectTime">
+                      <el-time-picker
+                          v-model="taskInfo.selectTime"
+                          is-range
+                          range-separator="至"
+                          start-placeholder="开始时间"
+                          end-placeholder="结束时间"
+                          format="HH时mm分ss秒"
+                          value-format="HH:mm:ss"
+                          class="form-input-full"
+                      />
+                    </el-form-item>
+                    <el-form-item class="form-btn-item">
+                      <button type="button" class="fresh-blue-btn" @click="createForTask">
+                        创建循环任务
+                      </button>
+                    </el-form-item>
+                  </el-form>
+                </div>
               </div>
             </div>
           </label>
           <label class="radio">
-            <input type="radio" name="radio"/>
+            <input type="radio" name="radio" @click="resetTaskInfo"/>
             <span class="name">
               <span class="pre-name"></span>
               <span class="pos-name"></span>
@@ -496,13 +592,12 @@ onMounted(async () => {
                     配置设备的单次执行任务，选择指定日期和时间段，设备将在该时段内自动执行任务，执行完成后任务自动终止。
                   </p>
                 </div>
-
                 <!-- 表单区域 -->
                 <div class="once_term_task">
-                  <el-form :model="taskInfo" :rules="oncerules" label-width="120px" class="once-task-form">
-                    <el-form-item label="执行日期">
+                  <el-form :model="taskInfo" :rules="onceRules" label-width="120px" class="once-task-form">
+                    <el-form-item label="执行日期" prop="onceStartDate">
                       <el-date-picker
-                          v-model="onceDate"
+                          v-model="taskInfo.onceStartDate"
                           type="date"
                           placeholder="请选择日期"
                           format="YYYY年MM月DD日"
@@ -510,9 +605,9 @@ onMounted(async () => {
                           class="form-input-full"
                       />
                     </el-form-item>
-                    <el-form-item label="执行时间">
+                    <el-form-item label="执行时间" prop="selectTime">
                       <el-time-picker
-                          v-model="selectTime"
+                          v-model="taskInfo.selectTime"
                           is-range
                           range-separator="至"
                           start-placeholder="开始时间"
@@ -523,7 +618,7 @@ onMounted(async () => {
                       />
                     </el-form-item>
                     <el-form-item class="form-btn-item">
-                      <button class="fresh-blue-btn" @click="createOnceTask">
+                      <button type="button" class="fresh-blue-btn" @click="createOnceTask">
                         创建定时任务
                       </button>
                     </el-form-item>
@@ -549,6 +644,7 @@ onMounted(async () => {
                 <th>任务类型</th>
                 <th>任务状态</th>
                 <th>循环模式</th>
+                <th>执行日期</th>
                 <th>开始时间</th>
                 <th>结束时间</th>
                 <th>创建时间</th>
@@ -563,23 +659,24 @@ onMounted(async () => {
                   }}
                 </td>
                 <td>
-                    <span class="status-tag" :class="getStatusClass(item.taskStatus)">
-                      {{
-                        item.taskStatus === 0 ? '终止' : item.taskStatus === 1 ? '待执行' : item.taskStatus === 2 ? '执行中' : '异常'
-                      }}
-                    </span>
+                  <span class="status-tag" :class="getStatusClass(item.taskStatus)">
+                    {{
+                      item.taskStatus === 0 ? '终止' : item.taskStatus === 1 ? '待执行' : item.taskStatus === 2 ? '执行中' : '异常'
+                    }}
+                  </span>
                 </td>
                 <td>{{
                     item.taskType === 'for' ? (item.forModel === 'daily' ? '每天' : item.forModel === 'week' ? '每周' : '每月') : '-'
                   }}
                 </td>
-                <td>{{ item.beginTime }}</td>
-                <td>{{ item.endTime }}</td>
-                <td>{{ item.createTime }}</td>
+                <td>{{ item.onceStartDate ? item.onceStartDate : '-' }}</td>
+                <td>{{ item.beginTime ? item.beginTime : '-' }}</td>
+                <td>{{ item.endTime ? item.endTime : '-' }}</td>
+                <td>{{ item.createTime ? item.createTime : '-' }}</td>
               </tr>
               <!-- 空数据提示 -->
               <tr v-if="!taskList || taskList.length === 0" class="empty-row">
-                <td colspan="7" class="empty-cell">暂无任务记录</td>
+                <td colspan="8" class="empty-cell">暂无任务记录</td>
               </tr>
               </tbody>
             </table>
