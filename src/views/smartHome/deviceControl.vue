@@ -2,6 +2,8 @@
 import {
   getAllFamilyInfoByUserIdApi,
   getDeviceInfoByDeviceIdApi,
+  getTaskListByTaskTypeApi,
+  deleteTaskByTaskIdApi
 } from "@/api/device.js"
 import {onMounted, onUnmounted, ref, watch} from "vue"
 import {useRoute, useRouter} from 'vue-router'
@@ -24,6 +26,11 @@ const userId = ref(null)
 // 核心变量-websocket相关
 let currentDeviceStatusCallback = null;
 let currentTaskListCallback = null;
+//按钮冷却变量
+const isLongSwitchCooling = ref(false);
+const isCreateTaskCooling = ref(false);
+// 冷却时长（10秒）
+const COOL_DOWN_TIME = 10000;
 
 // 检查用户登录状态并获取userId
 const checkUserLogin = () => {
@@ -127,10 +134,18 @@ const toggleRightPanel = () => {
 };
 
 // 通知用户设备状态更新
-const notify = () => {
+const notify1 = () => {
   ElNotification({
     title: '设备状态更新',
-    message: '设备状态已更新，可能会有5s延时，请刷新页面查看最新状态',
+    message: '设备状态已更新，可能会有10s延时，注意设备操控有冷却哦~',
+    type: 'success',
+  })
+}
+// 通知冷却中
+const notify2 = () => {
+  ElNotification({
+    title: '设备操作冷却中',
+    message: '请勿频繁操作，等待10s~',
     type: 'success',
   })
 }
@@ -142,8 +157,32 @@ watch(() => deviceDetail.value.deviceStatus,
     }
 )
 
+//分类查询任务列表Http
+const taskType = ["long", "once", "for"]
+let index = 0;
+const sortByType = async () => {
+  if (index === 2) {
+    index = 0
+  } else {
+    index++
+  }
+  MyLoading.value = true
+  const result = await getTaskListByTaskTypeApi(deviceId.value, taskType[index])
+  if (result.code) {
+    taskList.value = result.data
+  } else {
+    MyMessage.error(result.msg || '获取任务列表失败')
+  }
+  MyLoading.value = false
+}
+
 // 切换设备状态
 const changeDeviceStatus = async () => {
+  if (isLongSwitchCooling.value) {
+    notify2();
+    return;
+  }
+
   if (!deviceId.value) {
     MyMessage.warn('设备ID为空，无法修改状态')
     return
@@ -155,13 +194,32 @@ const changeDeviceStatus = async () => {
   // 如果状态没变化，不执行
   if (oldStatus === newStatus) return
 
+  //开启定时器
+  isLongSwitchCooling.value = true
+  setTimeout(() => {
+    isLongSwitchCooling.value = false
+  }, COOL_DOWN_TIME)
+
   const changeStatusCmd = {
     msgType: "change_status",
     deviceId: deviceId.value,
     deviceStatus: newStatus
   }
   sendMessage(changeStatusCmd)
-  notify()
+  notify1()
+}
+
+//删除任务
+const deleteTask = async (taskId) => {
+  MyLoading.value = true;
+  const result = await deleteTaskByTaskIdApi(taskId)
+  if(result.code){
+    MyMessage.success("删除任务完毕")
+    sendCheckTaskCommand()
+  }else {
+    MyMessage.error(result.msg)
+  }
+  MyLoading.value = false;
 }
 
 //一次性任务规则
@@ -185,6 +243,12 @@ const onceRules = ref({
 })
 // 创建一次性任务
 const createOnceTask = async () => {
+
+  if (isCreateTaskCooling.value) {
+    notify2()
+    return
+  }
+
   if (!deviceId.value || !userId.value) {
     MyMessage.error('设备或用户信息不完整')
     return
@@ -198,6 +262,11 @@ const createOnceTask = async () => {
     MyMessage.warn('请选择完整的执行时间段')
     return
   }
+
+  isCreateTaskCooling.value = true;
+  setTimeout(() => {
+    isCreateTaskCooling.value = false;
+  }, COOL_DOWN_TIME);
 
   // 构造任务创建指令并通过WS发送
   const createTaskCmd = {
@@ -228,7 +297,7 @@ const createOnceTask = async () => {
 
   sendMessage(createTaskCmd);
   if (data.msgType === 'success') {
-    notify()
+    notify1()
   }
   // 重置表单
   resetTaskInfo();
@@ -239,7 +308,7 @@ const createOnceTask = async () => {
 // 循环任务规则
 const forRules = ref({
   forModel: [
-    {required: true, message: '请选择周期模式', trigger: 'change',defaultValue: 'day'}
+    {required: true, message: '请选择周期模式', trigger: 'change', defaultValue: 'day'}
   ],
   selectTime: [
     {
@@ -257,6 +326,10 @@ const forRules = ref({
 })
 //创建循环任务
 const createForTask = async () => {
+  if (isCreateTaskCooling.value) {
+    notify2()
+    return
+  }
   if (!deviceId.value || !userId.value) {
     MyMessage.error('设备或用户信息不完整')
     return
@@ -270,6 +343,11 @@ const createForTask = async () => {
     MyMessage.warn('请选择完整的执行时间段')
     return
   }
+
+  isCreateTaskCooling.value = true;
+  setTimeout(() => {
+    isCreateTaskCooling.value = false;
+  }, COOL_DOWN_TIME)
 
   // 构造任务创建指令并通过WS发送
   const createTaskCmd = {
@@ -299,7 +377,7 @@ const createForTask = async () => {
 
   sendMessage(createTaskCmd);
   if (data.msgType === 'success') {
-    notify()
+    notify1()
   }
   // 重置表单
   resetTaskInfo();
@@ -517,7 +595,8 @@ onUnmounted(() => {
                 <!--长效任务开启/关闭开关，值变化就触发方法-->
                 <div class="custom-reactor-widget">
                   <div class="custom-reactor-switch">
-                    <input type="checkbox" id="custom-reactor" v-model="isRun" @change="changeDeviceStatus"/>
+                    <input type="checkbox" id="custom-reactor" v-model="isRun" @change="changeDeviceStatus"
+                           :disabled="isLongSwitchCooling"/>
                     <label for="custom-reactor" aria-label="Reactor toggle">
                       <span class="custom-reactor-switch__core"></span>
                       <span class="custom-reactor-switch__beam"></span>
@@ -641,18 +720,19 @@ onUnmounted(() => {
               <thead>
               <tr>
                 <th>序号</th>
-                <th>任务类型</th>
+                <th @click="sortByType" style="cursor: pointer;">任务类型</th>
                 <th>任务状态</th>
                 <th>循环模式</th>
                 <th>执行日期</th>
                 <th>开始时间</th>
                 <th>结束时间</th>
                 <th>创建时间</th>
+                <th>操作</th>
               </tr>
               </thead>
               <!-- 表体 -->
               <tbody>
-              <tr v-for="(item, index) in taskList" :key="index" class="task-table-row">
+              <tr v-for="(item, index) in taskList" :key="item.taskId" class="task-table-row">
                 <td>{{ index + 1 }}</td>
                 <td>{{
                     item.taskType === 'long' ? '长效任务' : item.taskType === 'once' ? '单次定时任务' : '循环定时任务'
@@ -666,17 +746,18 @@ onUnmounted(() => {
                   </span>
                 </td>
                 <td>{{
-                    item.taskType === 'for' ? (item.forModel === 'daily' ? '每天' : item.forModel === 'week' ? '每周' : '每月') : '-'
+                    item.taskType === 'for' ? (item.forModel === 'day' ? '每天' : item.forModel === 'week' ? '每周' : '每月') : '-'
                   }}
                 </td>
                 <td>{{ item.onceStartDate ? item.onceStartDate : '-' }}</td>
                 <td>{{ item.beginTime ? item.beginTime : '-' }}</td>
                 <td>{{ item.endTime ? item.endTime : '-' }}</td>
                 <td>{{ item.createTime ? item.createTime : '-' }}</td>
+                <td @click="deleteTask(item.taskId)" style="cursor: pointer;color: #ff4d4f">删除</td>
               </tr>
               <!-- 空数据提示 -->
               <tr v-if="!taskList || taskList.length === 0" class="empty-row">
-                <td colspan="8" class="empty-cell">暂无任务记录</td>
+                <td colspan="9" class="empty-cell">暂无任务记录</td>
               </tr>
               </tbody>
             </table>

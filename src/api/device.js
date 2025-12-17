@@ -46,11 +46,16 @@ export const createTaskApi =(data)=>{
 }
 
 //查询设备执行任务记录
-export const getTaskListApi =(deviceId)=>{
-    return request.get(`/permission/device/queryTaskList?deviceId=${deviceId}`)
+export const getTaskListByTaskTypeApi =(deviceId,taskType)=>{
+    return request.get(`/permission/device/queryTaskListByTaskType?deviceId=${deviceId}&taskType=${taskType}`)
 }
 
 //停止设备任务long类型
 export const stopTaskApi =(deviceId)=>{
     return request.put(`/permission/device/stopRunningTask?deviceId=${deviceId}`)
+}
+
+//删除任务根据taskId
+export const deleteTaskByTaskIdApi =(taskId)=>{
+    return request.delete(`/permission/device/deleteTaskByTaskId?taskId=${taskId}`)
 }
