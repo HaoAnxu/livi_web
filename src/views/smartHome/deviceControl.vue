@@ -619,9 +619,9 @@ onUnmounted(() => {
             <div class="content">
               <div class="once-term-task-wrap">
                 <div class="task-intro">
-                  <h3 class="intro-title">单次定时任务配置</h3>
+                  <h3 class="intro-title">循环周期任务配置</h3>
                   <p class="intro-desc">
-                    配置设备的单次执行任务，选择指定日期和时间段，设备将在该时段内自动执行任务，执行完成后任务自动终止。
+                    配置设备的循环周期任务，选择循环模式，设备将按照时间间隔执行任务。
                   </p>
                 </div>
                 <!-- 表单区域 -->
