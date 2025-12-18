@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, onUnmounted} from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import router from '@/router'
 // 控制开场动画显示状态
 const showSplash = ref(true)
@@ -23,8 +23,37 @@ const products = [
   { id: 12, title: '收纳箱 大号加厚整理储物', price: 35.9, originalPrice: 69.9, sales: '5.3万' }
 ];
 
-const initModuleLazyLoad =()=>{
+//懒加载核心函数
+const initModuleLazyLoad = () => {
+  // 获取所有模块元素
+  const modules = document.querySelectorAll('.module-row')
 
+  // 配置观察者选项（语法：对象字面量）
+  const observerOptions = {
+    root: null, // 使用浏览器视口作为根容器（null 是默认值）
+    rootMargin: '50px 0px', // 触发阈值外扩50px（提前触发动画），语法："上 右 下 左"
+    threshold: 0.1 // 元素10%进入视口时触发回调，取值 0-1
+  }
+
+  // 创建 IntersectionObserver 实例（核心API）
+  // 语法：new IntersectionObserver(回调函数, 配置选项)
+  observer = new IntersectionObserver((entries) => {
+    // entries 是被观察元素的状态数组
+    entries.forEach(entry => {
+      // entry.isIntersecting：布尔值，元素是否进入视口
+      if (entry.isIntersecting) {
+        // 给元素添加动画类（触发CSS动画）
+        entry.target.classList.add('module-animated')
+        // 只触发一次：停止观察当前元素
+        observer.unobserve(entry.target)
+      }
+    })
+  }, observerOptions)
+
+  // 遍历所有模块，开启观察（语法：observer.observe(元素)）
+  modules.forEach(module => {
+    observer.observe(module)
+  })
 }
 
 // 页面挂载后执行动画逻辑
@@ -32,14 +61,14 @@ onMounted(() => {
   // 3.5秒后隐藏开场动画
   setTimeout(() => {
     showSplash.value = false
-    setTimeout(()=>{
+    setTimeout(() => {
       initModuleLazyLoad()
-    },500)
+    }, 500)
   }, 3500)
 })
 // 页面卸载后
-onUnmounted(()=>{
-  if(observer){
+onUnmounted(() => {
+  if (observer) {
     observer.disconnect()//断开观察者连接
     observer = null;
   }
@@ -91,11 +120,8 @@ onUnmounted(()=>{
               <!-- 商品卡片 -->
               <div class="product-card" v-for="product in products" :key="product.id">
                 <div class="product-img-wrapper">
-                  <img
-                      :src="`https://picsum.photos/180/120?random=${product.id}`"
-                      :alt="product.title"
-                      class="product-img"
-                  >
+                  <img :src="`https://picsum.photos/180/120?random=${product.id}`" :alt="product.title"
+                    class="product-img">
                 </div>
                 <div class="product-info">
                   <h3 class="product-title">
@@ -116,9 +142,132 @@ onUnmounted(()=>{
           </div>
         </div>
 
-        <!-- 其他模块占位 -->
-        <div class="module-row"></div>
-        <div class="module-row"></div>
+        <!-- 智能家居控制模块 -->
+        <div class="module-row mall-module">
+          <div class="module-content">
+            <div class="module-title mall-title">
+              <h2 class="mall-main-title">智能家居控制</h2>
+              <p class="mall-sub-title">忙碌生活 · 多点简单</p>
+              <div class="title-decoration"></div>
+            </div>
+            <div class="smart-control">
+              <!-- 展示图片 -->
+              <div class="stack">
+                <div class="card">
+                  <div class="image">
+                    <img src="@/assets/image/control.png" alt="示例图片">
+                  </div>
+                </div>
+              </div>
+              <!-- 右侧气泡介绍框 -->
+              <div class="control-intro">
+                <div class="control-intro-area">
+                  <h3>家庭智能设备信息</h3>
+                  <p>属于您家庭的智能设备，只有您的家庭成员有权管理</p>
+                  <button class="btn">立即体验</button>
+                </div>
+                <div class="control-intro-area">
+                  <h3>智能设备操控</h3>
+                  <p>您可以在平台上对其进行远程控制、定时设置、场景联动等操作。</p>
+                  <button class="btn">立即体验</button>
+                </div>
+              </div>
+
+            </div>
+            <div class="smart-control">
+              <!-- 展示图片 -->
+              <div class="stack">
+                <div class="card">
+                  <div class="image">
+                    <img src="@/assets/image/task.png" alt="示例图片">
+                  </div>
+                </div>
+              </div>
+              <!-- 右侧气泡介绍框 -->
+              <div class="control-intro">
+                <div class="control-intro-area">
+                  <h3>定时任务</h3>
+                  <p>您可以设置智能设备在特定时间自动执行任务，如打开灯、关闭空调等。</p>
+                  <button class="btn">立即体验</button>
+                </div>
+                <div class="control-intro-area">
+                  <h3>循环周期任务</h3>
+                  <p>懒得每天设置？循环周期任务可以帮您自动完成。</p>
+                  <button class="btn">立即体验</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- WeCommunity -->
+        <div class="module-row">
+          <div class="module-content">
+            <div class="module-title mall-title">
+              <h2 class="mall-main-title">WeCommunity</h2>
+              <p class="mall-sub-title">分享生活 · 连接世界</p>
+              <div class="title-decoration"></div>
+            </div>
+          </div>
+          <div class="WeCommunity">
+            <!-- 社区介绍区域 -->
+            <div class="community-intro">
+              <h3 class="intro-title">LiVi Unity 社区</h3>
+              <p class="intro-desc">
+                这里是 LiVi 用户的专属交流空间，您可以分享使用心得、提出产品建议、解决设备问题，
+                我们的客服团队也会实时在线为您解答疑惑。加入社区，与更多智能生活爱好者一起交流成长！
+              </p>
+            </div>
+
+            <!-- 左侧聊天示例卡片 -->
+            <div class="chat-card-wrapper">
+              <div class="chat-card">
+                <div class="chat-header">
+                  <div class="h2">LiVi Unity官方一群</div>
+                  <span class="online-tag">24小时在线</span> <!-- 新增：在线标识 -->
+                </div>
+                <div class="chat-body">
+                  <div class="message incoming">
+                    <p>所有用户都可以在这个群里交流，分享生活经验、问题和建议。</p>
+                  </div>
+                  <div class="message outgoing">
+                    <p>我买的设备有点问题，怎么查询是否在保修期呢？</p>
+                  </div>
+                  <div class="message incoming">
+                    <p>您提供订单号给我就好哦</p>
+                  </div>
+                  <div class="message outgoing"> <!-- 新增：补充对话，更真实 -->
+                    <p>好的，订单号是LV20250518001，麻烦帮忙查一下~</p>
+                  </div>
+                  <div class="message incoming"> <!-- 新增：补充对话 -->
+                    <p>查到啦！您的设备还在保修期内，可免费售后哦 😊</p>
+                  </div>
+                </div>
+                <div class="chat-footer">
+                  <input placeholder="说点什么？" type="text">
+                  <button>发送</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 右侧按钮区域 -->
+            <div class="community-actions">
+              <ul>
+                <li style="--i:#56CCF2;--j:#2F80ED;">
+                  <span class="icon">💬</span>
+                  <span class="title" @click="router.push('/weCommunity')">立刻出发！</span>
+                </li>
+                <li style="--i:#FF6B6B;--j:#FF8E8E;">
+                  <span class="icon">📢</span>
+                  <span class="title">查看公告</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+
         <div class="module-row"></div>
       </main>
     </div>
@@ -126,181 +275,5 @@ onUnmounted(()=>{
 </template>
 
 <style scoped>
-@import "@/assets/CSS/Index/farmwork.css";
-@import "@/assets/CSS/Index/animation.css";
-
-/* 商城模块专属样式 */
-.mall-title {
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
-  padding: 15px 0;
-}
-
-.mall-main-title {
-  font-size: 32px;
-  color: #2c3e50;
-  font-weight: 600;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
-}
-
-.mall-sub-title {
-  font-size: 14px;
-  color: #95a5a6;
-  font-weight: 400;
-}
-
-.title-decoration {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 120px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #5B9BD5 50%, transparent 100%);
-}
-
-/* 商品卡片容器 */
-.card-container {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 20px;
-  padding: 10px 0;
-}
-
-/* 商品卡片样式 */
-.product-card {
-  width: 100%;
-  height: 280px;
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(187, 225, 250, 0.1) 0%, rgba(240, 248, 255, 0.3) 100%);
-  border: 1px solid rgba(200, 200, 200, 0.2);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-sizing: border-box;
-  position: relative;
-  overflow: hidden;
-}
-
-.product-card:hover {
-  box-shadow: 0 8px 20px rgba(91, 155, 213, 0.15);
-  transform: translateY(-5px);
-  border-color: rgba(91, 155, 213, 0.3);
-}
-
-/* 商品图片样式 */
-.product-img-wrapper {
-  width: 100%;
-  height: 120px;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 8px;
-  background-color: rgba(245, 245, 245, 0.6);
-}
-
-.product-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
-}
-
-.product-card:hover .product-img {
-  transform: scale(1.05);
-}
-
-/* 商品信息样式 */
-.product-info {
-  padding: 0 4px;
-}
-
-.brand-tag {
-  display: inline-block;
-  padding: 2px 6px;
-  margin-right: 6px;
-  background-color: #FFD700;
-  color: #000;
-  border: 1px solid #000;
-  border-radius: 3px;
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1;
-  vertical-align: middle;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.product-title {
-  font-size: 12px;
-  color: #2c3e50;
-  line-height: 1.4;
-  height: 32px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  margin-bottom: 6px;
-  font-weight: 500;
-}
-
-.product-price {
-  display: flex;
-  align-items: center;
-  margin-bottom: 4px;
-}
-
-.price {
-  font-size: 15px;
-  font-weight: 700;
-  color: #e64340;
-  margin-right: 5px;
-}
-
-.original-price {
-  font-size: 10px;
-  color: #95a5a6;
-  text-decoration: line-through;
-}
-
-.product-sales {
-  font-size: 10px;
-  color: #7f8c8d;
-  margin-bottom: 10px;
-}
-
-/* 按钮样式 */
-.btn {
-  outline: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  background: linear-gradient(90deg, #5B9BD5 0%, #4A89DC 100%);
-  width: 100%;
-  border: 0;
-  border-radius: 6px;
-  box-shadow: 0 3px 8px rgba(91, 155, 213, 0.2);
-  box-sizing: border-box;
-  padding: 10px 12px;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  background: linear-gradient(90deg, #4A89DC 0%, #3b79d0 100%);
-  box-shadow: 0 5px 12px rgba(91, 155, 213, 0.3);
-}
-
-.btn .animation {
-  border-radius: 100%;
-  animation: ripple 0.6s linear infinite;
-}
+@import url('@/assets/CSS/index/main.css');
 </style>

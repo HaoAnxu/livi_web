@@ -1,0 +1,1138 @@
+/* 全局容器样式 */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+  background-image: radial-gradient(rgba(129, 140, 153, 0.05) 1px, transparent 0);
+  background-size: 40px 40px;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 开场动画样式 */
+.splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: splashFadeOut 0.8s ease-out 2.5s forwards;
+}
+
+.splash-content {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: logoFadeIn 1.5s ease-out 0.5s forwards;
+}
+
+.logo-main {
+  font-size: 8rem;
+  font-weight: 200;
+  color: #2d3748;
+  letter-spacing: -0.05em;
+  margin: 0 0 20px 0;
+  position: relative;
+}
+
+.logo-main::after {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+  animation: lineFadeIn 1s ease-out 1s forwards;
+  opacity: 0;
+}
+
+.logo-tagline {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #718096;
+  margin: 0 0 40px 0;
+  letter-spacing: 0.1em;
+}
+
+.logo-decoration {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 1rem;
+  font-weight: 300;
+  color: #94a3b8;
+}
+
+.decor-line {
+  position: absolute;
+  width: 30%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+  opacity: 0;
+  animation: lineSlideIn 2s ease-out 1s forwards;
+}
+
+.top-line {
+  top: 20%;
+  left: 35%;
+}
+
+.bottom-line {
+  bottom: 20%;
+  left: 35%;
+}
+
+/* 页面标题样式 */
+.page-header {
+  height: 50vh;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 1px solid rgba(129, 140, 153, 0.1);
+  margin-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-title {
+  font-size: 6rem;
+  font-weight: 200;
+  letter-spacing: -0.03em;
+  margin: 0 0 20px 0;
+  background: linear-gradient(120deg, #2d3748, #4a5568, #60a5fa, #38bdf8);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleGradient 8s ease infinite, titleBreath 4s ease-in-out infinite;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.sub-title {
+  font-size: 1.4rem;
+  font-weight: 300;
+  color: #718096;
+  margin: 0 0 30px 0;
+  letter-spacing: 0.05em;
+  animation: subTitleFade 3s ease-in-out infinite alternate;
+}
+
+.title-divider {
+  width: 120px;
+  height: 3px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+  border-radius: 3px;
+  animation: dividerScale 3s ease-in-out infinite alternate;
+}
+
+/* 主内容区样式 */
+.main-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* 功能模块通用样式 */
+.module-row {
+  width: 95%;
+  min-height: 40vh;
+  position: relative;
+  opacity: 0;
+  transform: translateY(30px);
+  margin-bottom: 40px;
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/*动画触发类（元素进入视口时添加） */
+.module-row.module-animated {
+  opacity: 1;
+  /* 显示 */
+  transform: translateY(0);
+  /* 回到原位置 */
+}
+
+.module-content {
+  width: 100%;
+  height: 100%;
+  /* 修复模块内容溢出问题 */
+  box-sizing: border-box;
+  padding: 20px 0;
+}
+
+/* 商城标题样式 */
+.mall-title {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+  padding: 15px 0;
+}
+
+.mall-main-title {
+  font-size: 32px;
+  color: #2c3e50;
+  font-weight: 600;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.mall-sub-title {
+  font-size: 14px;
+  color: #95a5a6;
+  font-weight: 400;
+}
+
+.title-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #5B9BD5 50%, transparent 100%);
+}
+
+/* 商品卡片容器 */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 10px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 商品卡片样式 */
+.product-card {
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(187, 225, 250, 0.1) 0%, rgba(240, 248, 255, 0.3) 100%);
+  border: 1px solid rgba(200, 200, 200, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  /* 确保卡片最小宽度 */
+  min-width: 150px;
+}
+
+.product-card:hover {
+  box-shadow: 0 8px 20px rgba(91, 155, 213, 0.15);
+  transform: translateY(-5px);
+  border-color: rgba(91, 155, 213, 0.3);
+}
+
+/* 商品图片样式 */
+.product-img-wrapper {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  background-color: rgba(245, 245, 245, 0.6);
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+/* 商品信息样式 */
+.product-info {
+  padding: 0 4px;
+}
+
+.brand-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  margin-right: 6px;
+  background-color: #FFD700;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  vertical-align: middle;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.product-title {
+  font-size: 12px;
+  color: #2c3e50;
+  line-height: 1.4;
+  height: 32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e64340;
+  margin-right: 5px;
+}
+
+.original-price {
+  font-size: 10px;
+  color: #95a5a6;
+  text-decoration: line-through;
+}
+
+.product-sales {
+  font-size: 10px;
+  color: #7f8c8d;
+  margin-bottom: 10px;
+}
+
+/* 按钮样式 */
+.btn {
+  outline: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #5B9BD5 0%, #4A89DC 100%);
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: 0 3px 8px rgba(91, 155, 213, 0.2);
+  box-sizing: border-box;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: linear-gradient(90deg, #4A89DC 0%, #3b79d0 100%);
+  box-shadow: 0 5px 12px rgba(91, 155, 213, 0.3);
+}
+
+.btn .animation {
+  border-radius: 100%;
+  animation: ripple 0.6s linear infinite;
+}
+
+/* 图片样式 */
+img {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  height: auto;
+}
+
+/* 堆叠容器 */
+.stack {
+  width: 300px;
+  transition: 0.25s ease;
+  /* 修复错位：添加最小宽度和盒模型 + 居中 */
+  min-width: 280px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+.stack:hover {
+  transform: rotate(5deg);
+}
+
+.stack:hover .card::before {
+  transform: translatey(-2%) rotate(-4deg);
+}
+
+.stack:hover .card::after {
+  transform: translatey(2%) rotate(4deg);
+}
+
+/* 卡片核心样式 */
+.card {
+  aspect-ratio: 3 / 2;
+  border: 4px solid #333;
+  background-color: #fff;
+  position: relative;
+  transition: 0.15s ease;
+  cursor: pointer;
+  padding: 5% 5% 15% 5%;
+  box-sizing: border-box;
+}
+
+/* 卡片阴影层（:before/:after） */
+.card::before,
+.card::after {
+  content: "";
+  display: block;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  border: 4px solid #333;
+  background-color: #fff;
+  transform-origin: center center;
+  z-index: -1;
+  transition: 0.15s ease;
+  top: 0;
+  left: 0;
+}
+
+.card::before {
+  transform: translatey(-2%) rotate(-6deg);
+  z-index: -2;
+}
+
+.card::after {
+  transform: translatey(2%) rotate(6deg);
+  z-index: -1;
+}
+
+/* 图片容器 */
+.image {
+  width: 100%;
+  border: 4px solid #333;
+  background-color: #ffffff;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.smart-control {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto 40px auto;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+  /* 新增：子元素水平居中 */
+}
+
+.smart-control .stack {
+  flex-shrink: 0;
+}
+
+/* 右侧介绍区域容器 */
+.smart-control .control-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* 减小内部间距 */
+  flex: 1;
+  min-width: 280px;
+  box-sizing: border-box;
+}
+
+/* 气泡框核心样式 */
+.smart-control .control-intro-area {
+  position: relative;
+  background: #f5f7fa;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+  box-sizing: border-box;
+}
+
+/* 气泡框左侧小三角（指向左侧图片） */
+.smart-control .control-intro-area::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 12px solid #f5f7fa;
+  z-index: 1;
+}
+
+/* 三角边框 */
+.smart-control .control-intro-area::after {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 13px solid transparent;
+  border-bottom: 13px solid transparent;
+  border-right: 13px solid #e0e0e0;
+  z-index: 0;
+}
+
+/* 气泡框内文字/按钮的基础样式 */
+.smart-control .control-intro-area h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.smart-control .control-intro-area p {
+  margin: 0 0 15px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.smart-control .control-intro-area .btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #6fb7ff;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.smart-control .control-intro-area .btn:hover {
+  background: #67b0ff;
+}
+
+
+/* 核心布局容器 - 新增 */
+.WeCommunity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 社区介绍区域 - 新增 */
+.community-intro {
+  text-align: center;
+  max-width: 700px;
+  margin-bottom: 10px;
+}
+
+.intro-title {
+  font-size: 24px;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.intro-desc {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* 聊天卡片容器 - 新增/调整 */
+.chat-card-wrapper {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* 原有聊天卡片样式微调 - 不破坏原有效果 */
+.chat-card {
+  width: 350px;
+  /* 适度加宽，适配更多内容 */
+  background-color: #fff;
+  border-radius: 8px;
+  /* 轻微调整圆角，更协调 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+/* 新增：在线标识 */
+.chat-header .online-tag {
+  font-size: 12px;
+  color: #0f9d58;
+  margin-left: auto;
+  background-color: rgba(15, 157, 88, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* 按钮区域布局 - 新增/调整 */
+.community-actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 原有 ul 样式微调 */
+ul {
+  position: relative;
+  display: flex;
+  gap: 25px;
+  padding: 0;
+  /* 清除默认内边距 */
+  margin: 0;
+  /* 清除默认外边距 */
+}
+
+/* 响应式适配 - 新增 */
+@media (max-width: 768px) {
+  .WeCommunity {
+    padding: 20px 15px;
+    gap: 20px;
+  }
+
+  .chat-card {
+    width: 100%;
+    max-width: 350px;
+  }
+
+  .intro-title {
+    font-size: 20px;
+  }
+
+  .intro-desc {
+    font-size: 14px;
+  }
+
+  ul {
+    gap: 15px;
+  }
+
+  ul li {
+    width: 50px;
+    height: 50px;
+  }
+
+  ul li:hover {
+    width: 150px;
+  }
+
+  ul li .icon {
+    font-size: 1.5em;
+  }
+
+  ul li .title {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .community-intro {
+    text-align: left;
+  }
+
+  ul {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* 保留原有所有样式（以下是你原有的样式，无需修改，仅作确认） */
+.chat-header {
+  padding: 10px;
+  background-color: #f2f2f2;
+  display: flex;
+  align-items: center;
+}
+
+.chat-header .h2 {
+  font-size: 16px;
+  color: #333;
+}
+
+.chat-body {
+  padding: 20px;
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.incoming {
+  background-color: #e1e1e1;
+}
+
+.outgoing {
+  background-color: #f2f2f2;
+  text-align: right;
+}
+
+.message p {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+.chat-footer {
+  padding: 10px;
+  background-color: #f2f2f2;
+  display: flex;
+}
+
+.chat-footer input[type="text"] {
+  flex-grow: 1;
+  padding: 5px;
+  border: none;
+  border-radius: 3px;
+}
+
+.chat-footer button {
+  padding: 5px 10px;
+  border: none;
+  background-color: #4285f4;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.chat-footer button:hover {
+  background-color: #0f9d58;
+}
+
+@keyframes chatAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-card .message {
+  animation: chatAnimation 0.3s ease-in-out;
+  animation-fill-mode: both;
+  animation-delay: 0.1s;
+}
+
+.chat-card .message:nth-child(even) {
+  animation-delay: 0.2s;
+}
+
+.chat-card .message:nth-child(odd) {
+  animation-delay: 0.3s;
+}
+
+ul li {
+  position: relative;
+  list-style: none;
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  border-radius: 60px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: 0.5s;
+}
+
+ul li:hover {
+  width: 180px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0);
+}
+
+ul li::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 60px;
+  background: linear-gradient(45deg, var(--i), var(--j));
+  opacity: 0;
+  transition: 0.5s;
+}
+
+ul li:hover::before {
+  opacity: 1;
+}
+
+ul li::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 60px;
+  background: linear-gradient(45deg, var(--i), var(--j));
+  transition: 0.5s;
+  filter: blur(15px);
+  z-index: -1;
+  opacity: 0;
+}
+
+ul li:hover::after {
+  opacity: 0.5;
+}
+
+ul li .icon {
+  color: #777;
+  font-size: 1.75em;
+  transition: 0.5s;
+  transition-delay: 0.25s;
+}
+
+ul li:hover .icon {
+  transform: scale(0);
+  color: #fff;
+  transition-delay: 0s;
+}
+
+ul li span {
+  position: absolute;
+}
+
+ul li .title {
+  color: #fff;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transform: scale(0);
+  transition: 0.5s;
+  transition-delay: 0s;
+}
+
+ul li:hover .title {
+  transform: scale(1);
+  transition-delay: 0.25s;
+}
+
+/* 动画定义 */
+@keyframes logoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lineFadeIn {
+  from {
+    opacity: 0;
+    width: 0;
+  }
+
+  to {
+    opacity: 1;
+    width: 120px;
+  }
+}
+
+@keyframes lineSlideIn {
+  from {
+    opacity: 0;
+    width: 0;
+  }
+
+  to {
+    opacity: 1;
+    width: 30%;
+  }
+}
+
+@keyframes splashFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes mainFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes titleGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes titleBreath {
+
+  0%,
+  100% {
+    opacity: 0.95;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes subTitleFade {
+  from {
+    opacity: 0.5;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes dividerScale {
+  from {
+    width: 80px;
+    opacity: 0.8;
+  }
+
+  to {
+    width: 200px;
+    opacity: 1;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1), 0 0 0 10px rgba(255, 255, 255, 0.1), 0 0 0 20px rgba(255, 255, 255, 0.1), 0 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
+  100% {
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.1), 0 0 0 20px rgba(255, 255, 255, 0.1), 0 0 0 30px rgba(255, 255, 255, 0.1), 0 0 0 40px rgba(255, 255, 255, 0);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 1200px) {
+  .logo-main {
+    font-size: 6rem;
+  }
+
+  .main-title {
+    font-size: 4.5rem;
+  }
+
+  .module-row {
+    width: 85%;
+    min-height: 200px;
+    /* 修改为min-height避免内容溢出 */
+  }
+
+  .module-name {
+    font-size: 1.6rem;
+  }
+
+  /* 智能家居控制模块适配 */
+  .smart-control {
+    gap: 30px;
+    padding: 30px;
+  }
+
+  .stack {
+    width: 250px;
+    min-width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-main {
+    font-size: 4.5rem;
+  }
+
+  .main-title {
+    font-size: 3.2rem;
+  }
+
+  .sub-title {
+    font-size: 1.2rem;
+  }
+
+  .logo-tagline {
+    font-size: 1rem;
+  }
+
+  .logo-decoration {
+    font-size: 0.9rem;
+  }
+
+  .module-row {
+    width: 90%;
+    min-height: 180px;
+    border-radius: 20px;
+  }
+
+  .module-content {
+    padding: 0 30px;
+  }
+
+  .module-name {
+    font-size: 1.4rem;
+  }
+
+  .module-title {
+    font-size: 0.9rem;
+  }
+
+  /* 商城模块适配 */
+  .mall-main-title {
+    font-size: 24px;
+  }
+
+  .main-title {
+    font-size: 28px;
+  }
+
+  /* 商品卡片容器适配 */
+  .card-container {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .smart-control {
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .stack {
+    width: 100%;
+    max-width: 300px;
+    min-width: unset;
+    margin: 0 auto 20px auto;
+  }
+
+  .smart-control .control-intro-area::before,
+  .smart-control .control-intro-area::after {
+    display: none;
+  }
+
+  .control-intro {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-main {
+    font-size: 3.5rem;
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+  }
+
+  .sub-title {
+    font-size: 1rem;
+  }
+
+  .module-row {
+    position: relative;
+    right: 20px;
+    width: 95%;
+    min-height: 160px;
+    border-radius: 16px;
+  }
+
+  .module-content {
+    padding: 0 20px;
+  }
+
+  .module-header {
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 20px;
+  }
+
+  .module-name {
+    font-size: 1.2rem;
+  }
+
+  .module-title {
+    font-size: 0.8rem;
+  }
+
+  .card-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .product-card {
+    min-width: unset;
+  }
+
+  .smart-control {
+    padding: 15px;
+  }
+
+  .stack {
+    max-width: 100%;
+  }
+
+  .control-intro-area {
+    padding: 15px;
+  }
+
+  .smart-control .control-intro-area h3 {
+    font-size: 16px;
+  }
+
+  .smart-control .control-intro-area p {
+    font-size: 14px;
+  }
+}
