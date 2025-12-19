@@ -1,0 +1,189 @@
+.splash-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 浅色调渐变背景：米白→纯白→浅灰 */
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 50%, #e9ecef 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    /* 退出动画 */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* 闪屏退出时的动画 */
+.splash-screen.hidden {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.grid-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 浅色调网格：浅蓝灰色线条，适配浅色背景 */
+    background-image: 
+        linear-gradient(rgba(70, 130, 180, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(70, 130, 180, 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 0;
+    animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 40px;
+    }
+}
+
+.splash-content {
+    position: relative;
+    text-align: center;
+    z-index: 10;
+    animation: contentFadeIn 1s ease-out;
+}
+
+@keyframes contentFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logo-main {
+    font-size: 8rem;
+    font-weight: 800;
+    margin: 0;
+    /* 浅色调渐变文字：浅蓝→浅青，适配浅色背景 */
+    background: linear-gradient(90deg, #4682b4, #20b2aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* 浅色调发光效果：降低透明度，适配浅色背景 */
+    text-shadow: 0 0 15px rgba(70, 130, 180, 0.3), 0 0 30px rgba(32, 178, 170, 0.2);
+    animation: logoPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes logoPulse {
+    0% {
+        text-shadow: 0 0 15px rgba(70, 130, 180, 0.3), 0 0 30px rgba(32, 178, 170, 0.2);
+    }
+    100% {
+        text-shadow: 0 0 20px rgba(70, 130, 180, 0.4), 0 0 40px rgba(32, 178, 170, 0.3);
+    }
+}
+
+.logo-tagline {
+    font-size: 1.2rem;
+    /* 浅色调文字：深灰色，提升可读性 */
+    color: #555555;
+    margin: 1rem 0 3rem 0;
+    letter-spacing: 0.2rem;
+    /* 打字机效果 */
+    overflow: hidden;
+    white-space: nowrap;
+    /* 浅色调光标：深蓝色，适配浅色背景 */
+    border-right: 2px solid #4682b4;
+    width: 0;
+    animation: typing 2s steps(20) 0.5s forwards, blink 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    from, to { border-color: transparent; }
+    50% { border-color: #4682b4; }
+}
+
+.logo-decoration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    /* 浅色调装饰文字：中灰色，适配浅色背景 */
+    color: #666666;
+    font-size: 1rem;
+}
+
+.decor-text {
+    opacity: 0;
+}
+
+.first-text {
+    animation: textFadeIn 1s ease-out 1s forwards;
+}
+
+.second-text {
+    animation: textFadeIn 1s ease-out 1.5s forwards;
+}
+
+@keyframes textFadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.decor-line {
+    position: absolute;
+    width: 60%;
+    height: 2px;
+    /* 浅色调线条渐变：透明→浅蓝→透明 */
+    background: linear-gradient(90deg, transparent, #4682b4, transparent);
+    /* 浅色调线条发光：降低透明度，适配浅色背景 */
+    box-shadow: 0 0 10px rgba(70, 130, 180, 0.4);
+    z-index: 5;
+}
+
+.top-line {
+    top: 20%;
+    animation: lineScan 3s ease-in-out infinite;
+}
+
+.bottom-line {
+    bottom: 20%;
+    animation: lineScan 3s ease-in-out infinite reverse;
+}
+
+@keyframes lineScan {
+    0% {
+        width: 20%;
+        left: 0;
+    }
+    50% {
+        width: 60%;
+        left: 20%;
+    }
+    100% {
+        width: 20%;
+        left: 60%;
+    }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .logo-main {
+        font-size: 5rem;
+    }
+    
+    .logo-tagline {
+        font-size: 1rem;
+        letter-spacing: 0.1rem;
+    }
+    
+    .decor-line {
+        width: 80%;
+    }
+}

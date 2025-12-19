@@ -1,11 +1,11 @@
 <script setup>
-import {getCommunityListApi} from '@/api/wecommunity';
-import {onMounted, ref, h} from "vue";
+import { getCommunityListApi } from '@/api/wecommunity';
+import { onMounted, ref, h } from "vue";
 import MyMessage from "@/utils/MyMessage.js";
-import {MyLoading} from "@/utils/MyLoading.js";
-import {joinCommunityApi, queryUserJoinCommunityApi, getCommunityDetailApi} from '@/api/wecommunity';
-import {useRouter} from "vue-router";
-import {ElNotification} from 'element-plus'
+import { MyLoading } from "@/utils/MyLoading.js";
+import { joinCommunityApi, queryUserJoinCommunityApi, getCommunityDetailApi } from '@/api/wecommunity';
+import { useRouter } from "vue-router";
+import { ElNotification } from 'element-plus'
 
 const router = useRouter();
 const communityInfoList = ref([]);
@@ -36,8 +36,8 @@ const handlejoinCommunity = async (communityId) => {
   const isJoin = await queryUserJoinCommunityApi(communityId, loginUser.userId);
   if (isJoin.data === true) {
     await router.push({
-      name:'chatRoom',
-      query:{communityId:communityId}
+      name: 'chatRoom',
+      query: { communityId: communityId }
     });
     return;
   }
@@ -45,8 +45,8 @@ const handlejoinCommunity = async (communityId) => {
   if (result.code) {
     MyMessage.success('加入社区成功,欢迎~');
     await router.push({
-      name:'chatRoom',
-      query:{communityId:communityId}
+      name: 'chatRoom',
+      query: { communityId: communityId }
     });
   } else {
     MyMessage.error(result.msg);
@@ -60,45 +60,87 @@ const handleShowDetail = async (communityId) => {
     communityDetail.value = result.data;
     ElNotification({
       title: communityDetail.value.communityName,
-      message: h('i', {style: 'color: #ff6700'}, communityDetail.value.communityDesc || '这是一个有趣的社区，快来加入吧～'),
+      message: h('i', { style: 'color: #ff6700' }, communityDetail.value.communityDesc || '这是一个有趣的社区，快来加入吧～'),
     })
   } else {
     MyMessage.error(result.msg);
   }
 
 }
+
+//淡入
+const showSplash = ref(true)
+//淡出
+const splashClass = ref('')
+
+
 onMounted(() => {
   getCommunityInfoList();
+  setTimeout(() => {
+    splashClass.value = 'hidden'
+    setTimeout(() => {
+      showSplash.value = false
+    }, 800)
+  }, 2700)
 })
 </script>
 
 <template>
+  <!-- 开场动画 -->
+  <div v-if="showSplash" :class="['splash-screen', splashClass]">
+    <div class="splash-content">
+      <div class="logo-container">
+        <h1 class="logo-main">LiVi</h1>
+        <p class="logo-tagline">WeCommunity · Easy Talk Easy Do</p>
+      </div>
+      <div class="logo-decoration">
+        <span class="decor-text first-text">LiVi社群</span>
+        <span class="decor-text second-text">简单说~简单做</span>
+      </div>
+    </div>
+    <div class="decor-line top-line"></div>
+    <div class="decor-line bottom-line"></div>
+    <div class="grid-bg"></div>
+  </div>
+
+  <!-- 顶部导航栏 -->
+  <div class="page-header">
+    <div class="header-content">
+      <h2 class="page-title">WeCommunity社群广场</h2>
+      <div class="header-actions">
+        <!-- 返回主页按钮 -->
+        <button class="btn primary-btn" @click="router.push('/')">返回主页</button>
+        <button class="btn secondary-btn" @click="getCommunityInfoList">刷新列表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 页面说明区域 -->
+  <div class="page-intro">
+    <p class="intro-text">平台提供商家->客户的优质沟通平台，简单说~简单做</p>
+  </div>
+
   <!--  ElNotification-通知  -->
   <div class="flex flex-wrap gap-1"></div>
+
   <!-- 社区卡片网格 -->
   <div class="app-container">
     <div class="community-container">
       <div class="card-grid">
         <div class="parent" v-for="(item, index) in communityInfoList" :key="item.id">
-          <div
-              class="card"
-              :style="item.communityImage
-              ? {
-                  backgroundImage: `url('${item.communityImage}')`,
-                  backgroundSize: '100% 100%',//破坏比例，强制铺满容器
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat'
-                }
-                : {}"
-          >
+          <div class="card" :style="item.communityImage
+            ? {
+              backgroundImage: `url('${item.communityImage}')`,
+              backgroundSize: '100% 100%',//破坏比例，强制铺满容器
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }
+            : {}">
             <div class="content-box">
               <span class="card-title">{{ item.communityName }}</span>
               <!-- 按钮区域：加入/退出 -->
               <div class="btn-group">
-                <button
-                    class="btn join-btn"
-                    @click="handlejoinCommunity(item.communityId)"
-                >
+                <button class="btn join-btn" @click="handlejoinCommunity(item.communityId)">
                   进入社区
                 </button>
                 <button class="btn more-btn" @click="handleShowDetail(item.communityId)">
@@ -119,20 +161,126 @@ onMounted(() => {
 </template>
 
 <style scoped>
+@import url('@/assets/CSS/WeCommunity/animation.css');
+
+/* 页面顶部导航栏 */
+.page-header {
+  width: 100%;
+  height: 60px;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-content {
+  max-width: 1600px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+/* 防止导航栏内容换行导致溢出 */
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 页面说明区域 */
+.page-intro {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  background-color: #ffffff;
+}
+
+.intro-text {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.primary-btn {
+  background-color: #38bdf8;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 40px;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(56, 189, 248, 0.15);
+}
+
+.primary-btn:hover {
+  background-color: #0ea5e9;
+  box-shadow: 0 4px 8px rgba(14, 165, 233, 0.25);
+  transform: translateY(-1px); 
+}
+
+.secondary-btn {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  height: 40px; 
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.secondary-btn:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
 /* 基础容器：全屏适配，隐藏横向滚动 */
 .app-container {
   width: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 140px);
+  /* 适配顶部导航+说明区域高度 */
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  background-color: #f8fafc;
 }
 
 /* 社区容器：适配页脚高度，基础内边距 */
 .community-container {
   width: 100%;
-  min-height: calc(100vh - 80px);
+  min-height: 100%;
   box-sizing: border-box;
   padding: 20px;
 }
@@ -160,8 +308,10 @@ onMounted(() => {
 .card {
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1; /* 固定1:1比例，让背景图有明确的铺满容器 */
-  display: block; /* 重置为block，避免flex干扰 */
+  aspect-ratio: 1/1;
+  /* 固定1:1比例，让背景图有明确的铺满容器 */
+  display: block;
+  /* 重置为block，避免flex干扰 */
   border: 3px solid #e0e6ed;
   transform-style: preserve-3d;
   background-color: #f0f4f8;
@@ -169,13 +319,14 @@ onMounted(() => {
   transition: all 0.5s ease-in-out;
   box-sizing: border-box;
   border-radius: 8px;
-  overflow: hidden; /* 隐藏超出卡片的图片部分（如果有） */
+  overflow: hidden;
+  /* 隐藏超出卡片的图片部分（如果有） */
 }
 
 /* 无背景图时显示银灰科技纹理 */
 .card:not([style*="backgroundImage"]) {
   background: linear-gradient(135deg, #0000 18.75%, #e8ebf0 0 31.25%, #0000 0),
-  repeating-linear-gradient(45deg, #e8ebf0 -6.25% 6.25%, #f5f7fa 0 18.75%);
+    repeating-linear-gradient(45deg, #e8ebf0 -6.25% 6.25%, #f5f7fa 0 18.75%);
   background-size: 50px 50px;
   background-position: 0 0, 0 0;
   background-color: #f0f4f8;
@@ -334,6 +485,18 @@ onMounted(() => {
   .meta-value {
     font-size: 16px;
   }
+
+  /* 响应式适配顶部导航 */
+  .page-title {
+    font-size: 1rem;
+  }
+
+  .primary-btn, .secondary-btn {
+    padding: 7px 16px;
+    font-size: 0.9rem;
+    height: 36px;
+    min-width: 80px;
+  }
 }
 
 /* 响应式：手机（≤767px）2列布局 */
@@ -346,7 +509,7 @@ onMounted(() => {
 
   .community-container {
     padding: 10px;
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 120px);
   }
 
   .parent {
@@ -370,7 +533,28 @@ onMounted(() => {
   }
 
   .card {
-    aspect-ratio: 1/1; /* 移动端保持比例 */
+    aspect-ratio: 1/1;
+  }
+
+  /* 响应式适配顶部导航 */
+  .header-content {
+    padding: 0 10px;
+  }
+
+  .page-title {
+    font-size: 0.8rem;
+  }
+
+  .primary-btn, .secondary-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    height: 32px;
+    width: 50px;
+    gap: 8px;
+  }
+
+  .intro-text {
+    font-size: 0.8rem;
   }
 }
 </style>

@@ -19,25 +19,25 @@ const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
         {
-            path:'/',
-            component:LayoutView,
-            redirect:'/index',//重定向
-            children:[
-                {path:'index',name:'index',component:IndexView},
-                {path:'cart',name:'cart',component:CartView},
-                {path:'weCommunity',name:'weCommunity',component:WeCommunityView},
-                {path:'chatRoom',name:'chatRoom',component:ChatRoomView},
-                {path:'smartHome',name:'smartHome',component:SmartHomeView},
-                {path:'deviceControl',name:'deviceControl',component:DeviceControlView},
-                {path:'shop',name:'shop',component:ShopView},
-                {path:'shortVideo',name:'shortVideo',component:ShortVideoView},
-                {path:'music',name:'music',component:MusicView},
-                {path:'wePost',name:'wePost',component:WePostView}
+            path: '/',
+            component: LayoutView,
+            redirect: '/index',//重定向
+            children: [
+                { path: 'index', name: 'index', component: IndexView },
+                { path: 'cart', name: 'cart', component: CartView },
+                { path: 'smartHome', name: 'smartHome', component: SmartHomeView },
+                { path: 'deviceControl', name: 'deviceControl', component: DeviceControlView },
+                { path: 'shop', name: 'shop', component: ShopView },
+                { path: 'shortVideo', name: 'shortVideo', component: ShortVideoView },
+                { path: 'music', name: 'music', component: MusicView }
             ]
         },
-        {path:'/userCenter',name:'userCenter',component:UserCenterView},
-        {path:'/login',name:'login',component:LoginView},
-        {path:'/register',name:'register',component:RegisterView}
+        { path: '/userCenter', name: 'userCenter', component: UserCenterView },
+        { path: '/wePost', name: 'wePost', component: WePostView },
+        { path: '/weCommunity', name: 'weCommunity', component: WeCommunityView },
+        { path: '/chatRoom', name: 'chatRoom', component: ChatRoomView },
+        { path: '/login', name: 'login', component: LoginView },
+        { path: '/register', name: 'register', component: RegisterView }
     ],
 })
 

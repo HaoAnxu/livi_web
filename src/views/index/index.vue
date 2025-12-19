@@ -129,7 +129,7 @@ onUnmounted(() => {
                 <div class="product-info">
                   <h3 class="product-title">
                     <span class="brand-tag">品牌</span>
-                    {{ product.goodsName }}
+                    {{ product.goodsName.length > 10 ? product.goodsName.substring(0, 10) + '...' : product.goodsName }}
                   </h3>
                   <div class="product-price">
                     <span class="price">¥{{ product.goodsPrice }}</span>
