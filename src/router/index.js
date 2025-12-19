@@ -12,7 +12,7 @@ import SmartHomeView from '@/views/smartHome/smartHome.vue'
 import ShopView from '@/views/shop/shop.vue'
 import ShortVideoView from '@/views/shortVideo/shortVideo.vue'
 import MusicView from '@/views/music/music.vue'
-import AIView from '@/views/AI/ai.vue'
+import WePostView from '@/views/wePost/wePost.vue'
 import DeviceControlView from '@/views/smartHome/deviceControl.vue'
 
 const router = createRouter({
@@ -32,7 +32,7 @@ const router = createRouter({
                 {path:'shop',name:'shop',component:ShopView},
                 {path:'shortVideo',name:'shortVideo',component:ShortVideoView},
                 {path:'music',name:'music',component:MusicView},
-                {path:'ai',name:'ai',component:AIView}
+                {path:'wePost',name:'wePost',component:WePostView}
             ]
         },
         {path:'/userCenter',name:'userCenter',component:UserCenterView},

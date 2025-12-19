@@ -1,26 +1,26 @@
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import router from "@/router/index.js";
-import {Menu, Avatar} from '@element-plus/icons-vue';
+import { Menu, Avatar } from '@element-plus/icons-vue';
 
 const loginUser = ref("");
 
 // 导航菜单数据
 const navMenus = ref([
-  {name: '首页', path: '/'},
-  {name: '智能家居', path: '/smartHome'},
-  {name: '购物商城', path: '/shop'},
-  {name: 'We社区', path: '/weCommunity'},
-  {name: '豆包AI', path: '/ai'},
-  {name: '短视频', path: '/shortVideo'},
-  {name: '音乐', path: '/music'},
+  { name: '首页', path: '/' },
+  { name: '智能家居', path: '/smartHome' },
+  { name: '购物商城', path: '/shop' },
+  { name: 'We社群', path: '/weCommunity' },
+  { name: 'We社区', path: '/wePost' },
+  { name: '短视频', path: '/shortVideo' },
+  { name: '音乐', path: '/music' },
 ]);
 
 // 右侧功能菜单
 const commonFuncMenus = ref([
-  {name: '购物车', path: '/cart'},
-  {name: '待读消息', path: '/messages'},
-  {name: '用户中心', path: '/userCenter'}
+  { name: '购物车', path: '/cart' },
+  { name: '待读消息', path: '/messages' },
+  { name: '用户中心', path: '/userCenter' }
 ]);
 
 // 点击菜单项后关闭下拉菜单
@@ -32,6 +32,11 @@ const logout = () => {
   sessionStorage.removeItem('loginUser');
   router.push('/login');
 };
+
+const isTempHidden = ref(false);
+const toggleNav = () => {
+  isTempHidden.value = true;
+};
 //导航栏滚动控制
 const lastScrollTop = ref(0)//记录上一次滚动位置
 const headerVisible = ref(true);//导航栏是否可见
@@ -39,6 +44,9 @@ const headerVisible = ref(true);//导航栏是否可见
 const handleScroll = () => {
   if (window.innerWidth > 992) {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (isTempHidden.value) {
+      isTempHidden.value = false;
+    }
     if (scrollTop > lastScrollTop.value && scrollTop > 50) {
       headerVisible.value = false;
     } else {
@@ -64,7 +72,7 @@ onUnmounted(() => {
   <div class="common-layout">
     <el-container>
       <!--“条件为真，就加类名；条件为假，就删类名”-->
-      <el-header class="top-header" :class="{'hidden': !headerVisible}">
+      <el-header class="top-header" :class="{ 'hidden': !headerVisible || isTempHidden }">
         <!-- PC端Menu -->
         <div class="top-nav-pc">
           <!-- 左侧导航菜单 -->
@@ -106,6 +114,11 @@ onUnmounted(() => {
                 <span class="split" v-if="index < commonFuncMenus.length - 1"></span>
               </li>
             </template>
+            <li class="hide-nav-btn-item">
+              <a href="javascript:;" class="nav-link hide-nav-btn" @click="toggleNav">
+                <span class="triangle-down"></span>
+              </a>
+            </li>
           </ul>
         </div>
 
@@ -119,7 +132,9 @@ onUnmounted(() => {
           <div class="mobile-btn-group">
             <el-config-provider>
               <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
-                <span><el-icon class="mobile-icon"><Menu/></el-icon></span>
+                <span><el-icon class="mobile-icon">
+                    <Menu />
+                  </el-icon></span>
                 <template #dropdown>
                   <el-dropdown-menu class="custom-menu">
                     <el-dropdown-item v-for="(menu) in navMenus" :key="menu.path">
@@ -129,7 +144,9 @@ onUnmounted(() => {
                 </template>
               </el-dropdown>
               <el-dropdown class="mobile-dropdown" size="large" trigger="click" @click.stop>
-                <span><el-icon class="mobile-icon"><Avatar/></el-icon></span>
+                <span><el-icon class="mobile-icon">
+                    <Avatar />
+                  </el-icon></span>
                 <template #dropdown>
                   <el-dropdown-menu class="custom-menu">
                     <!-- 移动端：未登录显示登录、注册 -->
@@ -190,10 +207,11 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background-color: #ffffff;
-  background-image: radial-gradient(rgba(12, 86, 16, 0.2) 2px, transparent 0); /* 银灰纹理 */
+  background-image: radial-gradient(rgba(160, 88, 219, 0.492) 2px, transparent 0);
+  /* 银灰纹理 */
   background-size: 30px 30px;
   background-position: -5px -5px;
-  animation: bgFadeIn 1s ease-out; /* 背景淡入 */
+  animation: bgFadeIn 1s ease-out;
 }
 
 /* 顶部导航 - 核心样式 + 银白配色 + 增强动画 */
@@ -201,20 +219,25 @@ onUnmounted(() => {
   height: 60px;
   line-height: 60px;
   background: #fff;
-  border-bottom: 1px solid #e0e0e0; /* 银灰底部分隔线 */
+  border-bottom: 1px solid #e0e0e0;
+  /* 银灰底部分隔线 */
   font-size: 14px;
   position: sticky;
   top: 0;
   z-index: 999;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* 银白风格浅阴影 */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 更顺滑的过渡 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  /* 银白风格浅阴影 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 更顺滑的过渡 */
   transform: translateY(0);
-  animation: headerFadeIn 0.6s ease-out; /* 导航栏入场动画 */
+  animation: headerFadeIn 0.6s ease-out;
+  /* 导航栏入场动画 */
 }
 
 .top-header.hidden {
   transform: translateY(-100%);
-  box-shadow: none; /* 隐藏时移除阴影 */
+  box-shadow: none;
+  /* 隐藏时移除阴影 */
 }
 
 /* PC端导航容器（保留布局） */
@@ -240,7 +263,8 @@ onUnmounted(() => {
 .top-nav-mobile-logo {
   font-size: 22px;
   font-weight: 600;
-  transition: transform 0.2s ease; /* logo轻微缩放 */
+  transition: transform 0.2s ease;
+  /* logo轻微缩放 */
 }
 
 .top-nav-mobile-logo:hover {
@@ -256,13 +280,15 @@ onUnmounted(() => {
 
 /* 核心主色：银灰（替换原淡蓝） + hover动画 */
 .mobile-logo {
-  color: #888888; /* 银灰主色 */
+  color: #888888;
+  /* 银灰主色 */
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .mobile-logo:hover {
-  color: #666666; /* 深灰hover */
+  color: #666666;
+  /* 深灰hover */
   text-shadow: 0 0 2px rgba(0, 0, 0, 0.03);
 }
 
@@ -276,7 +302,8 @@ onUnmounted(() => {
 }
 
 .mobile-dropdown:hover {
-  color: #666666; /* 深灰hover（替换原淡蓝） */
+  color: #666666;
+  /* 深灰hover（替换原淡蓝） */
   transform: translateY(-1px);
 }
 
@@ -292,10 +319,13 @@ onUnmounted(() => {
 /* 自定义下拉菜单样式 - 银白配色 */
 .custom-menu {
   background-color: #fff !important;
-  border: 1px solid #e0e0e0 !important; /* 银灰边框（替换原淡蓝） */
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important; /* 银白风格阴影 */
+  border: 1px solid #e0e0e0 !important;
+  /* 银灰边框（替换原淡蓝） */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08) !important;
+  /* 银白风格阴影 */
   border-radius: 4px !important;
-  animation: menuFadeIn 0.3s ease-out; /* 菜单淡入 */
+  animation: menuFadeIn 0.3s ease-out;
+  /* 菜单淡入 */
 }
 
 /* 导航列表（保留布局） */
@@ -311,7 +341,8 @@ onUnmounted(() => {
   color: #333;
   text-decoration: none;
   padding: 0 12px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* 顺滑过渡 */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  /* 顺滑过渡 */
   display: inline-block;
   height: 60px;
   line-height: 60px;
@@ -332,7 +363,8 @@ onUnmounted(() => {
   transform: translateX(-50%);
   width: 0;
   height: 2px;
-  background-color: #75dbff; /* 银灰下划线（替换原淡蓝） */
+  background-color: #75dbff;
+  /* 银灰下划线（替换原淡蓝） */
   transition: width 0.25s ease;
   border-radius: 1px;
 }
@@ -369,11 +401,13 @@ onUnmounted(() => {
 
 /* 退出按钮：深灰（替换原淡蓝） + 动画 */
 .logout-btn:hover {
-  color: #555555; /* 更深灰hover（替换原淡蓝） */
+  color: #555555;
+  /* 更深灰hover（替换原淡蓝） */
 }
 
 .logout-btn::after {
-  background-color: #666666; /* 深灰下划线（替换原淡蓝） */
+  background-color: #666666;
+  /* 深灰下划线（替换原淡蓝） */
 }
 
 /* 分隔线 - 银灰配色 */
@@ -381,24 +415,29 @@ onUnmounted(() => {
   display: inline-block;
   height: 14px;
   width: 1px;
-  background-color: #e0e0e0; /* 银灰分隔线（替换原淡蓝） */
+  background-color: #e0e0e0;
+  /* 银灰分隔线（替换原淡蓝） */
   margin: 0 8px;
   vertical-align: middle;
   transition: background-color 0.2s ease;
 }
 
 .nav-list:hover .split {
-  background-color: #d0d0d0; /* hover加深 */
+  background-color: #d0d0d0;
+  /* hover加深 */
 }
 
 /* 页脚核心样式 */
 .app-footer {
-  background-color: #f9f9f9; /* 浅灰背景（替换原淡蓝） */
+  background-color: #f9f9f9;
+  /* 浅灰背景（替换原淡蓝） */
   color: #75dbff;
   padding: 40px 0 20px;
   font-size: 14px;
-  border-top: 2px solid #aeeaff; /* 银灰顶部边框（替换原淡蓝） */
-  animation: footerFadeIn 0.8s ease-out 0.2s; /* 页脚延迟淡入 */
+  border-top: 2px solid #aeeaff;
+  /* 银灰顶部边框（替换原淡蓝） */
+  animation: footerFadeIn 0.8s ease-out 0.2s;
+  /* 页脚延迟淡入 */
   animation-fill-mode: both;
   opacity: 0;
 }
@@ -427,7 +466,8 @@ onUnmounted(() => {
 }
 
 .footer-brand:hover {
-  border-bottom-color: #aeeaff;;
+  border-bottom-color: #aeeaff;
+  ;
 }
 
 .brand-name {
@@ -480,7 +520,8 @@ onUnmounted(() => {
   text-align: center;
   padding-top: 10px;
   font-size: 12px;
-  color: #888888; /* 银灰版权文字（替换原淡蓝） */
+  color: #888888;
+  /* 银灰版权文字（替换原淡蓝） */
   width: 100%;
   transition: color 0.2s ease;
 }
@@ -493,13 +534,34 @@ onUnmounted(() => {
   margin: 0;
   line-height: 1.5;
 }
-
+.hide-nav-btn-item {
+  margin-left: 5px;
+}
+.hide-nav-btn {
+  padding: 0 8px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.triangle-down {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #888;
+  transition: all 0.2s ease;
+}
+.hide-nav-btn:hover .triangle-down {
+  border-top-color: #666;
+  transform: scale(1.1);
+}
 /* ===================== 新增动画关键帧 ===================== */
 /* 背景淡入 */
 @keyframes bgFadeIn {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -511,6 +573,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -523,6 +586,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(5px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -535,6 +599,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -547,6 +612,7 @@ onUnmounted(() => {
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -564,25 +630,31 @@ onUnmounted(() => {
   .top-nav-pc {
     display: none;
   }
+
   .top-nav-mobile {
     display: flex;
   }
+
   .top-header {
     height: 55px;
     line-height: 55px;
     padding: 0;
     box-sizing: border-box;
   }
+
   .nav-link {
     height: 45px;
     line-height: 45px;
     padding: 0 8px;
   }
+
   /* 移动端菜单hover背景 - 银白风格 */
   .custom-menu .nav-link:hover {
-    background-color: #f5f5f5; /* 浅灰hover背景（替换原淡蓝） */
+    background-color: #f5f5f5;
+    /* 浅灰hover背景（替换原淡蓝） */
     color: #666666;
   }
+
   .custom-menu .nav-link::after {
     display: none;
   }
@@ -590,9 +662,11 @@ onUnmounted(() => {
   .footer-brand {
     padding-bottom: 10px;
   }
+
   .brand-name {
     font-size: 22px;
   }
+
   .brand-slogan {
     font-size: 14px;
   }
@@ -602,18 +676,23 @@ onUnmounted(() => {
   .app-footer {
     padding: 30px 0 15px;
   }
+
   .footer-container {
     gap: 15px;
   }
+
   .footer-brand {
     padding-bottom: 8px;
   }
+
   .brand-name {
     font-size: 20px;
   }
+
   .brand-slogan {
     font-size: 13px;
   }
+
   .footer-copyright {
     padding-top: 8px;
     font-size: 11px;
@@ -624,12 +703,15 @@ onUnmounted(() => {
   .app-footer {
     padding: 20px 0 10px;
   }
+
   .brand-name {
     font-size: 18px;
   }
+
   .brand-slogan {
     font-size: 12px;
   }
+
   .footer-copyright p {
     padding: 0 10px;
     word-break: break-all;

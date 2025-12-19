@@ -54,7 +54,7 @@ onMounted(() => {
     <div class="user-center-container">
       <!-- 左侧：用户信息区 -->
       <div class="user-info-sidebar">
-        <!-- 1. 基础信息模块 -->
+        <!-- 基础信息模块 -->
         <div class="info-card basic-info">
           <div class="avatar-box">
             <div class="avatar" :style="{backgroundImage: userInfo.avatar ? `url(${userInfo.avatar})` : 'none'}">
@@ -70,7 +70,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 2. 账号信息模块（预留） -->
+        <!-- 账号信息模块（预留） -->
         <div class="info-card account-info">
           <div class="card-title">账号信息</div>
           <div class="info-list">
@@ -89,11 +89,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 3. 预留扩展模块（示例） -->
+        <!-- 左侧空余区域 -->
         <div class="info-card reserve-module">
           <div class="card-title">预留模块</div>
           <div class="reserve-content">
-            <!-- 可自行扩展：如会员信息、积分、等级等 -->
             <p>可扩展其他个人信息</p>
           </div>
         </div>
@@ -101,9 +100,9 @@ onMounted(() => {
 
       <!-- 右侧：功能操作区 -->
       <div class="user-function-main">
-        <!-- 1. 基础功能菜单（核心） -->
+        <!-- 基础功能菜单 -->
         <div class="function-card menu-card">
-          <div class="card-title">基础功能</div>
+          <div class="card-title">快捷功能</div>
           <div class="menu-list">
             <div class="menu-item">
               <span class="icon">✏️</span>
@@ -128,11 +127,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 2. 内容管理模块（预留） -->
+        <!-- 内容管理 -->
         <div class="function-card content-card">
           <div class="card-title">内容管理</div>
           <div class="content-list">
-            <!-- 可自行扩展：如我的动态、收藏、发布记录等 -->
             <div class="content-item empty">
               <span class="empty-icon">📭</span>
               <span class="empty-text">暂无内容，快去发布吧～</span>
@@ -140,7 +138,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 3. 系统服务模块（预留） -->
+        <!-- 系统服务 -->
         <div class="function-card service-card">
           <div class="card-title">系统服务</div>
           <div class="service-list">
@@ -163,11 +161,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 4. 预留扩展模块（示例） -->
+        <!-- 预留扩展模块 -->
         <div class="function-card reserve-card">
           <div class="card-title">预留功能区</div>
           <div class="reserve-content">
-            <!-- 可自行扩展：如消息通知、第三方绑定、登录设备管理等 -->
             <p>可扩展其他功能模块</p>
           </div>
         </div>
@@ -401,7 +398,7 @@ onMounted(() => {
 }
 
 .menu-item:hover {
-  background: #fef7fb;
+  background: #bce9ff;
   transform: translateY(-2px);
   box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
 }

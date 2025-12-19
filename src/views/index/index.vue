@@ -1,27 +1,28 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import router from '@/router'
+import { getHotGoodsApi } from '@/api'
+import { MyLoading } from "@/utils/MyLoading.js"
+import MyMessage from "@/utils/MyMessage.js"
+
 // 控制开场动画显示状态
 const showSplash = ref(true)
 
 //观察者实例
 let observer = null;
 
-// 商品列表数据
-const products = [
-  { id: 1, title: '家用多功能料理锅 不粘锅底', price: 89.9, originalPrice: 129.9, sales: '2.3万' },
-  { id: 2, title: '无线蓝牙耳机 超长续航降噪', price: 79.9, originalPrice: 159.9, sales: '5.8万' },
-  { id: 3, title: '纯棉短袖T恤 宽松百搭男女款', price: 29.9, originalPrice: 89.9, sales: '10.2万' },
-  { id: 4, title: '迷你加湿器 办公室桌面静音', price: 39.9, originalPrice: 69.9, sales: '1.5万' },
-  { id: 5, title: '快充数据线 适用苹果安卓', price: 9.9, originalPrice: 29.9, sales: '8.7万' },
-  { id: 6, title: '厨房置物架 多层收纳省空间', price: 59.9, originalPrice: 99.9, sales: '3.1万' },
-  { id: 7, title: '保温杯 316不锈钢大容量', price: 49.9, originalPrice: 89.9, sales: '4.2万' },
-  { id: 8, title: '懒人抹布 一次性吸水不掉毛', price: 19.9, originalPrice: 39.9, sales: '6.5万' },
-  { id: 9, title: '手机支架 折叠升降多角度', price: 15.9, originalPrice: 35.9, sales: '7.8万' },
-  { id: 10, title: '防雾眼镜布 清洁湿巾一次性', price: 12.9, originalPrice: 25.9, sales: '2.9万' },
-  { id: 11, title: '车载香薰 持久淡香除异味', price: 25.9, originalPrice: 49.9, sales: '1.8万' },
-  { id: 12, title: '收纳箱 大号加厚整理储物', price: 35.9, originalPrice: 69.9, sales: '5.3万' }
-];
+const products = ref([])
+const getHotGoods = async () => {
+  MyLoading.value = true
+  const result = await getHotGoodsApi()
+  if (result.code) {
+    products.value = result.data
+  } else {
+    MyMessage.error(result.msg)
+  }
+  MyLoading.value = false
+}
+
 
 //懒加载核心函数
 const initModuleLazyLoad = () => {
@@ -58,7 +59,9 @@ const initModuleLazyLoad = () => {
 
 // 页面挂载后执行动画逻辑
 onMounted(() => {
-  // 3.5秒后隐藏开场动画
+
+  getHotGoods()
+
   setTimeout(() => {
     showSplash.value = false
     setTimeout(() => {
@@ -126,13 +129,13 @@ onUnmounted(() => {
                 <div class="product-info">
                   <h3 class="product-title">
                     <span class="brand-tag">品牌</span>
-                    {{ product.title }}
+                    {{ product.goodsName }}
                   </h3>
                   <div class="product-price">
-                    <span class="price">¥{{ product.price }}</span>
-                    <span class="original-price">¥{{ product.originalPrice }}</span>
+                    <span class="price">¥{{ product.goodsPrice }}</span>
+                    <span class="original-price">¥{{ product.goodsOriginalPrice }}</span>
                   </div>
-                  <div class="product-sales">已售 {{ product.sales }}</div>
+                  <div class="product-sales">已售 {{ product.goodsSales }}</div>
                   <button class="btn" @click="router.push('/shop')">
                     <i class="animation"></i>查看详情<i class="animation"></i>
                   </button>
