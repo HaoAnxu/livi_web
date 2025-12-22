@@ -5,6 +5,7 @@ import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 
 const loginUser = ref('');
+const userId = ref('');
 const postList = ref([])
 const query = ref({
     page: 1,
@@ -31,15 +32,15 @@ const prevPage = () => {
     if (query.value.page > 1) {
         query.value.page--;
         queryPostList();
-    }else{
+    } else {
         MyMessage.error('已经是第一页了');
     }
 }
-const nextPage = async() => {
+const nextPage = async () => {
     query.value.page++;
     await queryPostList();
     console.log(postList.value.length);
-    if(postList.value.length === 0){
+    if (postList.value.length === 0) {
         MyMessage.error('没有更多了');
         query.value.page--;
         await queryPostList();
@@ -107,6 +108,10 @@ const toCircleDetail = (circleId) => {
     // 待开发
     MyMessage.error('待开发circleId=' + circleId);
 }
+const toUserDetail = (userId) => {
+    // 待开发
+    MyMessage.error('待开发userId=' + userId);
+}
 
 
 //淡入
@@ -118,6 +123,7 @@ onMounted(() => {
     // 初始化登录用户
     const userInfo = sessionStorage.getItem('loginUser');
     loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
+    userId.value = userInfo ? JSON.parse(userInfo).userId : '';
     //查询轮播图片
     queryCarouselImageList();
     //查询圈子列表
@@ -177,7 +183,9 @@ onMounted(() => {
                     <input id="query" class="input" type="search" placeholder="搜索话题/用户/帖子..." name="searchbar" />
                 </div>
             </div>
-            <p class="login-user">{{ loginUser == null ? '未登录' : loginUser }}</p>
+            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
+                {{ loginUser == null ? '未登录' : loginUser }}
+            </p>
         </div>
 
         <!-- 核心布局容器 -->
@@ -188,7 +196,8 @@ onMounted(() => {
                 <div class="info-card account-info">
                     <div class="card-title">热点话题#</div>
                     <div class="info-list">
-                        <div class="info-item" v-for="(item, index) in newsList" :key="item.postId" @click="toPostDetail(item.postId)">
+                        <div class="info-item" v-for="(item, index) in newsList" :key="item.postId"
+                            @click="toPostDetail(item.postId)">
                             <span class="label">
                                 <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1 }}.</span>
                                 {{ item.postTitle }}
@@ -234,7 +243,8 @@ onMounted(() => {
                     </div>
                     <!-- 圈子列表 -->
                     <div class="circle-list">
-                        <div class="circle-item" v-for="item in circleList" :key="item.circleId" @click="toCircleDetail(item.circleId)">
+                        <div class="circle-item" v-for="item in circleList" :key="item.circleId"
+                            @click="toCircleDetail(item.circleId)">
                             <img :src="item.circleAvatar || '/default-circle-avatar.png'" alt="圈子头像"
                                 class="circle-avatar">
                             <span class="circle-name">{{ item.circleName }}</span>
@@ -246,25 +256,27 @@ onMounted(() => {
                 <div class="function-card content-card post-card">
                     <div class="card-title">动态</div>
                     <div class="post-list">
-                        <div class="post-item" v-for="item in postList" :key="item.postId" @click="toPostDetail(item.postId)">
+                        <div class="post-item" v-for="item in postList" :key="item.postId">
                             <!-- 发帖用户信息：头像+用户名 -->
-                            <div class="post-user">
+                            <div class="post-user" @click="toUserDetail(item.userId)" style="cursor: pointer;">
                                 <img class="user-avatar" :src="item.userAvatar || '/default-avatar.png'" alt="用户头像"
                                     onerror="this.src='/default-avatar.png'">
                                 <span class="user-name">{{ item.userName }}</span>
                             </div>
-                            <h4 class="post-title">{{ item.postTitle }}</h4>
-                            <p class="post-content">{{ item.postContent }}</p>
-                            <!-- 帖子图片 -->
-                            <div class="post-image-wrap" v-if="item.postImage">
-                                <img class="post-image" :src="item.postImage" alt="帖子图片">
-                            </div>
-                            <!-- 帖子元信息 -->
-                            <div class="post-meta">
-                                <span class="post-time">{{ item.createTime }}</span>
-                                <span class="post-circle">{{ item.circleName }}</span>
-                                <span class="post-comment">评论 {{ item.commentCount || 0 }}</span>
-                                <span class="post-like">点赞 {{ item.likeCount || 0 }}</span>
+                            <div @click="toPostDetail(item.postId)" style="cursor: pointer;">
+                                <h4 class="post-title">{{ item.postTitle }}</h4>
+                                <p class="post-content">{{ item.postContent }}</p>
+                                <!-- 帖子图片 -->
+                                <div class="post-image-wrap" v-if="item.postImage">
+                                    <img class="post-image" :src="item.postImage" alt="帖子图片">
+                                </div>
+                                <!-- 帖子元信息 -->
+                                <div class="post-meta">
+                                    <span class="post-time">{{ item.createTime }}</span>
+                                    <span class="post-circle">{{ item.circleName }}</span>
+                                    <span class="post-comment">评论 {{ item.commentCount || 0 }}</span>
+                                    <span class="post-like">点赞 {{ item.likeCount || 0 }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
