@@ -1,6 +1,6 @@
 <script setup>
 import { queryPostListApi, queryCarouselImageListApi, queryCircleListApi, queryNewsListApi } from "@/api/wepost.js";
-import { onMounted, ref, onUnmounted } from "vue";
+import { onMounted, ref, onUnmounted, watch } from "vue";
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 
@@ -199,7 +199,8 @@ onMounted(() => {
                         <div class="info-item" v-for="(item, index) in newsList" :key="item.postId"
                             @click="toPostDetail(item.postId)">
                             <span class="label">
-                                <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1 }}.</span>
+                                <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1
+                                    }}.</span>
                                 {{ item.postTitle }}
                             </span>
                         </div>
@@ -212,6 +213,12 @@ onMounted(() => {
                         <p>1. 遵守社区公约，不发布违规内容。</p>
                         <p>2. 尊重其他用户，不进行人身攻击或人身伤害。</p>
                         <p>3. 分享有趣的日常，不发布广告或推广产品。</p>
+                    </div>
+                </div>
+
+                <div class="info-card empty-module" ref="stickyEmpty">
+                    <div class="card-title">更多功能</div>
+                    <div class="empty-content">
                     </div>
                 </div>
             </div>
