@@ -12,7 +12,7 @@ import SmartHomeView from '@/views/smartHome/smartHome.vue'
 import ShopView from '@/views/shop/shop.vue'
 import ShortVideoView from '@/views/shortVideo/shortVideo.vue'
 import MusicView from '@/views/music/music.vue'
-import WePostView from '@/views/wePost/wePost.vue'
+import WePostView from '@/views/wePost/wePostIndex.vue'
 import DeviceControlView from '@/views/smartHome/deviceControl.vue'
 
 const router = createRouter({

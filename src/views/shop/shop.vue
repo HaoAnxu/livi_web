@@ -23,6 +23,12 @@ const goods_type = ref([
   '厨卫五金类',
   '其他'])
 const goodsList = ref([])
+
+// 存储总条数、总页数
+const total = ref(0)
+
+const totalPages = ref(0)
+
 const sort_rule_options = ref([
   { name: '便宜优先！', value: 'by_price_desc' },
   { name: '我要贵的！', value: 'by_price_asc' },
@@ -35,15 +41,19 @@ const search = async () => {
   try {
     const result = await queryGoodsApi(form.value)
     if (result.code) {
-      if(result.data.rows.length === 0){
+      // 存储后端返回的总条数
+      total.value = result.data.total || 0;
+      // 计算总页数（向上取整，比如总条数25、页大小24，总页数是2）
+      totalPages.value = Math.ceil(total.value / form.value.pageSize);
+
+      // 处理商品列表
+      if (result.data.rows.length === 0) {
         const tip = form.value.page === 1 ? '暂无商品信息' : '暂无更多商品信息';
         MyMessage.warn(tip);
-        canNext.value = false;
         MyLoading.value = false;
         return
       }
       goodsList.value = result.data.rows;
-      canNext.value = true;
       MyLoading.value = false;
     } else {
       MyMessage.error(result.msg);
@@ -55,23 +65,22 @@ const search = async () => {
   }
 }
 
-const canNext = ref(true)
-const next =()=>{
-  if(!canNext.value){
-    MyMessage.success('已到最后一页')
+// 下一页
+const next = () => {
+  // 判断：当前页 >= 总页数 → 无下一页
+  if (form.value.page >= totalPages.value) {
+    MyMessage.warn('已到最后一页');
     return
   }
   form.value.page++
   search()
 }
-const last =()=>{
-  if(form.value.page === 1){
-    MyMessage.success('已到第一页')
+
+// 上一页
+const last = () => {
+  if (form.value.page === 1) {
+    MyMessage.warn('已到第一页');
     return
-  }
-  if(!canNext.value){
-    canNext.value = true;
-    form.value.page--;
   }
   form.value.page--;
   search()
@@ -85,7 +94,9 @@ const reset = () => {
     page: 1,
     pageSize: 24
   }
-  canNext.value = true;
+  // 重置分页相关状态
+  total.value = 0;
+  totalPages.value = 0;
   search()
 }
 
@@ -212,11 +223,14 @@ onMounted(() => {
 <style scoped>
 @import url('@/assets/CSS/Shop/header.css');
 @import url('@/assets/CSS/Shop/plant.css');
+
 .page-container {
   width: 100%;
   height: 100%;
-  overflow: hidden; /* 关键：取消当前页面容器的滚动 */
+  overflow: hidden;
+  /* 关键：取消当前页面容器的滚动 */
 }
+
 .card-container {
   width: 100%;
   max-width: 1440px;
@@ -298,8 +312,9 @@ onMounted(() => {
   line-height: 1;
   color: rgba(0, 0, 0, 0.099);
 }
+
 @media (max-width: 768px) {
-  .card-tag{
+  .card-tag {
     position: relative;
     left: 10px;
     font-size: 12px;
@@ -404,7 +419,8 @@ onMounted(() => {
   width: 100%;
   max-width: 500px;
 }
-.credit-button{
+
+.credit-button {
   margin: 20px;
 }
 

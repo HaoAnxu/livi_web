@@ -5,53 +5,59 @@ import { getHotGoodsApi } from '@/api'
 import { MyLoading } from "@/utils/MyLoading.js"
 import MyMessage from "@/utils/MyMessage.js"
 
-// 控制开场动画显示状态
-const showSplash = ref(true)
+// 设置全局动画显示状态存储,如果不存在则设置为true
+if(!sessionStorage.getItem('animation_index')) {
+  sessionStorage.setItem('animation_index',true)
+}
+if(!sessionStorage.getItem('animation_WC')) {
+  sessionStorage.setItem('animation_WC',true)
+}
+if(!sessionStorage.getItem('animation_WP')) {
+  sessionStorage.setItem('animation_WP',true)
+}
 
-//观察者实例
+// 控制开场动画显示状态
+const showSplash = ref(sessionStorage.getItem('animation_index') === 'true')
+
+// 观察者实例
 let observer = null;
 
 const products = ref([])
 const getHotGoods = async () => {
   MyLoading.value = true
-  const result = await getHotGoodsApi()
-  if (result.code) {
-    products.value = result.data
-  } else {
-    MyMessage.error(result.msg)
+  try {
+    const result = await getHotGoodsApi()
+    if (result.code) {
+      products.value = result.data
+    } else {
+      MyMessage.error(result.msg)
+    }
+  } catch (error) {
+    MyMessage.error('获取热门商品失败，请稍后重试')
+    console.error('获取热门商品接口报错：', error)
+  } finally {
+    MyLoading.value = false
   }
-  MyLoading.value = false
 }
 
-
-//懒加载核心函数
+// 懒加载函数
 const initModuleLazyLoad = () => {
-  // 获取所有模块元素
   const modules = document.querySelectorAll('.module-row')
-
-  // 配置观察者选项（语法：对象字面量）
   const observerOptions = {
-    root: null, // 使用浏览器视口作为根容器（null 是默认值）
-    rootMargin: '50px 0px', // 触发阈值外扩50px（提前触发动画），语法："上 右 下 左"
-    threshold: 0.1 // 元素10%进入视口时触发回调，取值 0-1
+    root: null,
+    rootMargin: '50px 0px',
+    threshold: 0.1
   }
 
-  // 创建 IntersectionObserver 实例（核心API）
-  // 语法：new IntersectionObserver(回调函数, 配置选项)
   observer = new IntersectionObserver((entries) => {
-    // entries 是被观察元素的状态数组
     entries.forEach(entry => {
-      // entry.isIntersecting：布尔值，元素是否进入视口
       if (entry.isIntersecting) {
-        // 给元素添加动画类（触发CSS动画）
         entry.target.classList.add('module-animated')
-        // 只触发一次：停止观察当前元素
         observer.unobserve(entry.target)
       }
     })
   }, observerOptions)
 
-  // 遍历所有模块，开启观察（语法：observer.observe(元素)）
   modules.forEach(module => {
     observer.observe(module)
   })
@@ -59,20 +65,28 @@ const initModuleLazyLoad = () => {
 
 // 页面挂载后执行动画逻辑
 onMounted(() => {
-
   getHotGoods()
 
-  setTimeout(() => {
-    showSplash.value = false
+  if (showSplash.value) {
+    // 首次加载
     setTimeout(() => {
-      initModuleLazyLoad()
-    }, 500)
-  }, 3500)
+      sessionStorage.setItem('animation_index', false)
+      showSplash.value = false
+      setTimeout(() => {
+        initModuleLazyLoad()
+      }, 500)
+    }, 3500)
+  } else {
+    // 非首次加载
+    showSplash.value = false
+    initModuleLazyLoad()
+  }
 })
+
 // 页面卸载后
 onUnmounted(() => {
   if (observer) {
-    observer.disconnect()//断开观察者连接
+    observer.disconnect()
     observer = null;
   }
 })

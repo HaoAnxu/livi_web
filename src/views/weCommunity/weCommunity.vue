@@ -69,19 +69,24 @@ const handleShowDetail = async (communityId) => {
 }
 
 //淡入
-const showSplash = ref(true)
+const showSplash = ref(sessionStorage.getItem('animation_WC') === 'true')
 //淡出
 const splashClass = ref('')
 
-
 onMounted(() => {
-  getCommunityInfoList();
-  setTimeout(() => {
-    splashClass.value = 'hidden'
+  if (showSplash) {
+    getCommunityInfoList();
     setTimeout(() => {
-      showSplash.value = false
-    }, 800)
-  }, 2700)
+      splashClass.value = 'hidden'
+      setTimeout(() => {
+        showSplash.value = false
+        sessionStorage.setItem('animation_WC', 'false');
+      }, 800)
+    }, 2700)
+  }else{
+    showSplash.value = false;
+    getCommunityInfoList();
+  }
 })
 </script>
 
@@ -183,7 +188,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-/* 防止导航栏内容换行导致溢出 */
+  /* 防止导航栏内容换行导致溢出 */
   white-space: nowrap;
   overflow: hidden;
 }
@@ -237,7 +242,7 @@ onMounted(() => {
 .primary-btn:hover {
   background-color: #0ea5e9;
   box-shadow: 0 4px 8px rgba(14, 165, 233, 0.25);
-  transform: translateY(-1px); 
+  transform: translateY(-1px);
 }
 
 .secondary-btn {
@@ -250,7 +255,7 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  height: 40px; 
+  height: 40px;
   min-width: 100px;
   display: flex;
   align-items: center;
@@ -491,7 +496,8 @@ onMounted(() => {
     font-size: 1rem;
   }
 
-  .primary-btn, .secondary-btn {
+  .primary-btn,
+  .secondary-btn {
     padding: 7px 16px;
     font-size: 0.9rem;
     height: 36px;
@@ -545,7 +551,8 @@ onMounted(() => {
     font-size: 0.8rem;
   }
 
-  .primary-btn, .secondary-btn {
+  .primary-btn,
+  .secondary-btn {
     padding: 6px 12px;
     font-size: 0.85rem;
     height: 32px;

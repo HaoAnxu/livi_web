@@ -534,15 +534,18 @@ onUnmounted(() => {
   margin: 0;
   line-height: 1.5;
 }
+
 .hide-nav-btn-item {
   margin-left: 5px;
 }
+
 .hide-nav-btn {
   padding: 0 8px !important;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .triangle-down {
   width: 0;
   height: 0;
@@ -551,10 +554,12 @@ onUnmounted(() => {
   border-top: 6px solid #888;
   transition: all 0.2s ease;
 }
+
 .hide-nav-btn:hover .triangle-down {
   border-top-color: #666;
   transform: scale(1.1);
 }
+
 /* ===================== 新增动画关键帧 ===================== */
 /* 背景淡入 */
 @keyframes bgFadeIn {

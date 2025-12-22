@@ -1,21 +1,24 @@
 <script setup>
-import { queryUserInfoApi } from "@/api/user.js";
+import { queryPostListApi } from "@/api/wepost.js";
 import { onMounted, ref, onUnmounted } from "vue";
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 import { useRouter } from "vue-router";
-import { verifyIsLoginApi } from "@/api/wecommunity.js";
 
 const router = useRouter();
 const userInfo = ref({})
+const postList = ref([])
 
-const queryUserInfo = async () => {
+const query = ref({
+    page: 1,
+    pageSize: 10,
+})
+const queryPostList = async () => {
     MyLoading.value = true;
-    const loginUser = sessionStorage.getItem("loginUser");
     try {
-        const result = await queryUserInfoApi(JSON.parse(loginUser).userId);
+        const result = await queryPostListApi(query.value);
         if (result.code) {
-            userInfo.value = result.data;
+            postList.value = result.data;
             MyLoading.value = false;
         } else {
             MyMessage.error(result.msg);
@@ -25,28 +28,26 @@ const queryUserInfo = async () => {
         MyLoading.value = false;
     }
 }
-const isLogin = async () => {
-    const result = await verifyIsLoginApi();
-    if (!result.code) {
-        Message.error('请先登录！');
-        await router.push('/login');
-    }
-}
 
 //淡入
-const showSplash = ref(true)
+const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true')
 //淡出
 const splashClass = ref('')
 
 onMounted(() => {
-    queryUserInfo();
-    isLogin();
-    setTimeout(() => {
-        splashClass.value = 'hidden'
+    if (showSplash) {
+        queryPostList();
         setTimeout(() => {
-            showSplash.value = false
-        }, 800)
-    }, 2700)
+            splashClass.value = 'hidden'
+            setTimeout(() => {
+                showSplash.value = false
+                sessionStorage.setItem('animation_WP', 'false');
+            }, 800)
+        }, 2700)
+    } else {
+        showSplash.value = false;
+        queryPostList();
+    }
 })
 </script>
 
@@ -69,20 +70,23 @@ onMounted(() => {
     </div>
 
     <div class="page-wrapper">
-        <!-- 背景容器：深色调网格背景 -->
+        <!-- 背景容器 -->
         <div class="bg"></div>
 
-        <!-- 回到首页按钮：深色调适配 -->
-        <button class="home-btn" @click="router.push('/')">
-            回到首页
-        </button>
+        <div class="btn-group">
+            <button class="home-btn" @click="router.push('/')">
+                回到首页
+            </button>
+            <button class="home-btn share-btn">
+                分享日常
+            </button>
+        </div>
 
-        <!-- 用户中心主容器 - 左右布局 -->
         <div class="user-center-container">
             <!-- 左侧：信息区 -->
             <div class="user-info-sidebar">
                 <!-- 基础信息 -->
-                <div class="info-card basic-info">
+                <!-- <div class="info-card basic-info">
                     <div class="avatar-box">
                         <div class="avatar"
                             :style="{ backgroundImage: userInfo.avatar ? `url(${userInfo.avatar})` : 'none' }">
@@ -98,7 +102,7 @@ onMounted(() => {
                         </div>
                         <p class="signature">{{ userInfo.signature || '这个人很懒，什么都没留下～' }}</p>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- 热门话题 -->
                 <div class="info-card account-info">
@@ -139,41 +143,41 @@ onMounted(() => {
 
                 <!-- 帖子区域 -->
                 <div class="function-card content-card post-card">
-                    <!-- 帖子列表区域，每个盒子之间没有间距，用线条隔开。下方有分页组件 -->
-                    <div class="card-title">我的帖子</div>
-                    
-                    <!-- 帖子列表（假实现） -->
+                    <div class="card-title">动态</div>
+                    <!-- 帖子列表 -->
                     <div class="post-list">
-                        <!-- 帖子项1 -->
-                        <div class="post-item">
-                            <h4 class="post-title">这是我的第一条帖子标题</h4>
-                            <p class="post-content">这是帖子的简要内容，展示部分文本信息...</p>
-                            <div class="post-meta">
-                                <span class="post-time">2025-12-19</span>
-                                <span class="post-read">阅读 123</span>
+                        <!-- 帖子项 -->
+                        <div class="post-item" v-for="item in postList" :key="item.postId">
+                            <!-- 新增：用户信息区域（头像+用户名） -->
+                            <div class="post-user">
+                                <img class="user-avatar" :src="item.avatar || '/default-avatar.png'" 
+                                alt="用户头像"
+                                onerror="this.src='/default-avatar.png'"
+                                >
+                                <span class="user-name">{{ item.username }}</span>
                             </div>
-                        </div>
-                        <!-- 帖子项2 -->
-                        <div class="post-item">
-                            <h4 class="post-title">这是我的第二条帖子标题</h4>
-                            <p class="post-content">这是帖子的简要内容，展示部分文本信息...</p>
-                            <div class="post-meta">
-                                <span class="post-time">2025-12-18</span>
-                                <span class="post-read">阅读 456</span>
+
+                            <!-- 帖子标题 -->
+                            <h4 class="post-title">{{ item.postTitle }}</h4>
+
+                            <!-- 帖子内容 -->
+                            <p class="post-content">{{ item.postContent }}</p>
+
+                            <!-- 帖子图片 -->
+                            <div class="post-image-wrap" v-if="item.postImage">
+                                <img class="post-image" :src="item.postImage" alt="帖子图片">
                             </div>
-                        </div>
-                        <!-- 帖子项3 -->
-                        <div class="post-item">
-                            <h4 class="post-title">这是我的第三条帖子标题</h4>
-                            <p class="post-content">这是帖子的简要内容，展示部分文本信息...</p>
+
+                            <!-- 帖子元信息（时间/阅读量/圈子名） -->
                             <div class="post-meta">
-                                <span class="post-time">2025-12-17</span>
-                                <span class="post-read">阅读 789</span>
+                                <span class="post-time">{{ item.createTime }}</span>
+                                <span class="post-read">阅读 {{ item.readCount }}</span>
+                                <span class="post-circle">{{ item.circleName }}</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- 分页组件（假实现） -->
+
+                    <!-- 分页组件 -->
                     <div class="pagination">
                         <button class="page-btn prev-btn">上一页</button>
                         <button class="page-btn active">1</button>
@@ -209,8 +213,10 @@ onMounted(() => {
     left: 0;
     width: 100%;
     height: 100%;
-    --grid-color: #333333; /* 深色网格线 */
-    background-color: #121212; /* 深色背景主色 */
+    --grid-color: #333333;
+    /* 深色网格线 */
+    background-color: #121212;
+    /* 深色背景主色 */
     background-image:
         linear-gradient(0deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent),
         linear-gradient(90deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent);
@@ -218,22 +224,31 @@ onMounted(() => {
     z-index: -1;
 }
 
-/* 回到首页按钮：深色调适配，橙色强调色 */
-.home-btn {
+/* 按钮组容器 - 只给容器设置fixed定位 */
+.btn-group {
     position: fixed;
     top: 20px;
     right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    /* 垂直排列 */
+    gap: 20px;
+    align-items: flex-end;
+}
+
+/* 回到首页/分享按钮通用样式 - 移除fixed，保留其他样式 */
+.home-btn {
     padding: 17px 40px;
     border-radius: 50px;
     cursor: pointer;
     border: none;
-    background-color: #1e1e1e; /* 深色按钮背景 */
-    box-shadow: 0 0 8px rgba(249, 115, 22, 0.3); /* 橙色阴影增强 */
+    background-color: #1e1e1e;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.3);
     font-size: 15px;
     font-weight: 600;
-    color: #f97316; /* 橙色文字 */
+    color: #f97316;
     transition: all 0.3s ease;
-    z-index: 10;
 }
 
 .home-btn:focus-visible {
@@ -243,7 +258,8 @@ onMounted(() => {
 
 .home-btn:hover {
     letter-spacing: 3px;
-    background: linear-gradient(135deg, #f97316, #e65100); /* 橙色渐变hover */
+    background: linear-gradient(135deg, #f97316, #e65100);
+    /* 橙色渐变hover */
     color: #fff;
     box-shadow: 0 7px 29px rgba(249, 115, 22, 0.4);
     transform: translateY(-2px);
@@ -278,11 +294,14 @@ onMounted(() => {
 /* 通用卡片样式（左侧+右侧）：深色卡片背景 */
 .info-card,
 .function-card {
-    background: #1e1e1e; /* 深色卡片背景 */
+    background: #1e1e1e;
+    /* 深色卡片背景 */
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3); /* 深色阴影增强 */
-    border: 1px solid #333; /* 卡片边框增强层次感 */
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    /* 深色阴影增强 */
+    border: 1px solid #333;
+    /* 卡片边框增强层次感 */
 }
 
 /* 左侧：基础信息卡片 */
@@ -298,7 +317,8 @@ onMounted(() => {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background-color: #f97316; /* 橙色头像背景 */
+    background-color: #f97316;
+    /* 橙色头像背景 */
     color: #fff;
     font-size: 40px;
     display: flex;
@@ -307,13 +327,15 @@ onMounted(() => {
     background-size: cover;
     background-position: center;
     margin: 0 auto;
-    border: 2px solid #333; /* 头像边框适配深色 */
+    border: 2px solid #333;
+    /* 头像边框适配深色 */
 }
 
 .user-base .username {
     font-size: 20px;
     font-weight: 700;
-    color: #e0e0e0; /* 浅灰色用户名 */
+    color: #e0e0e0;
+    /* 浅灰色用户名 */
     margin: 0 0 8px 0;
 }
 
@@ -327,23 +349,27 @@ onMounted(() => {
 }
 
 .gender-tag.male {
-    background: #1a365d; /* 深色系男性标签 */
+    background: #1a365d;
+    /* 深色系男性标签 */
     color: #3182ce;
 }
 
 .gender-tag.female {
-    background: #4a1728; /* 深色系女性标签 */
+    background: #4a1728;
+    /* 深色系女性标签 */
     color: #e53e3e;
 }
 
 .gender-tag:not(.male):not(.female) {
-    background: #2d2d2d; /* 未设置性别标签 */
+    background: #2d2d2d;
+    /* 未设置性别标签 */
     color: #999;
 }
 
 .signature {
     font-size: 14px;
-    color: #999; /* 浅灰色个性签名 */
+    color: #999;
+    /* 浅灰色个性签名 */
     line-height: 1.5;
     margin: 0;
 }
@@ -352,10 +378,12 @@ onMounted(() => {
 .card-title {
     font-size: 16px;
     font-weight: 700;
-    color: #e0e0e0; /* 浅灰色标题 */
+    color: #e0e0e0;
+    /* 浅灰色标题 */
     margin: 0 0 16px 0;
     padding-bottom: 8px;
-    border-bottom: 1px solid #333; /* 深色分割线 */
+    border-bottom: 1px solid #333;
+    /* 深色分割线 */
 }
 
 /* 左侧：账号信息列表 */
@@ -370,12 +398,14 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     padding: 8px 0;
-    border-bottom: 1px solid #2d2d2d; /* 深色列表分割线 */
+    border-bottom: 1px solid #2d2d2d;
+    /* 深色列表分割线 */
 }
 
 .info-item .label {
     font-size: 13px;
-    color: #999; /* 浅灰色标签文字 */
+    color: #999;
+    /* 浅灰色标签文字 */
 }
 
 /* 左侧：预留模块占位 */
@@ -406,13 +436,39 @@ onMounted(() => {
 }
 
 .post-item {
-    padding: 16px 0;
-    border-bottom: 1px solid #333; 
-    margin: 0; 
+    padding: 16px;  /* 增加内边距，提升视觉舒适度 */
+    border-bottom: 1px solid #333;
+    margin: 0;
+    background-color: #1a1a1a;  /* 增加背景色，区分每个帖子项 */
+    border-radius: 8px;  /* 圆角优化 */
+    margin-bottom: 12px;  /* 帖子项之间增加间距 */
 }
 
 .post-item:last-child {
     border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* 新增：用户信息区域样式 */
+.post-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;  /* 圆形头像 */
+    object-fit: cover;  /* 头像裁剪，避免变形 */
+    border: 1px solid #444;  /* 头像边框，增加层次感 */
+}
+
+.user-name {
+    font-size: 14px;
+    color: #e0e0e0;
+    font-weight: 500;
 }
 
 .post-title {
@@ -420,13 +476,33 @@ onMounted(() => {
     color: #e0e0e0;
     margin: 0 0 8px 0;
     font-weight: 600;
+    line-height: 1.4;
 }
 
 .post-content {
     font-size: 14px;
     color: #999;
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;  /* 增加底部间距，区分内容和图片 */
     line-height: 1.5;
+}
+
+/* 新增：帖子图片区域样式 */
+.post-image-wrap {
+    margin: 0 0 12px 0;
+    border-radius: 6px;
+    overflow: hidden;  /* 裁剪图片圆角 */
+}
+
+.post-image {
+    width: 100%;
+    max-height: 300px;  /* 限制图片最大高度，避免过长 */
+    object-fit: cover;  /* 图片自适应，保持比例 */
+    cursor: pointer;  /* 鼠标悬浮变手型，提示可点击（可选） */
+    transition: transform 0.2s ease;
+}
+
+.post-image:hover {
+    transform: scale(1.01);  /* 悬浮轻微放大，提升交互感 */
 }
 
 .post-meta {
@@ -434,6 +510,18 @@ onMounted(() => {
     gap: 16px;
     font-size: 12px;
     color: #666;
+    align-items: center;
+}
+
+/* 优化元信息文字颜色，区分不同维度 */
+.post-time {
+    color: #777;
+}
+.post-read {
+    color: #888;
+}
+.post-circle {
+    color: #f97316;  /* 圈子名用主题色，突出显示 */
 }
 
 .pagination {
