@@ -194,6 +194,18 @@ onMounted(() => {
             <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
                 {{ loginUser == null ? '未登录' : loginUser }}
             </p>
+            <button class="button button-item">
+                <span class="button-bg">
+                    <span class="button-bg-layers">
+                        <span class="button-bg-layer button-bg-layer-1 -purple"></span>
+                        <span class="button-bg-layer button-bg-layer-2 -turquoise"></span>
+                        <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
+                    </span>
+                </span>
+                <span class="button-inner">
+                    <span class="button-inner-static">发布</span>
+                </span>
+            </button>
         </div>
 
         <!-- 核心布局容器 -->
@@ -205,7 +217,7 @@ onMounted(() => {
                     <div class="card-title">热点话题#</div>
                     <div class="info-list">
                         <div class="info-item" v-for="(item, index) in newsList" :key="item.postId"
-                            @click="toPostDetail(item.postId,item.userId)">
+                            @click="toPostDetail(item.postId, item.userId)">
                             <span class="label">
                                 <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1
                                 }}.</span>
@@ -290,7 +302,7 @@ onMounted(() => {
                     <!-- 圈子列表 -->
                     <div class="circle-list">
                         <div class="circle-item" v-for="item in circleList" :key="item.circleId"
-                            @click="toCircleDetail(item.circleId)">
+                            @click="toCircleDetail(item.circleId, item.userId)">
                             <img :src="item.circleAvatar || '/default-circle-avatar.png'" alt="圈子头像"
                                 class="circle-avatar">
                             <span class="circle-name">{{ item.circleName }}</span>

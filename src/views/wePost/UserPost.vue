@@ -8,6 +8,8 @@ import { useRouter, useRoute } from "vue-router";
 
 const route = useRoute()
 const router = useRouter()
+// 初始化登录用户
+const loginUser = ref('');
 const postList = ref([])
 const userId = ref(0)
 const query = ref({
@@ -53,7 +55,6 @@ const queryCircleList = async () => {
         queryData.value.id = userId.value;
         const result = await queryCircleListByUserIdApi(queryData.value);
         if (result.code) {
-            console.log(result.data);
             circleList.value = result.data.rows;
             total.value = result.data.total;
             userData.value.circleCount = result.data.total;
@@ -68,11 +69,10 @@ const queryCircleList = async () => {
 }
 // 下一页
 const nextPageCircle = async () => {
-    if(total.value/queryData.value.pageSize<=queryData.value.page)
-    {
+    if (total.value / queryData.value.pageSize <= queryData.value.page) {
         queryData.value.page = 1;
     }
-    else{
+    else {
         queryData.value.page++;
     }
     await queryCircleList();
@@ -121,10 +121,10 @@ const nextPage = async () => {
 }
 
 //跳转到对应的页面
-const toPostDetail = (postId) => {
+const toPostDetail = (postId, userId) => {
     router.push({
         name: 'postDetail',
-        query: { postId: postId }
+        query: { postId: postId, userId: userId }
     });
 }
 const toCircleDetail = (circleId) => {
@@ -139,6 +139,10 @@ const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true')
 const splashClass = ref('')
 
 onMounted(() => {
+    // 初始化登录用户
+    const userInfo = sessionStorage.getItem('loginUser');
+    loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
+    userId.value = userInfo ? JSON.parse(userInfo).userId : '';
     if (showSplash) {
         queryPostListByUserId();
         queryCircleList();
@@ -180,6 +184,39 @@ onMounted(() => {
     <div class="page-wrapper">
         <!-- 背景容器 -->
         <div class="bg"></div>
+
+        <!-- 顶部搜索栏 -->
+        <div class="top-header">
+            <!-- 搜索框 -->
+            <div class="search-container">
+                <div class="group">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="search-icon">
+                        <g>
+                            <path
+                                d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z">
+                            </path>
+                        </g>
+                    </svg>
+                    <input id="query" class="input" type="search" placeholder="搜索话题/用户/帖子..." name="searchbar" />
+                </div>
+            </div>
+            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
+                {{ loginUser == null ? '未登录' : loginUser }}
+            </p>
+            <button class="button button-item">
+                <span class="button-bg">
+                    <span class="button-bg-layers">
+                        <span class="button-bg-layer button-bg-layer-1 -purple"></span>
+                        <span class="button-bg-layer button-bg-layer-2 -turquoise"></span>
+                        <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
+                    </span>
+                </span>
+                <span class="button-inner">
+                    <span class="button-inner-static">发布</span>
+                </span>
+            </button>
+        </div>
+
         <div class="user-center-container">
             <!-- 左侧：信息区 -->
             <div class="user-info-sidebar">
@@ -189,7 +226,7 @@ onMounted(() => {
                         <div class="avatar"
                             :style="{ backgroundImage: userInfo.avatar ? `url(${userInfo.avatar})` : 'none' }">
                             <span v-if="!userInfo.avatar">{{ userInfo.username ? userInfo.username.charAt(0) : '用'
-                                }}</span>
+                            }}</span>
                         </div>
                     </div>
                     <div class="user-base">
@@ -257,7 +294,7 @@ onMounted(() => {
                                     onerror="this.src='/default-avatar.png'">
                                 <span class="user-name">{{ item.userName }}</span>
                             </div>
-                            <div @click="toPostDetail(item.postId)" style="cursor: pointer;">
+                            <div @click="toPostDetail(item.postId, item.userId)" style="cursor: pointer;">
                                 <h4 class="post-title">{{ item.postTitle }}</h4>
                                 <p class="post-content">{{ item.postContent }}</p>
                                 <!-- 帖子图片 -->
