@@ -1,0 +1,120 @@
+
+.info-item .label {
+    font-size: 14px !important;
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* 左侧 */
+.basic-info {
+    text-align: center;
+}
+
+.avatar-box {
+    margin-bottom: 16px;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f97316;
+    /* 橙色头像背景 */
+    color: #fff;
+    font-size: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    margin: 0 auto;
+    border: 2px solid #333;
+    /* 头像边框适配深色 */
+}
+
+.user-base .username {
+    font-size: 20px;
+    font-weight: 700;
+    color: #e0e0e0;
+    /* 浅灰色用户名 */
+    margin: 0 0 8px 0;
+}
+
+/* 性别标签：深色适配 */
+.gender-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 12px;
+}
+
+.gender-tag.male {
+    background: #1a365d;
+    /* 深色系男性标签 */
+    color: #3182ce;
+}
+
+.gender-tag.female {
+    background: #4a1728;
+    /* 深色系女性标签 */
+    color: #e53e3e;
+}
+
+.gender-tag:not(.male):not(.female) {
+    background: #2d2d2d;
+    /* 未设置性别标签 */
+    color: #999;
+}
+
+.signature {
+    font-size: 14px;
+    color: #999;
+    /* 浅灰色个性签名 */
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 左侧：账号信息/预留模块通用标题 */
+.card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e0e0e0;
+    /* 浅灰色标题 */
+    margin: 0 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+    /* 深色分割线 */
+}
+
+/* 左侧：账号信息列表 */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #2d2d2d;
+    /* 深色列表分割线 */
+}
+
+.info-item .label {
+    font-size: 13px;
+    color: #999;
+    /* 浅灰色标签文字 */
+}
+
+.user-center-container {
+    margin-top: 10px !important;
+}
+
+@media (max-width: 768px) {
+    .user-center-container {
+        margin-top: 10px !important;
+    }
+}

@@ -1,19 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router'
 // 导入页面组件
-import IndexView from '@/views/index/index.vue'
-import LayoutView from '@/views/layout/layout.vue'
-import LoginView from '@/views/login/login.vue'
-import RegisterView from '@/views/register/register.vue'
-import CartView from '@/views/cart/cart.vue'
-import WeCommunityView from '@/views/weCommunity/weCommunity.vue'
-import ChatRoomView from "@/views/weCommunity/ChatRoom.vue";
-import UserCenterView from '@/views/userCenter/userCenter.vue'
-import SmartHomeView from '@/views/smartHome/smartHome.vue'
-import ShopView from '@/views/shop/shop.vue'
-import ShortVideoView from '@/views/shortVideo/shortVideo.vue'
-import MusicView from '@/views/music/music.vue'
-import WePostView from '@/views/wePost/wePostIndex.vue'
-import DeviceControlView from '@/views/smartHome/deviceControl.vue'
+import IndexView from '@/views/index/Index.vue'
+import LayoutView from '@/views/layout/Layout.vue'
+import LoginView from '@/views/login/Login.vue'
+import RegisterView from '@/views/register/Register.vue'
+import CartView from '@/views/cart/Cart.vue'
+import WeCommunityView from '@/views/weCommunity/WeCommunity.vue'
+import ChatRoomView from "@/views/weCommunity/ChatRoom.vue"
+import UserCenterView from '@/views/userCenter/UserCenter.vue'
+import SmartHomeView from '@/views/smartHome/SmartHome.vue'
+import ShopView from '@/views/shop/Shop.vue'
+import ShortVideoView from '@/views/shortVideo/ShortVideo.vue'
+import MusicView from '@/views/music/Music.vue'
+import WePostIndexView from '@/views/wePost/WePostIndex.vue'
+import DeviceControlView from '@/views/smartHome/DeviceControl.vue'
+import CirclePostView from '@/views/wePost/CirclePost.vue'
+import UserPostView from '@/views/wePost/UserPost.vue'
+import PostDetailView from '@/views/wePost/PostDetail.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,9 +36,12 @@ const router = createRouter({
             ]
         },
         { path: '/userCenter', name: 'userCenter', component: UserCenterView },
-        { path: '/wePost', name: 'wePost', component: WePostView },
+        { path: '/wePost', name: 'wePost', component: WePostIndexView },
+        { path: '/wePost/circlePost', name: 'circlePost', component: CirclePostView },
+        { path: '/wePost/userPost', name: 'userPost', component: UserPostView },
+        { path: '/wePost/postDetail', name: 'postDetail', component: PostDetailView },
         { path: '/weCommunity', name: 'weCommunity', component: WeCommunityView },
-        { path: '/chatRoom', name: 'chatRoom', component: ChatRoomView },
+        { path: '/weCommunity/chatRoom', name: 'chatRoom', component: ChatRoomView },
         { path: '/login', name: 'login', component: LoginView },
         { path: '/register', name: 'register', component: RegisterView }
     ],

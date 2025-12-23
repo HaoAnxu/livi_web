@@ -16,8 +16,8 @@ export const queryPostByUserIdApi =(data)=>{
 }
 
 //根据postId查询帖子详情
-export const queryPostDetailApi =(data)=>{
-    return request.post('/wePost/queryPostDetail',data)
+export const queryPostDetailApi =(postId)=>{
+    return request.post(`/wePost/queryPostDetail?postId=${postId}`)
 }
 
 //分页查询帖子评论列表
@@ -58,4 +58,14 @@ export const queryCircleListApi =()=>{
 //查询五条热点新闻
 export const queryNewsListApi =()=>{
     return request.post('/wePost/queryHotNewsList')
+}
+
+//查询用户加入的圈子列表
+export const queryCircleListByUserIdApi =(data)=>{
+    return request.post('/wePost/queryCircleListByUserId',data)
+}
+
+//根据圈子id查询帖子列表
+export const queryPostListByCircleIdApi =(data)=>{
+    return request.post('/wePost/queryPostListByCircleId',data)
 }
