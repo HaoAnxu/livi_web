@@ -1,5 +1,6 @@
 <script setup>
-import { queryPostDetailApi } from "@/api/wepost.js";
+// 引入依赖
+import { queryPostDetailApi, sendCommentApi, replyCommentApi, queryCommentListApi, deleteCommentApi, queryReplyCommentListApi, queryCommentCountApi } from "@/api/wepost.js";
 import { queryUserInfoApi } from "@/api/user.js";
 import { onMounted, ref } from "vue";
 import MyMessage from "@/utils/MyMessage.js";
@@ -8,117 +9,277 @@ import { useRouter, useRoute } from "vue-router";
 
 const route = useRoute()
 const router = useRouter()
+const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true') // 是否显示开场动画
+const splashClass = ref('')// 开场动画
+
+// ===================== 帖子与用户信息相关 =====================
+// 用户信息相关
 const userId = ref(0)
-const postId = ref(0)
-const loginUser = ref('');
-// 查询用户信息
 const userInfo = ref({})
+// 查询用户信息
 const queryUserInfo = async () => {
     userId.value = Number(route.query.userId);
-    MyLoading.value = true;
     try {
         const result = await queryUserInfoApi(userId.value);
-        if (result.code) {
-            userInfo.value = result.data;
-            MyLoading.value = false;
-        } else {
-            MyMessage.error(result.msg);
-            MyLoading.value = false;
-        }
+        if (result.code) userInfo.value = result.data;
     } catch (e) {
-        MyLoading.value = false;
+        console.error('查询用户信息失败：', e);
     }
 }
 
+// 帖子详情相关
+const postId = ref(0)             // 帖子ID
+const postDetail = ref({})        // 帖子详情数据
 // 查询帖子详情
-const postDetail = ref({})
 const queryPostDetail = async () => {
     postId.value = Number(route.query.postId);
-    MyLoading.value = true;
     try {
         const result = await queryPostDetailApi(postId.value);
+        if (result.code) postDetail.value = result.data;
+    } catch (e) {
+        console.error('查询帖子详情失败：', e);
+    }
+}
+
+// ===================== 登录用户相关 =====================
+const loginuserId = ref(0)        // 登录用户ID
+const loginUser = ref('')         // 登录用户名
+// 跳转到用户详情页
+const toUserDetail = (userId) => {
+    router.push({ name: 'userPost', query: { userId } });
+}
+
+// ===================== 根评论相关 =====================
+const commentTree = ref([])               // 根评论列表（含回复）
+const commentQuery = ref({                // 根评论查询参数
+    id: 0,             // 帖子ID
+    page: 1,           // 当前页码
+    pageSize: 20       // 每页条数
+})
+const hasMoreRootComment = ref(true)      // 是否有更多根评论
+// 查询根评论列表
+const queryCommentList = async (loadMore = false) => {
+    MyLoading.value = true;
+    commentQuery.value.id = Number(route.query.postId);
+    try {
+        const result = await queryCommentListApi(commentQuery.value)
         if (result.code) {
-            postDetail.value = result.data;
-            MyLoading.value = false;
-        } else {
-            MyMessage.error(result.msg);
-            MyLoading.value = false;
+            // 格式化根评论，添加回复相关初始属性
+            const newRootComments = result.data.rows.map(rootComment => ({
+                ...rootComment,
+                children: [],          // 回复列表
+                replyCount: 0,         // 回复总数
+                page: 1,               // 回复当前页码
+                pageSize: 5,           // 回复每页条数
+                hasMoreReply: true     // 是否有更多回复
+            }));
+
+            // 批量查询各根评论的回复数
+            if (newRootComments.length > 0) {
+                const countResult = await queryCommentCountApi(newRootComments.map(item => item.commentId));
+                if (countResult.code) {
+                    const replyCountMap = countResult.data;
+                    newRootComments.forEach(item => item.replyCount = replyCountMap[item.commentId] || 0);
+                }
+            }
+
+            // 加载更多拼接，否则覆盖
+            if (loadMore) {
+                commentTree.value = [...commentTree.value, ...newRootComments];
+            } else {
+                commentTree.value = newRootComments;
+            }
+            // 判断是否还有更多根评论
+            hasMoreRootComment.value = newRootComments.length === commentQuery.value.pageSize;
         }
     } catch (e) {
+        console.error('查询根评论失败：', e);
+    } finally {
         MyLoading.value = false;
     }
 }
 
-// 评论区相关（空实现，仅UI）
-const commentContent = ref('') // 评论输入框内容
-const commentList = ref([ // 模拟评论数据，仅用于展示效果
-    {
-        commentId: 1,
-        userName: '游客1',
-        userAvatar: '',
-        commentContent: '这个帖子内容很有价值！',
-        createTime: '2025-12-20 10:30:00'
-    },
-    {
-        commentId: 2,
-        userName: '游客2',
-        userAvatar: '',
-        commentContent: '支持楼主，期待更多分享～',
-        createTime: '2025-12-20 11:15:00'
+// 加载更多根评论
+const loadMoreRootComment = async () => {
+    if (hasMoreRootComment.value && !MyLoading.value) {
+        commentQuery.value.page += 1; // 页码自增
+        await queryCommentList(true);
     }
-])
+}
 
-// 空实现：提交评论（仅提示）
-const submitComment = () => {
-    if (!commentContent.value.trim()) {
-        MyMessage.warning('请输入评论内容');
-        return;
+// ===================== 回复评论相关 =====================
+const expandedReplyIds = ref([]);         // 已展开回复的根评论ID列表
+const replyCommentId = ref(null);         // 待回复的评论ID（含目标用户信息）
+const replyContent = ref('');             // 回复内容
+// 加载回复列表
+const loadReplyComment = async (commentId, loadMore = false) => {
+    // 找到目标根评论
+    const targetRootComment = commentTree.value.find(item => item.commentId === commentId);
+    if (!targetRootComment) return;
+
+    MyLoading.value = true;
+    try {
+        // 加载更多时先自增页码
+        if (loadMore) {
+            targetRootComment.page += 1;
+        }
+        // 调用接口查询回复
+        const result = await queryReplyCommentListApi({
+            id: commentId,
+            page: targetRootComment.page,
+            pageSize: targetRootComment.pageSize,
+        });
+
+        if (result.code) {
+            const newReplyList = result.data.rows;
+            // 加载更多拼接，否则覆盖
+            if (loadMore) {
+                targetRootComment.children = [...targetRootComment.children, ...newReplyList];
+            } else {
+                targetRootComment.children = newReplyList;
+                targetRootComment.page = 1; // 首次加载重置页码
+            }
+            // 判断是否有更多回复
+            targetRootComment.hasMoreReply = newReplyList.length === targetRootComment.pageSize;
+        }
+    } catch (e) {
+        console.error('加载回复列表失败：', e);
+    } finally {
+        MyLoading.value = false;
     }
-    MyMessage.info('评论提交功能暂未实现');
-    commentContent.value = '';
+};
+
+// 加载更多回复
+const loadMoreReply = async (commentId) => {
+    const rootComment = commentTree.value.find(item => item.commentId === commentId);
+    if (rootComment && rootComment.hasMoreReply && !MyLoading.value) {
+        await loadReplyComment(commentId, true);
+    }
+};
+
+// 展开/收起回复列表
+const toggleReply = (commentId) => {
+    const index = expandedReplyIds.value.indexOf(commentId);
+    if (index > -1) {
+        expandedReplyIds.value.splice(index, 1);
+    } else {
+        expandedReplyIds.value.push(commentId);
+        loadReplyComment(commentId);
+    }
+};
+
+// ===================== 评论/回复操作相关 =====================
+// 发布根评论相关
+const commentContent = ref('')    // 根评论输入内容
+// 发布根评论
+const submitComment = async () => {
+    if (!commentContent.value.trim()) return MyMessage.warning('请输入评论');
+    MyLoading.value = true;
+    try {
+        const result = await sendCommentApi({
+            postId: Number(route.query.postId),
+            userId: loginuserId.value,
+            toUserId: 0,
+            parentId: 0,
+            content: commentContent.value
+        });
+        if (result.code) {
+            commentQuery.value.page = 1;
+            await queryCommentList(false);
+            commentContent.value = '';
+        }
+    } catch (e) {
+        console.error('发布评论失败：', e);
+    } finally {
+        MyLoading.value = false;
+    }
 }
 
-// 空实现：取消评论
-const cancelComment = () => {
-    commentContent.value = '';
+// 回复评论相关
+// 显示回复输入框
+const showReplyInput = (commentId, toUserId, toUserName) => {
+    replyCommentId.value = { commentId, toUserId, toUserName };
+    replyContent.value = '';
+};
+
+// 取消回复
+const cancelReply = () => {
+    replyCommentId.value = null;
+    replyContent.value = '';
+};
+
+// 提交回复
+const submitReply = async () => {
+    if (!replyContent.value.trim()) return MyMessage.warning('请输入回复');
+    if (!replyCommentId.value) return MyMessage.warning('回复目标不存在');
+
+    try {
+        const result = await replyCommentApi({
+            postId: Number(route.query.postId),
+            userId: loginuserId.value,
+            parentId: replyCommentId.value.commentId,
+            toUserId: replyCommentId.value.toUserId,
+            content: replyContent.value
+        });
+        if (result.code) {
+            const target = commentTree.value.find(item => item.commentId === replyCommentId.value.commentId);
+            if (target) {
+                target.replyCount += 1;
+                target.page = 1; // 回复后重置回复页码
+            }
+            await loadReplyComment(replyCommentId.value.commentId);
+            cancelReply();
+        }
+    } catch (e) {
+        console.error('提交回复失败：', e);
+    }
 }
 
-//跳转到对应的页面
-const toPostDetail = (postId) => {
-    router.push({
-        name: 'postDetail',
-        query: { postId: postId }
-    });
+// 删除评论/回复
+const deleteComment = async (commentId) => {
+    MyLoading.value = true;
+    try {
+        const result = await deleteCommentApi(commentId);
+        if (result.code) {
+            expandedReplyIds.value = [];
+            commentQuery.value.page = 1;
+            await queryCommentList(false);
+        }
+    } catch (e) {
+        console.error('删除评论失败：', e);
+    } finally {
+        MyLoading.value = false;
+    }
 }
 
-//淡入
-const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true')
-//淡出
-const splashClass = ref('')
-
-onMounted(() => {
-    // 初始化登录用户
+// ===================== 页面初始化 =====================
+onMounted(async () => {
+    // 获取登录用户信息
     const userInfo = sessionStorage.getItem('loginUser');
     loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
-    userId.value = userInfo ? JSON.parse(userInfo).userId : '';
-    if (showSplash) {
-        queryPostDetail();
-        queryUserInfo();
-        setTimeout(() => {
-            splashClass.value = 'hidden'
+    loginuserId.value = userInfo ? JSON.parse(userInfo).userId : '';
+
+    try {
+        if (showSplash.value) {
+            // 显示开场动画时加载数据
+            await Promise.all([queryPostDetail(), queryUserInfo(), queryCommentList()]);
             setTimeout(() => {
-                showSplash.value = false
-                sessionStorage.setItem('animation_WP', 'false');
-            }, 800)
-        }, 2700)
-    } else {
-        showSplash.value = false;
-        queryUserInfo();
-        queryPostDetail();
+                splashClass.value = 'hidden';
+                setTimeout(() => {
+                    showSplash.value = false;
+                    sessionStorage.setItem('animation_WP', 'false');
+                }, 800);
+            }, 2700);
+        } else {
+            // 不显示动画直接加载
+            showSplash.value = false;
+            await Promise.all([queryUserInfo(), queryPostDetail(), queryCommentList()]);
+        }
+    } catch (e) {
+        console.error('页面初始化失败：', e);
     }
 })
 </script>
-
 <template>
     <!-- 开场动画 -->
     <div v-if="showSplash" :class="['splash-screen', splashClass]">
@@ -156,7 +317,7 @@ onMounted(() => {
                     <input id="query" class="input" type="search" placeholder="搜索话题/用户/帖子..." name="searchbar" />
                 </div>
             </div>
-            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
+            <p class="login-user" @click="toUserDetail(loginuserId)" style="cursor: pointer;">
                 {{ loginUser == null ? '未登录' : loginUser }}
             </p>
             <button class="button button-item">
@@ -174,7 +335,7 @@ onMounted(() => {
         </div>
 
         <div class="user-center-container">
-            <!-- 左侧：信息区 -->
+            <!-- 左侧：用户信息区 -->
             <div class="user-info-sidebar">
                 <!-- 基础信息 -->
                 <div class="info-card basic-info">
@@ -182,7 +343,7 @@ onMounted(() => {
                         <div class="avatar"
                             :style="{ backgroundImage: userInfo.avatar ? `url(${userInfo.avatar})` : 'none' }">
                             <span v-if="!userInfo.avatar">{{ userInfo.username ? userInfo.username.charAt(0) : '用'
-                            }}</span>
+                                }}</span>
                         </div>
                     </div>
                     <div class="user-base">
@@ -233,71 +394,153 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- 右侧 -->
+            <!-- 右侧：功能主区域 -->
             <div class="user-function-main">
-                <!-- 单个帖子详情展示 -->
+                <!-- 帖子详情 -->
                 <div class="function-card content-card post-card">
                     <div class="card-title">动态详情</div>
-                    <!-- 空值判断 -->
                     <div class="post-detail" v-if="postDetail.postId">
-                        <!-- 帖子标题 -->
                         <h4 class="post-title">{{ postDetail.postTitle }}</h4>
-                        <!-- 帖子内容 -->
                         <div class="post-content">{{ postDetail.postContent }}</div>
-                        <!-- 帖子图片 -->
                         <div class="post-image-wrap" v-if="postDetail.postImage">
                             <img class="post-image" :src="postDetail.postImage" alt="帖子图片">
                         </div>
-                        <!-- 帖子元信息 -->
                         <div class="post-meta">
                             <span class="post-time">{{ postDetail.createTime }}</span>
                             <span class="post-circle">{{ postDetail.circleName }}</span>
-                            <span class="post-comment">评论 {{ postDetail.commentCount || 0 }}</span>
+                            <span class="post-comment">评论 {{ commentTree.length }}</span>
                             <span class="post-like">点赞 {{ postDetail.likeCount || 0 }}</span>
                         </div>
                     </div>
-                    <!-- 空状态提示 -->
                     <div class="post-empty" v-else>
                         暂无帖子详情
                     </div>
                 </div>
 
-                <!-- 评论区（空实现仅UI） -->
+                <!-- 评论区 -->
                 <div class="function-card content-card comment-card">
-                    <div class="card-title">评论区 ({{ commentList.length }})</div>
+                    <div class="card-title">评论区 ({{ commentTree.length }})</div>
 
-                    <!-- 评论输入框 -->
-                    <div class="comment-input-wrap">
-                        <textarea v-model="commentContent" class="comment-input" placeholder="说点什么..."
-                            rows="3"></textarea>
-                        <div class="comment-btn-group">
-                            <button class="comment-btn cancel-btn" @click="cancelComment">取消</button>
-                            <button class="comment-btn submit-btn" @click="submitComment">发布评论</button>
-                        </div>
-                    </div>
-
-                    <!-- 评论列表 -->
-                    <div class="comment-list" v-if="commentList.length">
-                        <div class="comment-item" v-for="item in commentList" :key="item.commentId">
-                            <!-- 评论用户头像 -->
-                            <div class="comment-avatar">
+                    <!-- 根评论列表 -->
+                    <div class="comment-list" v-if="commentTree.length">
+                        <div class="comment-item root-comment" v-for="rootComment in commentTree"
+                            :key="rootComment.commentId">
+                            <!-- 根评论头像 -->
+                            <div class="comment-avatar" @click="toUserDetail(rootComment.userId)"
+                                style="cursor: pointer;">
                                 <div class="avatar-small"
-                                    :style="{ backgroundImage: item.userAvatar ? `url(${item.userAvatar})` : 'none' }">
-                                    <span v-if="!item.userAvatar">{{ item.userName.charAt(0) }}</span>
+                                    :style="{ backgroundImage: rootComment.userAvatar ? `url(${rootComment.userAvatar})` : 'none' }">
+                                    <span v-if="!rootComment.userAvatar">{{ rootComment.userName?.charAt(0) || '用'
+                                        }}</span>
                                 </div>
                             </div>
-                            <!-- 评论内容 -->
+                            <!-- 根评论内容区域 -->
                             <div class="comment-content-wrap">
-                                <div class="comment-user">{{ item.userName }}</div>
-                                <div class="comment-text">{{ item.commentContent }}</div>
-                                <div class="comment-time">{{ item.createTime }}</div>
+                                <div class="comment-header">
+                                    <div class="comment-user">{{ rootComment.userName || '匿名用户' }}</div>
+                                    <span class="comment-time">{{ rootComment.createTime }}</span>
+                                </div>
+                                <div class="comment-text">{{ rootComment.content }}</div>
+
+                                <!-- 根评论操作按钮 -->
+                                <div class="comment-actions">
+                                    <button class="action-btn reply-btn"
+                                        @click="showReplyInput(rootComment.commentId, rootComment.userId, rootComment.userName)"
+                                        title="回复评论">
+                                        回复
+                                    </button>
+                                    <button class="action-btn delete-btn" v-if="rootComment.userId === loginuserId"
+                                        @click="deleteComment(rootComment.commentId)" title="删除评论">
+                                        删除
+                                    </button>
+                                    <button class="action-btn toggle-btn" v-if="rootComment.replyCount > 0"
+                                        @click="toggleReply(rootComment.commentId)">
+                                        {{ expandedReplyIds.includes(rootComment.commentId) ?
+                                            `收起${rootComment.replyCount}条回复` : `查看${rootComment.replyCount}条回复` }}
+                                    </button>
+                                </div>
+
+                                <!-- 回复输入框 -->
+                                <div class="reply-input-wrap"
+                                    v-if="replyCommentId?.commentId === rootComment.commentId">
+                                    <div class="reply-input-tip">@{{ replyCommentId.toUserName }}</div>
+                                    <input v-model="replyContent" class="input comment-input-custom"
+                                        placeholder="输入你的回复..." />
+                                    <div class="reply-btn-group">
+                                        <button class="reply-btn cancel-btn" @click="cancelReply">取消</button>
+                                        <button class="reply-btn submit-btn" @click="submitReply">发送</button>
+                                    </div>
+                                </div>
+
+                                <!-- 回复列表 -->
+                                <div class="reply-list" v-if="expandedReplyIds.includes(rootComment.commentId)">
+                                    <div class="reply-loading" v-if="MyLoading.value">
+                                        加载回复中...
+                                    </div>
+                                    <div class="reply-empty" v-else-if="rootComment.children.length === 0">
+                                        暂无回复，快来第一条回复～
+                                    </div>
+                                    <div class="reply-item" v-else v-for="reply in rootComment.children"
+                                        :key="reply.commentId">
+                                        <div class="reply-avatar" @click="toUserDetail(reply.userId)"
+                                            style="cursor: pointer;">
+                                            <div class="avatar-small"
+                                                :style="{ backgroundImage: reply.userAvatar ? `url(${reply.userAvatar})` : 'none' }">
+                                                <span v-if="!reply.userAvatar">{{ reply.userName?.charAt(0) || '用'
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="reply-content-wrap">
+                                            <div class="reply-header">
+                                                <div class="reply-user">{{ reply.userName || '匿名用户' }}</div>
+                                                <span class="reply-time">{{ reply.createTime }}</span>
+                                            </div>
+                                            <div class="reply-text">
+                                                <span class="reply-to" v-if="reply.toUserName">@{{ reply.toUserName
+                                                    }}：</span>
+                                                {{ reply.content }}
+                                            </div>
+                                            <div class="reply-actions">
+                                                <button class="action-btn reply-btn"
+                                                    @click="showReplyInput(rootComment.commentId, reply.userId, reply.userName)"
+                                                    title="回复TA">
+                                                    回复
+                                                </button>
+                                                <button class="action-btn delete-btn"
+                                                    v-if="reply.userId === loginuserId"
+                                                    @click="deleteComment(reply.commentId)" title="删除回复">
+                                                    删除
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 回复加载更多按钮（加终点校验：hasMoreReply为true才显示） -->
+                                    <div class="load-more-btn" v-if="rootComment.hasMoreReply"
+                                        @click="loadMoreReply(rootComment.commentId)">
+                                        <button class="btn">
+                                            加载更多回复
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+                        <!-- 根评论加载更多按钮（加终点校验） -->
+                        <div class="load-more-btn" v-if="hasMoreRootComment" @click="loadMoreRootComment">
+                            <button class="btn" :disabled="MyLoading.value">
+                                {{ MyLoading.value ? '加载中...' : '加载更多评论' }}
+                            </button>
                         </div>
                     </div>
 
                     <!-- 评论空状态 -->
                     <div class="comment-empty" v-else>
                         暂无评论，快来抢沙发～
+                    </div>
+
+                    <!-- 发布根评论输入框 -->
+                    <div class="comment-input-wrap">
+                        <input v-model="commentContent" class="input comment-input-custom" placeholder="说点什么..." />
+                        <button class="comment-submit-btn" @click="submitComment">发布评论</button>
                     </div>
                 </div>
             </div>
@@ -309,170 +552,27 @@ onMounted(() => {
 @import url('@/assets/CSS/WePost/animation.css');
 @import url('@/assets/CSS/WePost/main.css');
 @import url('@/assets/CSS/WePost/leftInfo.css');
+@import url('@/assets/CSS/WePost/comment.css');
 
-/* 帖子详情样式 */
-.post-detail {
-    padding: 16px 0;
-}
-
-.post-title {
-    font-size: 24px !important;
-    /* 标题放大 */
-    font-weight: 700;
-    color: #e0e0e0;
-    margin: 0 0 16px 0;
-    line-height: 1.4;
-}
-
-.post-content {
-    font-size: 18px !important;
-    /* 内容放大 */
-    color: #d0d0d0;
-    line-height: 1.6;
-    margin: 0 0 20px 0;
-    white-space: pre-wrap;
-    /* 保留换行 */
-}
-
-.post-image-wrap {
-    margin: 20px 0;
+.load-more-btn {
     text-align: center;
+    padding: 10px 0;
 }
 
-.post-image {
-    max-width: 800px;
-    /* 图片最大宽度 */
-    max-height: 600px;
-    /* 图片最大高度 */
-    width: 100%;
-    /* 自适应宽度 */
-    height: auto;
-    /* 高度自动缩放 */
-    border-radius: 8px;
-    object-fit: contain;
-    /* 保持图片比例 */
-}
-
-.post-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 14px;
-    color: #999;
-    padding-top: 12px;
-    border-top: 1px solid #333;
-}
-
-.post-empty {
-    text-align: center;
-    padding: 40px 0;
-    color: #999;
-    font-size: 16px;
-}
-
-/* 评论区样式（空实现） */
-.comment-card {
-    margin-top: 20px;
-}
-
-.comment-input-wrap {
-    margin-bottom: 24px;
-}
-
-.comment-input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #444;
-    border-radius: 8px;
-    background-color: #222;
-    color: #e0e0e0;
-    font-size: 14px;
-    resize: none;
-    box-sizing: border-box;
-}
-
-.comment-input::placeholder {
-    color: #666;
-}
-
-.comment-btn-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 8px;
-}
-
-.comment-btn {
-    padding: 8px 16px;
+.load-more-btn .btn {
+    padding: 6px 16px;
+    border: 1px solid #e5e7eb;
     border-radius: 4px;
-    font-size: 14px;
+    background: #fff;
     cursor: pointer;
-    border: none;
 }
 
-.cancel-btn {
-    background-color: #444;
-    color: #e0e0e0;
+.load-more-btn .btn:disabled {
+    cursor: not-allowed;
+    color: #9ca3af;
 }
 
-.submit-btn {
-    background-color: #f97316;
-    color: #fff;
-}
-
-.comment-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.comment-item {
-    display: flex;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid #333;
-}
-
-.avatar-small {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f97316;
-    color: #fff;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-size: cover;
-    background-position: center;
-}
-
-.comment-content-wrap {
-    flex: 1;
-}
-
-.comment-user {
-    font-size: 14px;
-    font-weight: 600;
-    color: #e0e0e0;
-    margin-bottom: 4px;
-}
-
-.comment-text {
-    font-size: 14px;
-    color: #d0d0d0;
-    line-height: 1.5;
-    margin-bottom: 4px;
-}
-
-.comment-time {
-    font-size: 12px;
-    color: #666;
-}
-
-.comment-empty {
-    text-align: center;
-    padding: 40px 0;
-    color: #999;
-    font-size: 16px;
+.load-more-btn .btn:hover:not(:disabled) {
+    background: #f9fafb;
 }
 </style>

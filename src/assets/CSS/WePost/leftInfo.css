@@ -108,13 +108,3 @@
     color: #999;
     /* 浅灰色标签文字 */
 }
-
-.user-center-container {
-    margin-top: 10px !important;
-}
-
-@media (max-width: 768px) {
-    .user-center-container {
-        margin-top: -40px !important;
-    }
-}

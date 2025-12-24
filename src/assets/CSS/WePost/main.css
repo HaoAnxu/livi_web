@@ -372,6 +372,7 @@
     font-size: 12px;
     color: #cccccc;
     align-items: center;
+    flex-wrap: wrap; /* 新增：小屏自动换行，避免内容溢出 */
 }
 
 .post-time {
@@ -389,6 +390,7 @@
     align-items: center;
     gap: 8px;
     padding: 16px 0 8px 0;
+    flex-wrap: wrap; /* 新增：分页按钮小屏换行 */
 }
 
 .page-btn {
@@ -399,6 +401,7 @@
     color: #e0e0e0;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0; /* 新增：防止按钮被压缩 */
 }
 
 .page-btn.active {
@@ -411,7 +414,6 @@
     border-color: #f97316;
     color: #f97316;
 }
-/* ========== 广告区域核心样式 ========== */
 
 .ad-card {
     margin-top: 20px;
@@ -431,6 +433,7 @@
     border-radius: 8px;
     border-bottom: none !important;
     cursor: pointer;
+    flex-wrap: wrap; /* 新增：广告内容小屏换行 */
 }
 
 .ad-icon {
@@ -441,10 +444,12 @@
     justify-content: center;
     background-color: #333;
     border-radius: 50%;
+    flex-shrink: 0; /* 新增：广告图标不被压缩 */
 }
 
 .ad-content {
     flex: 1;
+    min-width: 0; /* 新增：解决flex子元素内容溢出问题 */
 }
 
 .ad-title {
@@ -452,11 +457,18 @@
     font-weight: 600;
     color: #e0e0e0; 
     margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 新增：广告标题溢出省略 */
 }
 
 .ad-desc {
     font-size: 12px;
     color: #999;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 新增：广告描述最多显示2行 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .ad-tag {
@@ -465,27 +477,34 @@
     background-color: #f97316;
     color: #fff;
     border-radius: 4px;
+    flex-shrink: 0; /* 新增：标签不被压缩 */
 }
-/* 响应式适配：仅优化导航一行展示，搜索栏缩短，保留原有隐藏逻辑 */
+
+/* 响应式适配：优化全屏展示，确保内容不错乱 */
 @media (max-width: 768px) {
     .login-user {
-        display: none; /* 保留原有隐藏逻辑 */
+        display: none;
     }
 
     .carousel-card {
-        display: none; /* 保留原有隐藏逻辑 */
+        display: none;
     }
 
     .top-header {
         padding: 12px 16px !important;
         gap: 10px !important;
-        flex-wrap: nowrap !important; /* 强制一行 */
+        flex-wrap: nowrap !important;
     }
 
-    /* 搜索栏缩短，不换行 */
+    /* 搜索栏优化：小屏充分利用空间 */
     .search-container {
-        max-width: 200px !important;
+        max-width: none !important; /* 移除最大宽度限制，充满可用空间 */
         min-width: 120px !important;
+        flex: 1 1 auto !important; /* 自适应伸缩 */
+    }
+
+    .group {
+        max-width: none !important; /* 搜索框充满容器 */
     }
 
     .input {
@@ -498,44 +517,120 @@
         padding: 0 16px !important;
         font-size: 13px !important;
         min-width: 90px !important;
+        margin: 0 5px !important; /* 减小边距，节省空间 */
     }
 
-    /* 原有响应式样式：100%保留 */
+    /* 全局容器：移除左右内边距，实现全屏展示 */
     .page-wrapper {
-        padding: 15px 16px;
-        padding-top: 70px !important; /* 适配导航高度 */
+        padding: 70px 0 20px 0 !important; /* 仅保留上下内边距，左右全屏 */
     }
 
+    /* 核心容器：取消最大宽度限制，移除自动外边距，充满屏幕 */
     .user-center-container {
         grid-template-columns: 1fr;
-        margin-top: 5px;
-        padding: 0;
+        margin: 5px 0 0 0 !important; /* 移除左右margin，实现全屏 */
+        padding: 0 10px !important; /* 保留少量内边距，避免内容贴边 */
         gap: 16px;
+        max-width: none !important; /* 取消最大宽度限制 */
+        width: 100% !important;
     }
 
+    /* 卡片样式：优化内边距，适配小屏 */
+    .info-card,
+    .function-card {
+        padding: 16px 12px !important; /* 减小内边距，节省空间 */
+        border-radius: 8px !important; /* 适配小屏的圆角 */
+    }
+
+    /* 分页按钮优化 */
     .page-btn {
         padding: 6px 12px;
         font-size: 12px;
+        min-width: 36px; /* 保证按钮最小宽度，避免变形 */
     }
 
+    /* 帖子图片：全屏展示 */
     .post-image {
         width: 100%;
         height: auto;
         max-height: 250px;
     }
 
+    /* 圈子列表：横向滚动，避免换行错乱 */
     .circle-list {
         display: flex;
-        gap: 16px;
+        gap: 12px;
+        overflow-x: auto; /* 横向滚动，而非换行 */
+        padding: 8px 0;
+        flex-wrap: nowrap !important; /* 强制不换行 */
+        -webkit-overflow-scrolling: touch; /* 移动端顺滑滚动 */
+    }
+
+    .circle-list::-webkit-scrollbar {
+        display: none; /* 隐藏滚动条，优化视觉 */
     }
 
     .circle-item {
-        width: 55px;
-        flex-shrink: 0;
+        width: 65px; /* 适度调整宽度 */
+        flex-shrink: 0; /* 防止被压缩 */
     }
 
     .circle-avatar {
         width: 45px;
         height: 45px;
+    }
+
+    /* 帖子项：优化内边距，适配全屏 */
+    .post-item {
+        padding: 12px 10px;
+        margin-bottom: 10px;
+    }
+
+    /* 广告项：优化小屏展示 */
+    .ad-item {
+        padding: 10px 8px;
+        gap: 8px;
+    }
+
+    .ad-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* 帖子元信息：优化间距 */
+    .post-meta {
+        gap: 10px;
+        font-size: 11px;
+    }
+}
+
+/* 更小屏幕适配（480px以下） */
+@media (max-width: 480px) {
+    .top-header {
+        padding: 10px 8px !important;
+        gap: 8px !important;
+    }
+
+    .button.button-item {
+        min-width: 70px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+    }
+
+    .user-center-container {
+        padding: 0 5px !important; /* 进一步减小内边距 */
+    }
+
+    .card-title {
+        font-size: 15px;
+        margin-bottom: 12px;
+    }
+
+    .post-title {
+        font-size: 15px;
+    }
+
+    .post-content {
+        font-size: 13px;
     }
 }

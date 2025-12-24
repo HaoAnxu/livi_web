@@ -1,0 +1,529 @@
+
+/* 原有非评论区样式完全保留 */
+.post-detail {
+    padding: 16px 0;
+}
+
+.post-title {
+    font-size: 24px !important;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+}
+
+.post-content {
+    font-size: 18px !important;
+    color: #d0d0d0;
+    line-height: 1.6;
+    margin: 0 0 20px 0;
+    white-space: pre-wrap;
+}
+
+.post-image-wrap {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.post-image {
+    max-width: 800px;
+    max-height: 600px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.post-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: #999;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+    flex-wrap: wrap;
+}
+
+.post-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #999;
+    font-size: 16px;
+}
+
+/* ========== 评论区 ========== */
+/* 评论列表 */
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+/* 单个评论项 */
+.comment-item {
+    max-width: 95%;
+    background: linear-gradient(135deg, #2f2f2f, #181818);
+    border-radius: 20px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* 头像样式 */
+.avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f97316;
+    color: #fff;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+/* 评论内容容器 */
+.comment-content-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* 评论头部：用户名+时间一行展示 */
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.comment-user {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ffb1ce;
+}
+
+.comment-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* 评论内容 */
+.comment-text {
+    font-size: 16px;
+    color: #ffffff;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* 评论操作按钮 */
+.comment-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.action-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    color: #c3f7ff;
+    transition: color 0.2s;
+}
+
+.action-btn:hover {
+    color: #54a4ff;
+}
+
+.action-btn.delete-btn {
+    color: #ff5a5a;
+}
+
+.action-btn.delete-btn:hover {
+    color: #ff4d4f;
+}
+
+/* 评论空状态 */
+.comment-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #999;
+    font-size: 16px;
+}
+
+/* ========== 回复相关样式 ========== */
+/* 回复列表 */
+.reply-list {
+    margin-left: 40px;
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reply-item {
+    display: flex;
+    gap: 8px;
+}
+
+.reply-avatar .avatar-small {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+.reply-content-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.reply-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reply-user {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffb1ce;
+}
+
+.reply-time {
+    font-size: 11px;
+    color: #999;
+}
+
+.reply-text {
+    font-size: 14px;
+    color: #ffffff;
+    line-height: 1.4;
+}
+
+.reply-to {
+    color: #f97316;
+    font-size: inherit;
+}
+
+.reply-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* 二级回复 */
+.sub-reply-list {
+    margin-left: 40px;
+    margin-top: 8px;
+    gap: 12px;
+}
+
+.sub-reply-item {
+    display: flex;
+    gap: 6px;
+}
+
+.sub-reply-avatar .avatar-small {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+}
+
+.sub-reply-content-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sub-reply-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sub-reply-user {
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.sub-reply-time {
+    font-size: 10px;
+    color: #999;
+}
+
+.sub-reply-text {
+    font-size: 12px;
+    color: #e0e0e0;
+}
+
+/* ========== 通用旋转阴影动画 ========== */
+@keyframes rotateShadow {
+  0% {
+    box-shadow: -2px -2px 0px 0px #aa00ff, 2px 2px 0px 0px #3700ff;
+  }
+  25% {
+    box-shadow: -2px 2px 0px 0px #aa00ff, 2px -2px 0px 0px #3700ff;
+  }
+  50% {
+    box-shadow: 2px 2px 0px 0px #aa00ff, -2px -2px 0px 0px #3700ff;
+  }
+  75% {
+    box-shadow: 2px -2px 0px 0px #aa00ff, -2px 2px 0px 0px #3700ff;
+  }
+  100% {
+    box-shadow: -2px -2px 0px 0px #aa00ff, 2px 2px 0px 0px #3700ff;
+  }
+}
+
+/* ========== 评论空状态 ========== */
+.comment-empty {
+    text-align: center;
+    padding: 40px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* ========== 发表评论输入框（纯 input 样式） ========== */
+.comment-input-wrap {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 发表评论 input 核心样式 */
+.comment-input-custom {
+    width: 100%;
+    background-color: #1a1a1a;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    outline: none;
+    color: white;
+    font-size: 14px;
+    box-sizing: border-box;
+    min-height: 80px; /* 保留原文本域的高度，视觉一致 */
+    transition: all 0.2s ease;
+}
+
+/* 聚焦时触发旋转阴影动画 */
+.comment-input-custom:focus {
+    animation: rotateShadow 2s infinite linear;
+}
+
+.comment-input-custom::placeholder {
+    color: #666;
+}
+
+.comment-submit-btn {
+    align-self: flex-end;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #f97316;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.comment-submit-btn:hover {
+    background-color: #ea580c;
+}
+
+/* ========== 回复输入框（纯 input 样式） ========== */
+.reply-input-wrap {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.reply-input-container {
+    position: relative;
+    width: 100%;
+}
+
+/* 回复 input 核心样式 */
+.reply-input-custom {
+    width: 100%;
+    max-width: none;
+    background-color: #1a1a1a;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    outline: none;
+    color: white;
+    font-size: 13px;
+    box-sizing: border-box;
+    min-height: 60px; /* 保留原高度 */
+    transition: all 0.2s ease;
+}
+
+/* 聚焦时触发旋转阴影动画 */
+.reply-input-custom:focus {
+    animation: rotateShadow 2s infinite linear;
+}
+
+.reply-input-custom::placeholder {
+    color: #777;
+    font-size: 12px;
+}
+
+/* 输入框辅助提示文字 */
+.reply-input-hint {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    padding-left: 4px;
+    user-select: none;
+}
+
+.reply-btn-group {
+    align-self: flex-end;
+    display: flex;
+    gap: 8px;
+}
+
+.reply-btn {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.reply-btn.cancel-btn {
+    background-color: #444;
+    color: #ccc;
+}
+
+.reply-btn.cancel-btn:hover {
+    background-color: #555;
+    color: #e0e0e0;
+}
+
+.reply-btn.submit-btn {
+    background-color: #f97316;
+    color: #fff;
+}
+
+.reply-btn.submit-btn:hover {
+    background-color: #ea580c;
+    transform: translateY(-1px);
+}
+
+/* 禁用状态样式 */
+.reply-btn.submit-btn:disabled {
+    background-color: #888;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========== 二级回复样式 ========== */
+.sub-reply-item {
+    display: flex;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.sub-reply-item:last-child {
+    border-bottom: none;
+}
+
+.sub-reply-avatar .avatar-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    background-size: cover;
+    background-position: center;
+}
+
+.sub-reply-content-wrap {
+    flex: 1;
+}
+
+.sub-reply-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.sub-reply-user {
+    font-size: 12px;
+    color: #f97316;
+    font-weight: 500;
+}
+
+.sub-reply-time {
+    font-size: 11px;
+    color: #666;
+}
+
+.sub-reply-text {
+    font-size: 12px;
+    color: #e0e0e0;
+    line-height: 1.4;
+}
+
+.reply-to {
+    color: #999;
+}
+.reply-input-tip{
+    font-size: 11px;
+    color: #ff8dc4;
+    margin-top: 4px;
+    padding-left: 4px;
+    user-select: none;
+}
+/* ========== 响应式适配 ========== */
+@media (max-width: 768px) {
+    .comment-item {
+        gap: 8px;
+    }
+
+    .avatar-small {
+        width: 36px;
+        height: 36px;
+    }
+
+    .comment-header {
+        gap: 8px;
+    }
+
+    .comment-user {
+        font-size: 14px;
+    }
+
+    .comment-text {
+        font-size: 13px;
+    }
+
+    .reply-list {
+        margin-left: -10%;
+    }
+
+    .comment-input {
+        min-height: 70px;
+        padding: 10px 14px;
+    }
+}

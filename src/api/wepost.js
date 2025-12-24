@@ -20,19 +20,34 @@ export const queryPostDetailApi =(postId)=>{
     return request.post(`/wePost/queryPostDetail?postId=${postId}`)
 }
 
-//分页查询帖子评论列表
-export const queryCommentListApi =(data)=>{
-    return request.post('/wePost/comment/queryCommentList',data)
-}
-
 //发帖子
 export const sendPostApi =(postData)=>{
     return request.post('/permission/wePost/createPost',postData)
 }
 
+//分页查询帖子根评论列表
+export const queryCommentListApi =(data)=>{
+    return request.post('/wePost/comment/queryCommentList',data)
+}
+
+//分页查询帖子子评论列表
+export const queryReplyCommentListApi =(data)=>{
+    return request.post('/wePost/comment/queryReplyCommentList',data)
+}
+
+//查询帖子评论数
+export const queryCommentCountApi =(data)=>{
+    return request.post('/wePost/comment/queryReplyCount',data)
+}
+
 //发评论
 export const sendCommentApi =(commentData)=>{
     return request.post('/permission/wePost/createComment',commentData)
+}
+
+//回复评论
+export const replyCommentApi =(replyData)=>{
+    return request.post('/permission/wePost/replyComment',replyData)
 }
 
 //删帖子
