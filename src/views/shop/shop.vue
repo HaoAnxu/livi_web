@@ -3,7 +3,9 @@ import { onMounted, ref } from 'vue'
 import { queryGoodsApi } from "@/api/shop.js";
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const form = ref({
   goodsName: '',
   goodsType: '',
@@ -100,6 +102,16 @@ const reset = () => {
   search()
 }
 
+// 查看详情
+const viewDetail = (goodsId) => {
+  router.push({
+    path: 'goodsDetail',
+    query: {
+      goodsId: goodsId
+    }
+  })
+}
+
 onMounted(() => {
   search()
 })
@@ -156,7 +168,7 @@ onMounted(() => {
             </div>
             <div class="product-sales">已售 {{ goods.goodsSales }}</div>
             <!-- 查看详情按钮 -->
-            <button class="btn" @click="viewDetail">
+            <button class="btn" @click="viewDetail(goods.goodsId)">
               <i class="animation"></i>查看详情<i class="animation"></i>
             </button>
           </div>

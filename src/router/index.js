@@ -17,6 +17,7 @@ import DeviceControlView from '@/views/smartHome/DeviceControl.vue'
 import CirclePostView from '@/views/wePost/CirclePost.vue'
 import UserPostView from '@/views/wePost/UserPost.vue'
 import PostDetailView from '@/views/wePost/PostDetail.vue'
+import GoodsDetailView from '@/views/shop/GoodsDetail.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,7 +44,8 @@ const router = createRouter({
         { path: '/weCommunity', name: 'weCommunity', component: WeCommunityView },
         { path: '/weCommunity/chatRoom', name: 'chatRoom', component: ChatRoomView },
         { path: '/login', name: 'login', component: LoginView },
-        { path: '/register', name: 'register', component: RegisterView }
+        { path: '/register', name: 'register', component: RegisterView },
+        { path: '/goodsDetail', name: 'goodsDetail', component: GoodsDetailView }
     ],
 })
 

@@ -45,7 +45,7 @@
         linear-gradient(0deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent),
         linear-gradient(90deg, transparent 24%, var(--grid-color) 25%, var(--grid-color) 26%, transparent 27%, transparent 74%, var(--grid-color) 75%, var(--grid-color) 76%, transparent 77%, transparent);
     background-size: 55px 55px;
-    z-index: -1;
+    z-index: -100;
 }
 
 /* 顶部头部区域：仅优化布局，保留原有颜色/背景 */

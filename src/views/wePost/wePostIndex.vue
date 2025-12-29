@@ -1,119 +1,125 @@
 <script setup>
 import { queryPostListApi, queryCarouselImageListApi, queryCircleListApi, queryNewsListApi } from "@/api/wepost.js";
 import { onMounted, ref } from "vue";
-import MyMessage from "@/utils/MyMessage.js";
+import  MyMessage  from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 import { useRouter } from "vue-router";
+import PutPost from "@/components/PutPost.vue";
 
+const showPutPost = ref(false)
+const showPublishBtn = ref(true)
 const router = useRouter();
 const loginUser = ref('');
-const userId = ref('');
+const userId = ref(0);
 const postList = ref([])
 const query = ref({
     page: 1,
     pageSize: 10,
 })
-//查询帖子列表
+
 const queryPostList = async () => {
     MyLoading.value = true;
     try {
         const result = await queryPostListApi(query.value);
         if (result.code) {
             postList.value = result.data;
-            MyLoading.value = false;
         } else {
             MyMessage.error(result.msg);
-            MyLoading.value = false;
         }
     } catch (e) {
+        MyMessage.error('查询失败');
+    } finally {
         MyLoading.value = false;
     }
 }
-// 分页
+
 const prevPage = () => {
     if (query.value.page > 1) {
         query.value.page--;
         queryPostList();
     } else {
-        MyMessage.error('已经是第一页了');
+        MyMessage.warning('已经是第一页了');
     }
 }
+
 const nextPage = async () => {
     query.value.page++;
     await queryPostList();
-    console.log(postList.value.length);
     if (postList.value.length === 0) {
-        MyMessage.error('没有更多了');
+        MyMessage.warning('没有更多了');
         query.value.page--;
         await queryPostList();
     }
 }
-//查询轮播图片
+
 const CarouselImageList = ref([])
+
 const queryCarouselImageList = async () => {
     MyLoading.value = true;
     try {
         const result = await queryCarouselImageListApi();
         if (result.code) {
             CarouselImageList.value = result.data;
-            MyLoading.value = false;
         } else {
             MyMessage.error(result.msg);
-            MyLoading.value = false;
         }
     } catch (e) {
+        MyMessage.error('查询失败');
+    } finally {
         MyLoading.value = false;
     }
 }
-// 查询圈子列表
+
 const circleList = ref([])
+
 const queryCircleList = async () => {
     MyLoading.value = true;
     try {
         const result = await queryCircleListApi()
         if (result.code) {
             circleList.value = result.data;
-            MyLoading.value = false;
         } else {
             MyMessage.error(result.msg);
-            MyLoading.value = false;
         }
     } catch (e) {
+        MyMessage.error('查询失败');
+    } finally {
         MyLoading.value = false;
     }
 }
 
-// 查询热点新闻
 const newsList = ref([])
+
 const queryNewsList = async () => {
     MyLoading.value = true;
     try {
         const result = await queryNewsListApi()
         if (result.code) {
             newsList.value = result.data;
-            MyLoading.value = false;
         } else {
             MyMessage.error(result.msg);
-            MyLoading.value = false;
         }
     } catch (e) {
+        MyMessage.error('查询失败');
+    } finally {
         MyLoading.value = false;
     }
 }
 
-//跳转到对应的页面
 const toPostDetail = (postId, userId) => {
     router.push({
         name: 'postDetail',
         query: { postId: postId, userId: userId }
     });
 }
+
 const toCircleDetail = (circleId) => {
     router.push({
         name: 'circlePost',
         query: { circleId: circleId }
     });
 }
+
 const toUserDetail = (userId) => {
     router.push({
         name: 'userPost',
@@ -121,25 +127,29 @@ const toUserDetail = (userId) => {
     });
 }
 
+const toHome = () => {
+    router.push('/');
+}
 
-//淡入
 const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true')
-//淡出
 const splashClass = ref('')
 
-onMounted(() => {
-    // 初始化登录用户
+onMounted(async () => {
     const userInfo = sessionStorage.getItem('loginUser');
-    loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
-    userId.value = userInfo ? JSON.parse(userInfo).userId : '';
-    //查询轮播图片
-    queryCarouselImageList();
-    //查询圈子列表
-    queryCircleList();
-    //查询热点新闻
-    queryNewsList();
-    if (showSplash) {
-        queryPostList();
+    if (!userInfo) {
+        router.push('/login');
+        MyMessage.warn('请先登录')
+        return;
+    }
+    loginUser.value = JSON.parse(userInfo).username;
+    userId.value = JSON.parse(userInfo).userId;
+
+    await queryCarouselImageList();
+    await queryCircleList();
+    await queryNewsList();
+    await queryPostList();
+    
+    if (showSplash.value) {
         setTimeout(() => {
             splashClass.value = 'hidden'
             setTimeout(() => {
@@ -149,13 +159,12 @@ onMounted(() => {
         }, 2700)
     } else {
         showSplash.value = false;
-        queryPostList();
     }
 })
 </script>
 
 <template>
-    <!-- 开场动画 -->
+    <PutPost :visible="showPutPost" @close="showPutPost = false" />
     <div v-if="showSplash" :class="['splash-screen', splashClass]">
         <div class="splash-content">
             <div class="logo-container">
@@ -173,12 +182,9 @@ onMounted(() => {
     </div>
 
     <div class="page-wrapper">
-        <!-- 背景容器 -->
         <div class="bg"></div>
 
-        <!-- 顶部搜索栏 -->
         <div class="top-header">
-            <!-- 搜索框 -->
             <div class="search-container">
                 <div class="group">
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="search-icon">
@@ -191,10 +197,13 @@ onMounted(() => {
                     <input id="query" class="input" type="search" placeholder="搜索话题/用户/帖子..." name="searchbar" />
                 </div>
             </div>
-            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
-                {{ loginUser == null ? '未登录' : loginUser }}
+            <p class="login-user" @click="toHome" style="cursor: pointer;">
+                首页
             </p>
-            <button class="button button-item">
+            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
+                {{ loginUser }}
+            </p>
+            <button class="button button-item" v-if="showPublishBtn">
                 <span class="button-bg">
                     <span class="button-bg-layers">
                         <span class="button-bg-layer button-bg-layer-1 -purple"></span>
@@ -202,17 +211,14 @@ onMounted(() => {
                         <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
                     </span>
                 </span>
-                <span class="button-inner">
+                <span class="button-inner" @click="showPutPost = true">
                     <span class="button-inner-static">发布</span>
                 </span>
             </button>
         </div>
 
-        <!-- 核心布局容器 -->
         <div class="user-center-container">
-            <!-- 左侧 -->
             <div class="user-info-sidebar">
-                <!-- 热点话题 -->
                 <div class="info-card account-info">
                     <div class="card-title">热点话题#</div>
                     <div class="info-list">
@@ -226,7 +232,6 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-                <!-- 社区公约 -->
                 <div class="info-card reserve-module">
                     <div class="card-title">WePost社区公约</div>
                     <div class="reserve-content">
@@ -236,11 +241,9 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- 广告区域 -->
                 <div class="info-card account-info ad-card">
                     <div class="card-title">推荐推广</div>
                     <div class="info-list ad-list">
-                        <!-- 广告项1 -->
                         <div class="ad-item">
                             <div class="ad-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#f97316"
@@ -255,7 +258,6 @@ onMounted(() => {
                             </div>
                             <div class="ad-tag">推广</div>
                         </div>
-                        <!-- 广告项2 -->
                         <div class="ad-item">
                             <div class="ad-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#3182ce"
@@ -274,9 +276,7 @@ onMounted(() => {
                 </div>
             </div>
 
-            <!-- 右侧 -->
             <div class="user-function-main">
-                <!-- 公告轮播区 -->
                 <div class="function-card menu-card carousel-card">
                     <el-carousel height="320px" motion-blur>
                         <el-carousel-item v-for="item in CarouselImageList" :key="item.carouselImageId" interval="5000">
@@ -285,11 +285,9 @@ onMounted(() => {
                     </el-carousel>
                 </div>
 
-                <!-- 圈子列表 -->
                 <div class="function-card content-card">
                     <div class="card-header">
                         <div class="card-title">推荐圈子</div>
-                        <!-- 刷新按钮 -->
                         <button class="refresh-btn" @click="queryCircleList">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 viewBox="0 0 16 16">
@@ -299,7 +297,6 @@ onMounted(() => {
                             </svg>
                         </button>
                     </div>
-                    <!-- 圈子列表 -->
                     <div class="circle-list">
                         <div class="circle-item" v-for="item in circleList" :key="item.circleId"
                             @click="toCircleDetail(item.circleId, item.userId)">
@@ -310,12 +307,10 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- 帖子列表+分页 -->
                 <div class="function-card content-card post-card">
                     <div class="card-title">动态</div>
                     <div class="post-list">
                         <div class="post-item" v-for="item in postList" :key="item.postId">
-                            <!-- 发帖用户信息：头像+用户名 -->
                             <div class="post-user" @click="toUserDetail(item.userId)" style="cursor: pointer;">
                                 <img class="user-avatar" :src="item.userAvatar || '/default-avatar.png'" alt="用户头像"
                                     onerror="this.src='/default-avatar.png'">
@@ -324,11 +319,9 @@ onMounted(() => {
                             <div @click="toPostDetail(item.postId, item.userId)" style="cursor: pointer;">
                                 <h4 class="post-title">{{ item.postTitle }}</h4>
                                 <p class="post-content">{{ item.postContent }}</p>
-                                <!-- 帖子图片 -->
                                 <div class="post-image-wrap" v-if="item.postImage">
                                     <img class="post-image" :src="item.postImage" alt="帖子图片">
                                 </div>
-                                <!-- 帖子元信息 -->
                                 <div class="post-meta">
                                     <span class="post-time">{{ item.createTime }}</span>
                                     <span class="post-circle">{{ item.circleName }}</span>
@@ -339,7 +332,6 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- 分页组件 -->
                     <div class="pagination">
                         <button class="page-btn prev-btn" @click="prevPage">上一页</button>
                         <button class="page-btn next-btn" @click="nextPage">下一页</button>

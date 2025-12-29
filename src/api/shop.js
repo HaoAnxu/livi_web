@@ -4,3 +4,8 @@ import request from "@/utils/request.js";
 export const queryGoodsApi = (data)=>{
     return request.post('/goods/queryGoods',data)
 }
+
+//查询商品详情
+export const queryGoodsDetailApi = (goodsId)=>{
+    return request.post(`/goods/queryGoodsDetail?goodsId=${goodsId}`)
+}

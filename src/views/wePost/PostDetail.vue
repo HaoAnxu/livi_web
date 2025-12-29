@@ -6,7 +6,12 @@ import { onMounted, ref } from "vue";
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 import { useRouter, useRoute } from "vue-router";
+import PutPost from "@/components/PutPost.vue";
 
+//是否展示发表弹窗
+const showPutPost = ref(false)
+//是否展示发布按钮
+const showPublishBtn = ref(true)
 const route = useRoute()
 const router = useRouter()
 const showSplash = ref(sessionStorage.getItem('animation_WP') === 'true') // 是否显示开场动画
@@ -254,11 +259,14 @@ const deleteComment = async (commentId) => {
 
 // ===================== 页面初始化 =====================
 onMounted(async () => {
-    // 获取登录用户信息
     const userInfo = sessionStorage.getItem('loginUser');
-    loginUser.value = userInfo ? JSON.parse(userInfo).username : '';
-    loginuserId.value = userInfo ? JSON.parse(userInfo).userId : '';
-
+    if (!userInfo) {
+        router.push('/login');
+        MyMessage.warn('请先登录')
+        return;
+    }
+    loginUser.value = JSON.parse(userInfo).username;
+    userId.value = JSON.parse(userInfo).userId;
     try {
         if (showSplash.value) {
             // 显示开场动画时加载数据
@@ -281,23 +289,7 @@ onMounted(async () => {
 })
 </script>
 <template>
-    <!-- 开场动画 -->
-    <div v-if="showSplash" :class="['splash-screen', splashClass]">
-        <div class="splash-content">
-            <div class="logo-container">
-                <h1 class="logo-main">LiVi</h1>
-                <p class="logo-tagline">WePost · Connect Everyone</p>
-            </div>
-            <div class="logo-decoration">
-                <span class="decor-text first-text">LiVi社区</span>
-                <span class="decor-text second-text">分享你的生活</span>
-            </div>
-        </div>
-        <div class="decor-line top-line"></div>
-        <div class="decor-line bottom-line"></div>
-        <div class="grid-bg"></div>
-    </div>
-
+    <PutPost :visible="showPutPost" @close="showPutPost = false" />
     <div class="page-wrapper">
         <!-- 背景容器 -->
         <div class="bg"></div>
@@ -317,7 +309,10 @@ onMounted(async () => {
                     <input id="query" class="input" type="search" placeholder="搜索话题/用户/帖子..." name="searchbar" />
                 </div>
             </div>
-            <p class="login-user" @click="toUserDetail(loginuserId)" style="cursor: pointer;">
+            <p class="login-user" @click="toHome" style="cursor: pointer;">
+                首页
+            </p>
+            <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
                 {{ loginUser == null ? '未登录' : loginUser }}
             </p>
             <button class="button button-item">
@@ -328,7 +323,7 @@ onMounted(async () => {
                         <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
                     </span>
                 </span>
-                <span class="button-inner">
+                <span class="button-inner" @click="showPutPost = true" v-if="showPublishBtn">
                     <span class="button-inner-static">发布</span>
                 </span>
             </button>
