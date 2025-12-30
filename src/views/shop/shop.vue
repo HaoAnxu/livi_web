@@ -153,7 +153,7 @@ onMounted(() => {
       <div class="card-container">
         <div class="product-card" v-for="goods in goodsList" :key="goods.id">
           <div class="product-img-wrapper">
-            <img src="https://picsum.photos/180/120?random=1" alt="商品图片" class="product-img">
+            <img :src="goods.goodsThumbnail" alt="商品图片" class="product-img">
           </div>
           <!-- 商品信息区域 -->
           <div class="product-info">

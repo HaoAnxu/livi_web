@@ -9,3 +9,8 @@ export const queryGoodsApi = (data)=>{
 export const queryGoodsDetailApi = (goodsId)=>{
     return request.post(`/goods/queryGoodsDetail?goodsId=${goodsId}`)
 }
+
+//查询商品评论
+export const queryGoodsCommentApi = (data)=>{
+    return request.post('/goods/queryGoodsComment',data)
+}
