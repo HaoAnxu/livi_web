@@ -23,7 +23,7 @@ const goods_type = ref([
   '安防监控类',
   '智能控制类',
   '厨卫五金类',
-  '其他'])
+  '其它'])
 const goodsList = ref([])
 
 // 存储总条数、总页数
@@ -164,7 +164,7 @@ onMounted(() => {
             <div class="product-price">
               <span class="price">¥{{ goods.goodsPrice }}</span>
               <span class="original-price">¥{{ goods.goodsOriginalPrice }}</span>
-              <span class="card-tag">LiVi Unity</span>
+
             </div>
             <div class="product-sales">已售 {{ goods.goodsSales }}</div>
             <!-- 查看详情按钮 -->
@@ -256,6 +256,10 @@ onMounted(() => {
 
 .product-card {
   width: 100%;
+  /* 强制卡片宽度继承网格列宽，不被内容撑开 */
+  flex-shrink: 0;
+  /* 禁止卡片收缩 */
+  min-width: 0;
   min-height: 280px;
   padding: 8px;
   background: rgba(237, 242, 255, 0.801);
@@ -338,13 +342,12 @@ onMounted(() => {
   font-size: 12px;
   color: #333;
   line-height: 1.3;
-  height: 30px;
-  /* 标题高度缩小 */
+  width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap; /* 大屏单行 */
+  height: auto; /* 单行高度自适应 */
   margin-bottom: 4px;
 }
 
@@ -474,7 +477,11 @@ onMounted(() => {
   }
 
   .product-title {
-    height: 26px;
+    white-space: normal; /* 取消单行限制 */
+    display: -webkit-box; /* 多行省略必备 */
+    -webkit-line-clamp: 2; /* 限制两行 */
+    -webkit-box-orient: vertical; /* 垂直排列 */
+    height: 32px; /* 适配两行高度：12px字体*1.3行高*2行 ≈ 31.2px，取32px */
   }
 }
 </style>

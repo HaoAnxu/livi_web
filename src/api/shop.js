@@ -14,3 +14,13 @@ export const queryGoodsDetailApi = (goodsId)=>{
 export const queryGoodsCommentApi = (data)=>{
     return request.post('/goods/queryGoodsComment',data)
 }
+
+//查询商品规格
+export const queryGoodsSpecApi = (goodsId)=>{
+    return request.post(`/permission/goods/queryGoodsSpec?goodsId=${goodsId}`)
+}
+
+//创建订单
+export const createOrderApi = (data)=>{
+    return request.post('/permission/goods/createOrder',data)
+}

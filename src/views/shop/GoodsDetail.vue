@@ -4,7 +4,9 @@ import { queryGoodsDetailApi, queryGoodsCommentApi } from "@/api/shop.js";
 import { onMounted, ref } from 'vue'
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
+import CreateOrder from '@/components/CreateOrder.vue'
 
+const createOrderVisible = ref(false)
 const route = useRoute()
 const goodsId = ref(0)
 const goodsDetail = ref({})
@@ -74,6 +76,12 @@ onMounted(() => {
 </script>
 
 <template>
+    <!-- 引入创建订单组件 -->
+    <CreateOrder ref="createOrderRef" :visible="createOrderVisible" :goodsId="goodsId"
+        :goodsName="goodsDetail.goodsName" :goodsPrice="goodsDetail.goodsPrice"
+        :goodsThumbnail="goodsDetail.goodsThumbnail" :goodsStock="goodsDetail.goodsStock"
+        @close="createOrderVisible = false" />
+
     <div class="goods-detail-container">
         <div v-if="goodsDetail.goodsId" class="detail-wrapper">
             <div class="image-section">
@@ -99,7 +107,7 @@ onMounted(() => {
                             stroke-linejoin="round" />
                     </svg>
                     <div class="shop-detail">
-                        <h3 class="shop-name">LiVi电气官方旗舰店</h3>
+                        <h3 class="shop-name">{{ goodsDetail.goodsDept }}</h3>
                         <div class="shop-tag">
                             <span class="tag-item">品牌认证</span>
                             <span class="tag-item">7天无理由</span>
@@ -137,11 +145,25 @@ onMounted(() => {
                             <span class="value">{{ goodsDetail.goodsStock || '充足' }}</span>
                         </span>
                     </div>
-                    <!-- 立即购买按钮 -->
+                    <!-- 立即购买 + 加入购物车按钮容器 -->
                     <div class="buy-btn-wrapper">
-                        <button class="buy-btn" :disabled="goodsDetail.goodsStatus === 0">
-                            {{ goodsDetail.goodsStatus === 1 ? '立即购买' : '商品已下架' }}
-                        </button>
+                        <div class="btn-group">
+                            <button class="buy-btn" :disabled="goodsDetail.goodsStatus === 0"
+                                @click.stop="createOrderVisible = true">
+                                {{ goodsDetail.goodsStatus === 1 ? '立即购买' : '商品已下架' }}
+                            </button>
+                            <button class="cart-btn" :disabled="goodsDetail.goodsStatus === 0" @click.stop="addToCart">
+                                <svg class="cart-icon" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M6 3H4C3.44772 3 3 3.44772 3 4V6M6 3H18M6 3V5M18 3V5M18 3H20C20.5523 3 21 3.44772 21 4V6M3 10C3 8.89543 3.89543 8 5 8H19C20.1046 8 21 8.89543 21 10V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V10Z"
+                                        stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M8 14C8 15.1046 8.89543 16 10 16H14C15.1046 16 16 15.1046 16 14"
+                                        stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <span class="cart-text">加入购物车</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -254,44 +276,48 @@ onMounted(() => {
 
 /* 店铺信息样式 */
 .shop-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 50px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 50px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .shop-icon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
 }
 
 .shop-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .shop-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    /*渐变 */
+    background: linear-gradient(135deg, #ff0000 0%, #0033ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
 }
 
 .shop-tag {
-  display: flex;
-  gap: 8px;
+    display: flex;
+    gap: 8px;
 }
 
 .tag-item {
-  font-size: 12px;
-  padding: 2px 8px;
-  background-color: #fef0f0;
-  color: #ff6b6b;
-  border-radius: 4px;
+    font-size: 12px;
+    padding: 2px 8px;
+    background-color: #fef0f0;
+    color: #ff6b6b;
+    border-radius: 4px;
 }
 
 /* 新增：选中的缩略图样式 */
@@ -407,6 +433,61 @@ onMounted(() => {
     font-size: 18px;
     font-weight: 600;
     color: #333;
+}
+
+/* 按钮组样式 */
+.btn-group {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+/* 购物车按钮样式 */
+.cart-btn {
+    flex: 1;
+    padding: 16px 0;
+    background: linear-gradient(135deg, #ff9f43 0%, #ff6b6b 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
+}
+
+.cart-btn:disabled {
+    background: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 购物车图标样式 */
+.cart-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.cart-text {
+    font-size: 16px;
+}
+
+/* 立即购买按钮适配 */
+.buy-btn {
+    flex: 2;
+    padding: 16px 0;
 }
 
 /* 立即购买按钮样式 */
@@ -642,71 +723,294 @@ onMounted(() => {
     font-size: 14px;
 }
 
-/* 响应式适配 */
+/* 响应式适配 - 全面优化 */
 @media (max-width: 768px) {
+
+    /* 容器整体适配 */
     .goods-detail-container {
-        padding: 20px 16px;
+        padding: 16px 12px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
+    /* 商品详情布局改为纵向堆叠 */
     .detail-wrapper {
         flex-direction: column;
-        gap: 24px;
-        margin-bottom: 40px;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding: 0;
     }
 
+    /* 图片区域适配 */
     .image-section {
         max-width: 100%;
+        width: 100%;
+    }
+
+    .main-image {
+        width: 100%;
+        border-radius: 8px;
     }
 
     .main-image img {
-        height: 300px;
+        height: auto;
+        /* 取消固定高度，自适应宽度 */
+        max-height: 350px;
+        /* 限制最大高度 */
+        object-fit: contain;
+        /* 保证图片完整显示 */
+    }
+
+    /* 缩略图适配 */
+    .image-gallery {
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+
+    /* 店铺信息适配 */
+    .shop-info {
+        margin-top: 20px;
+        gap: 8px;
+        padding-bottom: 8px;
+    }
+
+    .shop-icon {
+        width: 28px;
+        height: 28px;
+    }
+
+    .shop-name {
+        font-size: 14px;
+    }
+
+    .tag-item {
+        font-size: 10px;
+        padding: 1px 6px;
+    }
+
+    /* 商品基础信息适配 */
+    .basic-info {
+        padding-bottom: 16px;
     }
 
     .goods-name {
-        font-size: 22px;
+        font-size: 20px;
+        line-height: 1.3;
+        margin-bottom: 8px;
     }
 
+    .goods-meta {
+        flex-wrap: wrap;
+        /* 标签过多时自动换行 */
+        gap: 8px;
+    }
+
+    .goods-type,
+    .goods-status {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    /* 价格区域适配 */
     .price-section {
-        padding: 18px;
+        padding: 16px 12px;
+        border-radius: 8px;
+    }
+
+    .price-wrapper {
+        margin-bottom: 12px;
+        gap: 8px;
+    }
+
+    .price-label {
+        font-size: 14px;
     }
 
     .price-value {
-        font-size: 32px;
+        font-size: 28px;
     }
 
+    /* 销量库存适配 */
     .sales-info {
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         margin-bottom: 16px;
     }
 
-    .buy-btn {
-        padding: 14px 0;
+    .sales-item .label {
+        font-size: 12px;
+    }
+
+    .sales-item .value {
         font-size: 16px;
     }
 
+    /* 按钮组适配 - 核心优化 */
+    .btn-group {
+        gap: 8px;
+        flex-wrap: nowrap;
+        /* 强制并排，不换行 */
+    }
+
+    .buy-btn {
+        flex: 2;
+        /* 立即购买占比2/3 */
+        padding: 12px 0;
+        font-size: 14px;
+        border-radius: 6px;
+    }
+
+    .cart-btn {
+        flex: 1;
+        /* 购物车占比1/3 */
+        padding: 12px 0;
+        font-size: 12px;
+        border-radius: 6px;
+        gap: 4px;
+        /* 图标和文字间距缩小 */
+    }
+
+    /* 购物车图标适配 */
+    .cart-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .cart-text {
+        font-size: 12px;
+        white-space: nowrap;
+        /* 文字不换行 */
+    }
+
+    /* 评分区域适配 */
     .score-section {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 8px;
+        padding: 12px 0;
+    }
+
+    .score-label {
+        font-size: 12px;
+    }
+
+    .star {
+        font-size: 18px;
+    }
+
+    .score-value {
+        font-size: 14px;
+        margin-left: 6px;
+    }
+
+    /* 商品介绍适配 */
+    .intro-section h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .intro-content {
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    /* 上架时间适配 */
+    .time-section {
+        gap: 8px;
+        font-size: 12px;
+        padding-top: 12px;
+    }
+
+    /* 评论区域适配 */
+    .comment-section {
+        margin-top: 16px;
+        border-radius: 8px;
     }
 
     .comment-header {
-        padding: 16px 20px;
+        padding: 12px 16px;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .toggle-icon {
+        font-size: 12px;
     }
 
     .comment-content {
-        padding: 0 20px 20px;
+        padding: 0 16px 16px;
     }
 
     .comment-item {
-        padding: 16px;
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .comment-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .username {
+        font-size: 13px;
+    }
+
+    .comment-time {
+        font-size: 10px;
+    }
+
+    .mini-star {
+        font-size: 14px;
     }
 
     .comment-body {
+        font-size: 12px;
         padding-left: 0;
-        margin-top: 12px;
-        padding-left: 0;
+        margin-top: 8px;
+        padding-top: 8px;
+    }
+
+    .no-comment {
+        padding: 30px 10px;
+        font-size: 12px;
+    }
+}
+
+/* 补充小屏手机适配（小于480px） */
+@media (max-width: 480px) {
+    .main-image img {
+        max-height: 280px;
+    }
+
+    .btn-group {
+        gap: 4px;
+    }
+
+    .buy-btn {
+        font-size: 12px;
+        padding: 10px 0;
+    }
+
+    .cart-btn {
+        font-size: 10px;
+        padding: 10px 0;
+    }
+
+    .cart-text {
+        display: none;
+    }
+
+    .cart-icon {
+        width: 18px;
+        height: 18px;
     }
 }
 </style>
