@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@coze/api": "^1.3.9",
     "@element-plus/icons-vue": "^2.3.2",
     "@vueuse/core": "^14.0.0",
     "axios": "^1.13.2",

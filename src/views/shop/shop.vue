@@ -26,7 +26,6 @@ const goods_type = ref([
   '其它'])
 const goodsList = ref([])
 
-// 存储总条数、总页数
 const total = ref(0)
 
 const totalPages = ref(0)
@@ -43,12 +42,9 @@ const search = async () => {
   try {
     const result = await queryGoodsApi(form.value)
     if (result.code) {
-      // 存储后端返回的总条数
       total.value = result.data.total || 0;
-      // 计算总页数（向上取整，比如总条数25、页大小24，总页数是2）
       totalPages.value = Math.ceil(total.value / form.value.pageSize);
 
-      // 处理商品列表
       if (result.data.rows.length === 0) {
         const tip = form.value.page === 1 ? '暂无商品信息' : '暂无更多商品信息';
         MyMessage.warn(tip);
@@ -67,9 +63,7 @@ const search = async () => {
   }
 }
 
-// 下一页
 const next = () => {
-  // 判断：当前页 >= 总页数 → 无下一页
   if (form.value.page >= totalPages.value) {
     MyMessage.warn('已到最后一页');
     return
@@ -78,7 +72,6 @@ const next = () => {
   search()
 }
 
-// 上一页
 const last = () => {
   if (form.value.page === 1) {
     MyMessage.warn('已到第一页');
@@ -96,13 +89,11 @@ const reset = () => {
     page: 1,
     pageSize: 24
   }
-  // 重置分页相关状态
   total.value = 0;
   totalPages.value = 0;
   search()
 }
 
-// 查看详情
 const viewDetail = (goodsId) => {
   router.push({
     path: 'goodsDetail',
@@ -127,14 +118,12 @@ onMounted(() => {
               <el-input v-model="form.goodsName" placeholder="大家都在搜:智能台灯" class="search-input" @keyup.enter="search" />
             </el-form-item>
 
-            <!-- 商品类别选择器 -->
             <el-form-item label="类别:" class="form-item">
               <el-select v-model="form.goodsType" placeholder="请选择商品类别" class="select-item" @change="search">
                 <el-option v-for="type in goods_type" :key="type" :label="type" :value="type" />
               </el-select>
             </el-form-item>
 
-            <!-- 排序规则选择器 -->
             <el-form-item label="排序:" class="form-item">
               <el-select v-model="form.sortRule" placeholder="请选择排序规则" class="select-item" @change="search">
                 <el-option v-for="rule in sort_rule_options" :key="rule.value" :label="rule.name" :value="rule.value" />
@@ -155,7 +144,6 @@ onMounted(() => {
           <div class="product-img-wrapper">
             <img :src="goods.goodsThumbnail" alt="商品图片" class="product-img">
           </div>
-          <!-- 商品信息区域 -->
           <div class="product-info">
             <h3 class="product-title">
               <span class="brand-tag">品牌</span>
@@ -164,10 +152,8 @@ onMounted(() => {
             <div class="product-price">
               <span class="price">¥{{ goods.goodsPrice }}</span>
               <span class="original-price">¥{{ goods.goodsOriginalPrice }}</span>
-
             </div>
             <div class="product-sales">已售 {{ goods.goodsSales }}</div>
-            <!-- 查看详情按钮 -->
             <button class="btn" @click="viewDetail(goods.goodsId)">
               <i class="animation"></i>查看详情<i class="animation"></i>
             </button>
@@ -240,7 +226,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  /* 关键：取消当前页面容器的滚动 */
 }
 
 .card-container {
@@ -256,9 +241,7 @@ onMounted(() => {
 
 .product-card {
   width: 100%;
-  /* 强制卡片宽度继承网格列宽，不被内容撑开 */
   flex-shrink: 0;
-  /* 禁止卡片收缩 */
   min-width: 0;
   min-height: 280px;
   padding: 8px;
@@ -296,11 +279,9 @@ onMounted(() => {
 .product-info {
   padding: 0 2px;
   flex: 1;
-  /* 关键：占满卡片剩余高度 */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* 内容均匀分布，减少空白 */
 }
 
 .brand-tag {
@@ -308,11 +289,8 @@ onMounted(() => {
   padding: 1px 4px;
   margin-right: 4px;
   background-color: #FFD700;
-  /* 金色底色 */
   color: #000;
-  /* 黑色文字 */
   border: 1px solid #000;
-  /* 黑边 */
   border-radius: 10px;
   font-size: 10px;
   font-weight: bold;
@@ -329,15 +307,6 @@ onMounted(() => {
   color: rgba(0, 0, 0, 0.099);
 }
 
-@media (max-width: 768px) {
-  .card-tag {
-    position: relative;
-    left: 10px;
-    font-size: 12px;
-    color: rgba(0, 0, 0, 0.193);
-  }
-}
-
 .product-title {
   font-size: 12px;
   color: #333;
@@ -346,12 +315,11 @@ onMounted(() => {
   box-sizing: border-box;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; /* 大屏单行 */
-  height: auto; /* 单行高度自适应 */
+  white-space: nowrap;
+  height: auto;
   margin-bottom: 4px;
 }
 
-/* 价格样式：缩小字体 */
 .product-price {
   display: flex;
   align-items: center;
@@ -377,7 +345,6 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-/* 按钮样式：适配缩小后的卡片 */
 .btn {
   outline: 0;
   display: inline-flex;
@@ -390,10 +357,8 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
   box-sizing: border-box;
   padding: 8px 10px;
-  /* 按钮内边距缩小 */
   color: #fff;
   font-size: 10px;
-  /* 按钮字体缩小 */
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -411,21 +376,16 @@ onMounted(() => {
   animation: ripple 0.6s linear infinite;
 }
 
-
-/* 底部功能栏核心样式 */
 .page-footer {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px 0;
   background-color: #f9f9f9;
-  /* 浅灰背景，贴合商品列表风格 */
   position: relative;
-  /* 用于装饰元素定位 */
   margin-top: 20px;
 }
 
-/* 功能栏容器 */
 .page-nav {
   display: flex;
   align-items: center;
@@ -449,21 +409,14 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 1200px) {
-  .card-container {
-    grid-template-columns: repeat(4, 1fr);
-  }
-
-  .product-img-wrapper {
-    height: 120px;
-  }
-
-  .product-card {
-    min-height: 260px;
-  }
-}
-
 @media (max-width: 768px) {
+  .card-tag {
+    position: relative;
+    left: 10px;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.193);
+  }
+
   .card-container {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -477,11 +430,9 @@ onMounted(() => {
   }
 
   .product-title {
-    white-space: normal; /* 取消单行限制 */
-    display: -webkit-box; /* 多行省略必备 */
-    -webkit-line-clamp: 2; /* 限制两行 */
-    -webkit-box-orient: vertical; /* 垂直排列 */
-    height: 32px; /* 适配两行高度：12px字体*1.3行高*2行 ≈ 31.2px，取32px */
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
   }
 }
 </style>
