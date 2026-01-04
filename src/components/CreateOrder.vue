@@ -1,27 +1,21 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { defineEmits, defineProps } from 'vue'
+import { ref, watch } from 'vue'
+import { createOrderApi, queryPriceApi } from '@/api/shop.js'
 import MyMessage from '@/utils/MyMessage.js'
 import { MyLoading } from '@/utils/MyLoading.js'
-import { useRouter } from 'vue-router'
 
-const router = useRouter()
 const props = defineProps({
     visible: {
         type: Boolean,
         default: false
     },
     goodsId: {
-        type: [Number, String],
+        type: Number,
         required: true
     },
     goodsName: {
         type: String,
         default: '未命名商品'
-    },
-    goodsPrice: {
-        type: Number,
-        default: 0
     },
     goodsThumbnail: {
         type: String,
@@ -30,31 +24,62 @@ const props = defineProps({
     goodsStock: {
         type: Number,
         default: 999
+    },
+    goodsModelVOList: {
+        type: Array,
+        default: () => []
+    },
+    goodsStyleVOList: {
+        type: Array,
+        default: () => []
     }
 })
 
-// 定义事件
 const emit = defineEmits(['close'])
 
-// 响应式数据
-const userId = ref(0)
-const orderNumber = ref(1) 
+const orderNumber = ref(1)
 const orderDes = ref('')
+const goodsPrice = ref(0)
 const selectedSpec = ref('默认')
-const specList = ref(['默认', '黑色', '白色'])
-const isLoading = ref(false)
+const selectedStyle = ref('默认')
+const orderAddress = ref('')
+const modelId = ref(0)
+const styleId = ref(0)
+
+// 初始化数据
+const initOrderData = () => {
+    orderNumber.value = 1
+    orderDes.value = ''
+
+    const firstModel = props.goodsModelVOList?.[0]
+    const firstStyle = props.goodsStyleVOList?.[0]
+
+    if (firstModel && firstModel.id) {
+        selectedSpec.value = firstModel.goodsModel
+        modelId.value = firstModel.id
+    } else {
+        selectedSpec.value = '默认'
+        modelId.value = 0
+    }
+
+    if (firstStyle && firstStyle.id) {
+        selectedStyle.value = firstStyle.goodsStyle
+        styleId.value = firstStyle.id
+    } else {
+        selectedStyle.value = '默认'
+        styleId.value = 0
+    }
+
+    queryPrice()
+}
 
 // 监听弹窗显示状态，重置数据
 watch(() => props.visible, (newVal) => {
     if (newVal) {
-        orderNumber.value = 1
-        orderDes.value = ''
-        selectedSpec.value = '默认'
-        isLoading.value = false
+        initOrderData()
     }
-}, { immediate: true })
+})
 
-// 数量控制方法
 const decreaseNumber = () => {
     if (orderNumber.value <= 1) {
         MyMessage.warn('购买数量不能少于1')
@@ -71,41 +96,90 @@ const increaseNumber = () => {
     orderNumber.value++
 }
 
-// 选择规格
-const selectSpec = (spec) => {
+const selectSpec = (spec, id) => {
     selectedSpec.value = spec
+    modelId.value = id
+    queryPrice()
 }
 
-// 加入购物车
+const selectStyle = (style, id) => {
+    selectedStyle.value = style
+    styleId.value = id
+    queryPrice()
+}
+
+const queryPrice = async () => {
+    try {
+        MyLoading.value = true
+
+        // 确保所有参数都是有效的数字
+        const mId = modelId.value ?? 0
+        const sId = styleId.value ?? 0
+        const gId = props.goodsId ?? 0
+
+        const result = await queryPriceApi(mId, sId, gId)
+        if (result.code) {
+            goodsPrice.value = result.data
+        } else {
+            MyMessage.error(result.msg || '价格查询失败')
+        }
+    } catch (error) {
+        MyMessage.error('价格查询失败')
+    } finally {
+        MyLoading.value = false
+    }
+}
+
 const handleAddToCart = () => {
+    // TODO: 实现加入购物车逻辑
 }
 
-// 立即购买提交订单
-const handleSubmitOrder = () => {
-}
-
-// 点击遮罩层关闭弹窗（阻止冒泡）
 const handleMaskClick = (e) => {
     e.stopPropagation()
+}
+
+const createOrder = async () => {
+    const loginUser = JSON.parse(localStorage.getItem('loginUser'))
+    if (!loginUser) {
+        MyMessage.error('请先登录')
+        return
+    }
+
+    // 确保所有参数都是有效的
+    const DTO = {
+        goodsId: props.goodsId ?? 0,
+        userId: loginUser.id,
+        goodsNum: orderNumber.value ?? 1,
+        goodsModel: selectedSpec.value || '默认',
+        goodsStyle: selectedStyle.value || '默认',
+        orderPrice: (goodsPrice.value * (orderNumber.value ?? 1)).toFixed(2),
+        orderAddress: orderAddress.value
+    }
+
+    try {
+        MyLoading.value = true
+        const result = await createOrderApi(DTO)
+        if (result.code) {
+            MyMessage.success('订单创建成功')
+            emit('close')
+        } else {
+            MyMessage.error(result.msg || '订单创建失败')
+        }
+    } catch (error) {
+        MyMessage.error('订单创建失败')
+    } finally {
+        MyLoading.value = false
+    }
 }
 </script>
 
 <template>
-    <!-- 弹窗遮罩层 -->
     <div class="modal-mask" v-if="visible" @click="emit('close')">
-        <!-- 弹窗主体 -->
         <div class="order-popup" @click="handleMaskClick">
-            <!-- 关闭按钮 -->
-            <div class="close-btn" @click="emit('close')" :class="{ disabled: isLoading }">✕</div>
-            
-            <!-- 商品信息区域 -->
+            <div class="close-btn" @click="emit('close')">✕</div>
+
             <div class="goods-info">
-                <img 
-                    :src="goodsThumbnail" 
-                    alt="商品图片" 
-                    class="goods-image"
-                    :class="{ placeholder: goodsThumbnail }"
-                >
+                <img :src="goodsThumbnail" alt="商品图片" class="goods-image">
                 <div class="goods-detail">
                     <div class="goods-name">{{ goodsName }}</div>
                     <div class="price">¥{{ goodsPrice.toFixed(2) }}</div>
@@ -113,39 +187,36 @@ const handleMaskClick = (e) => {
                 </div>
             </div>
 
-            <!-- 规格选择区域 -->
-            <div class="spec-section">
+            <div class="spec-section" v-if="goodsModelVOList.length > 0">
                 <div class="section-title">规格选择</div>
                 <div class="spec-options">
-                    <span 
-                        v-for="spec in specList" 
-                        :key="spec"
-                        class="spec-item"
-                        :class="{ active: selectedSpec === spec, disabled: isLoading }"
-                        @click="!isLoading && selectSpec(spec)"
-                    >
-                        {{ spec }}
+                    <span v-for="model in goodsModelVOList" :key="model.id" class="spec-item"
+                        :class="{ active: selectedSpec === model.goodsModel }"
+                        @click="selectSpec(model.goodsModel, model.id)">
+                        {{ model.goodsModel }}
                     </span>
                 </div>
             </div>
 
-            <!-- 数量选择区域 -->
+            <div class="spec-section" v-if="goodsStyleVOList.length > 0">
+                <div class="section-title">款式选择</div>
+                <div class="spec-options">
+                    <span v-for="style in goodsStyleVOList" :key="style.id" class="spec-item"
+                        :class="{ active: selectedStyle === style.goodsStyle }"
+                        @click="selectStyle(style.goodsStyle, style.id)">
+                        {{ style.goodsStyle }}
+                    </span>
+                </div>
+            </div>
+
             <div class="number-section">
                 <div class="section-title">购买数量</div>
                 <div class="number-control">
-                    <button 
-                        class="control-btn minus" 
-                        @click="!isLoading && decreaseNumber()"
-                        :disabled="isLoading || orderNumber <= 1"
-                    >
+                    <button class="control-btn minus" @click="decreaseNumber()" :disabled="orderNumber <= 1">
                         -
                     </button>
                     <span class="number-value">{{ orderNumber }}</span>
-                    <button 
-                        class="control-btn plus" 
-                        @click="!isLoading && increaseNumber()"
-                        :disabled="isLoading || orderNumber >= goodsStock"
-                    >
+                    <button class="control-btn plus" @click="increaseNumber()" :disabled="orderNumber >= goodsStock">
                         +
                     </button>
                 </div>
@@ -154,36 +225,19 @@ const handleMaskClick = (e) => {
                 </div>
             </div>
 
-            <!-- 备注区域 -->
             <div class="remark-section">
-                <div class="section-title">买家备注</div>
-                <textarea 
-                    class="remark-input"
-                    v-model="orderDes"
-                    placeholder="请输入备注信息（选填）"
-                    :disabled="isLoading"
-                    maxlength="100"
-                ></textarea>
-                <div class="remark-count">{{ orderDes.length }}/100</div>
+                <div class="section-title">收货地址</div>
+                <textarea class="remark-input" v-model="orderAddress" placeholder="请输入真实有效的收货地址，以便于我们上门配送"
+                    maxlength="100"></textarea>
+                <div class="remark-count">{{ orderAddress.length }}/100</div>
             </div>
 
-            <!-- 操作按钮区域 -->
             <div class="action-buttons">
-                <button 
-                    class="btn btn-cart" 
-                    @click="!isLoading && handleAddToCart()"
-                    :disabled="isLoading"
-                >
-                    <span v-if="!isLoading">加入购物车</span>
-                    <span v-else>处理中...</span>
+                <button class="btn btn-cart" @click="handleAddToCart()">
+                    加入购物车
                 </button>
-                <button 
-                    class="btn btn-buy" 
-                    @click="!isLoading && handleSubmitOrder()"
-                    :disabled="isLoading"
-                >
-                    <span v-if="!isLoading">立即购买</span>
-                    <span v-else>提交中...</span>
+                <button class="btn btn-buy" @click="createOrder()">
+                    立即购买
                 </button>
             </div>
         </div>
@@ -211,6 +265,7 @@ const handleMaskClick = (e) => {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -233,6 +288,7 @@ const handleMaskClick = (e) => {
     from {
         transform: translateY(100%);
     }
+
     to {
         transform: translateY(0);
     }
@@ -262,10 +318,7 @@ const handleMaskClick = (e) => {
     color: #333;
 }
 
-.close-btn.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
+/* 移除 close-btn.disabled 样式 */
 
 /* 商品信息区域 */
 .goods-info {
@@ -365,10 +418,7 @@ const handleMaskClick = (e) => {
     font-weight: 500;
 }
 
-.spec-item.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
+/* 移除 spec-item.disabled 样式 */
 
 /* 数量选择区域 */
 .number-section {
@@ -457,10 +507,7 @@ const handleMaskClick = (e) => {
     border-color: #e02e24;
 }
 
-.remark-input:disabled {
-    background-color: #f8f8f8;
-    cursor: not-allowed;
-}
+/* 移除 remark-input:disabled 样式 */
 
 .remark-count {
     text-align: right;

@@ -10,8 +10,9 @@ const lastCode = ref(''); // 存储最新返回的code
 
 // 2. 初始化 Coze 客户端
 const apiClient = new CozeAPI({
-  token: 'cztei_l1HhE7HK4hTPAmfD0INQbYI8hDLXQR3ZVgcyzpA89xXvvs4DIqMUf0camFnsYAWSn',
-  baseURL: 'https://api.coze.cn'
+  token: 'pat_d1wRbW7gj6hiJUiFlU1Wv3b4nRMRBszYnaQQd8VWJXAtQj2pzXea8DsQPEjaVjuM',
+  baseURL: 'https://api.coze.cn',
+  allowPersonalAccessTokenInBrowser: true// 允许在浏览器中使用个人访问令牌
 });
 
 // 3. 发送消息方法

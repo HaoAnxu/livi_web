@@ -10,7 +10,7 @@ const createOrderVisible = ref(false)
 const route = useRoute()
 const goodsId = ref(0)
 const goodsDetail = ref({})
-// 前选中的图片地址
+// 选中的图片地址
 const activeImageUrl = ref('')
 
 const queryGoodsDetail = async () => {
@@ -20,7 +20,7 @@ const queryGoodsDetail = async () => {
         const result = await queryGoodsDetailApi(goodsId.value)
         if (result.code) {
             goodsDetail.value = result.data
-            // 初始化大图：优先取第一张轮播图，没有则用商品缩略图
+            // 优先取第一张轮播图，没有则用商品缩略图
             if (goodsDetail.value.goodsImageVOList && goodsDetail.value.goodsImageVOList.length > 0) {
                 activeImageUrl.value = goodsDetail.value.goodsImageVOList[0].imageUrl || '/default-goods.png'
             } else {
@@ -78,9 +78,9 @@ onMounted(() => {
 <template>
     <!-- 引入创建订单组件 -->
     <CreateOrder ref="createOrderRef" :visible="createOrderVisible" :goodsId="goodsId"
-        :goodsName="goodsDetail.goodsName" :goodsPrice="goodsDetail.goodsPrice"
-        :goodsThumbnail="goodsDetail.goodsThumbnail" :goodsStock="goodsDetail.goodsStock"
-        @close="createOrderVisible = false" />
+        :goodsName="goodsDetail.goodsName" :goodsThumbnail="goodsDetail.goodsThumbnail"
+        :goodsStock="goodsDetail.goodsStock" :goodsModelVOList="goodsDetail.goodsModelVOList"
+        :goodsStyleVOList="goodsDetail.goodsStyleVOList" @close="createOrderVisible = false" />
 
     <div class="goods-detail-container">
         <div v-if="goodsDetail.goodsId" class="detail-wrapper">
