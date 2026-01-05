@@ -14,7 +14,7 @@ const goodsDetail = ref({})
 const activeImageUrl = ref('')
 
 const queryGoodsDetail = async () => {
-    goodsId.value = route.query.goodsId
+    goodsId.value = Number(route.query.goodsId)
     MyLoading.value = true
     try {
         const result = await queryGoodsDetailApi(goodsId.value)
@@ -38,7 +38,7 @@ const queryGoodsDetail = async () => {
 
 // 切换大图方法
 const changeActiveImage = (imageUrl) => {
-    activeImageUrl.value = imageUrl || '/default-goods.png'
+    activeImageUrl.value = imageUrl
 }
 
 const queryData = ref({
