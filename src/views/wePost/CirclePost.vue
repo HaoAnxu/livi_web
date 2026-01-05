@@ -228,7 +228,7 @@ onMounted(() => {
             <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
                 {{ loginUser == null ? '未登录' : loginUser }}
             </p>
-            <button class="button button-item">
+            <button class="button button-item" @click="showPutPost = true" v-if="showPublishBtn">
                 <span class="button-bg">
                     <span class="button-bg-layers">
                         <span class="button-bg-layer button-bg-layer-1 -purple"></span>
@@ -236,7 +236,7 @@ onMounted(() => {
                         <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
                     </span>
                 </span>
-                <span class="button-inner" @click="showPutPost = true" v-if="showPublishBtn">
+                <span class="button-inner">
                     <span class="button-inner-static">发布</span>
                 </span>
             </button>
@@ -250,7 +250,7 @@ onMounted(() => {
                             :style="{ backgroundImage: circleDetail.circleAvatar ? `url(${circleDetail.circleAvatar})` : 'none' }">
                             <span v-if="!circleDetail.circleAvatar">{{ circleDetail.circleName ?
                                 circleDetail.circleName.charAt(0) : '圈'
-                            }}</span>
+                                }}</span>
                         </div>
                     </div>
                     <div class="user-base">
@@ -267,7 +267,7 @@ onMounted(() => {
                             @click="toPostDetail(item.postId, item.userId)">
                             <span class="label">
                                 <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1
-                                }}.</span>
+                                    }}.</span>
                                 {{ item.postTitle }}
                             </span>
                         </div>
@@ -361,7 +361,6 @@ onMounted(() => {
                                     <span class="post-time">{{ item.createTime }}</span>
                                     <span class="post-circle">{{ item.circleName }}</span>
                                     <span class="post-comment">评论 {{ item.commentCount || 0 }}</span>
-                                    <span class="post-like">点赞 {{ item.likeCount || 0 }}</span>
                                 </div>
                             </div>
                         </div>

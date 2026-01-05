@@ -3,6 +3,9 @@ import { ref, watch, nextTick, onMounted } from 'vue'
 import { createOrderApi, queryPriceApi } from '@/api/shop.js'
 import MyMessage from '@/utils/MyMessage.js'
 import { MyLoading } from '@/utils/MyLoading.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
     visible: {
@@ -70,7 +73,6 @@ const initDefaultSelection = () => {
 
 // 查询价格
 const queryPrice = async () => {
-    // 无商品ID时不查询
     if (!props.goodsId) return
 
     const DTO = {
@@ -178,17 +180,22 @@ const createOrder = async () => {
         goodsId: props.goodsId,
         userId: loginUser.userId,
         goodsNum: orderNumber.value,
-        goodsModelId: selectedSpec.value,
-        goodsStyleId: selectedStyle.value,
+        goodsModel: selectedSpec.value,
+        goodsStyle: selectedStyle.value,
         orderAddress: orderAddress.value.trim(),
         orderPrice: goodsPrice.value
     }
-
     try {
         MyLoading.value = true
         const result = await createOrderApi(DTO)
         if (result.code) {
-            MyMessage.success('订单创建成功')
+            router.replace({
+                path: '/pay',
+                query: {
+                    orderNo: result.msg || ''
+                }
+            })
+            console.log(result.msg || '')
             emit('close')
         } else {
             MyMessage.error(result.msg || '订单创建失败')

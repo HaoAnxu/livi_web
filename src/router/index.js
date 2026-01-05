@@ -18,6 +18,7 @@ import CirclePostView from '@/views/wePost/CirclePost.vue'
 import UserPostView from '@/views/wePost/UserPost.vue'
 import PostDetailView from '@/views/wePost/PostDetail.vue'
 import GoodsDetailView from '@/views/shop/GoodsDetail.vue'
+import PayView from '@/views/shop/Pay.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,7 +46,8 @@ const router = createRouter({
         { path: '/weCommunity/chatRoom', name: 'chatRoom', component: ChatRoomView },
         { path: '/login', name: 'login', component: LoginView },
         { path: '/register', name: 'register', component: RegisterView },
-        { path: '/goodsDetail', name: 'goodsDetail', component: GoodsDetailView }
+        { path: '/goodsDetail', name: 'goodsDetail', component: GoodsDetailView },
+        { path: '/pay', name: 'pay', component: PayView }
     ],
 })
 

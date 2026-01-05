@@ -31,10 +31,8 @@ const total = ref(0)
 const totalPages = ref(0)
 
 const sort_rule_options = ref([
-  { name: '便宜优先！', value: 'by_price_desc' },
-  { name: '我要贵的！', value: 'by_price_asc' },
   { name: '卖的多的！', value: 'by_sales' },
-  { name: '好评多的！', value: 'by_rating' },
+  { name: '好评多的！', value: 'by_rating' }
 ])
 
 const search = async () => {

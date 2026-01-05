@@ -6,15 +6,17 @@ import {MyLoading} from "@/utils/MyLoading.js";
 import {useRouter} from "vue-router";
 import {verifyIsLoginApi} from "@/api/wecommunity.js";
 import Message from "@/utils/MyMessage.js";
+import {queryOrderApi} from "@/api/shop.js";
 
 const router = useRouter();
 const userInfo = ref({})
-
+const userId = ref(0)
 const queryUserInfo = async () => {
   MyLoading.value = true;
   const loginUser = sessionStorage.getItem("loginUser");
+  userId.value = JSON.parse(loginUser).userId
   try {
-    const result = await queryUserInfoApi(JSON.parse(loginUser).userId);
+    const result = await queryUserInfoApi(userId.value);
     if (result.code) {
       userInfo.value = result.data;
       MyLoading.value = false;
@@ -34,9 +36,35 @@ const isLogin = async () => {
   }
 }
 
+const orderList = ref([])
+const DTO = ref({
+  userId:userId.value,
+  sortRule:'',
+  page:1,
+  pageSize:10,
+})
+const queryOrderList = async () => {
+  MyLoading.value = true;
+  DTO.value.userId = userId.value;
+  try {
+    const result = await queryOrderApi(DTO.value);
+    if (result.code) {
+      orderList.value = result.data.rows || [];
+      MyLoading.value = false;
+    } else {
+      MyMessage.error(result.msg || '订单查询失败');
+      MyLoading.value = false;
+    }
+  } catch (e) {
+    MyMessage.error(e.message || '订单查询失败');
+    MyLoading.value = false;
+  }
+}
+
 onMounted(() => {
   queryUserInfo();
   isLogin();
+  queryOrderList();
 })
 </script>
 
@@ -132,8 +160,7 @@ onMounted(() => {
           <div class="card-title">内容管理</div>
           <div class="content-list">
             <div class="content-item empty">
-              <span class="empty-icon">📭</span>
-              <span class="empty-text">暂无内容，快去发布吧～</span>
+              {{ orderList }}
             </div>
           </div>
         </div>

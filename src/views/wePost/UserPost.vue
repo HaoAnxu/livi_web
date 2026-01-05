@@ -203,7 +203,7 @@ onMounted(() => {
             <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
                 {{ loginUser == null ? '未登录' : loginUser }}
             </p>
-            <button class="button button-item">
+            <button class="button button-item" @click="showPutPost = true" v-if="showPublishBtn">
                 <span class="button-bg">
                     <span class="button-bg-layers">
                         <span class="button-bg-layer button-bg-layer-1 -purple"></span>
@@ -211,7 +211,7 @@ onMounted(() => {
                         <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
                     </span>
                 </span>
-                <span class="button-inner" @click="showPutPost = true" v-if="showPublishBtn">
+                <span class="button-inner">
                     <span class="button-inner-static">发布</span>
                 </span>
             </button>
@@ -226,7 +226,7 @@ onMounted(() => {
                         <div class="avatar"
                             :style="{ backgroundImage: userInfo.avatar ? `url(${userInfo.avatar})` : 'none' }">
                             <span v-if="!userInfo.avatar">{{ userInfo.username ? userInfo.username.charAt(0) : '用'
-                                }}</span>
+                            }}</span>
                         </div>
                     </div>
                     <div class="user-base">
@@ -306,7 +306,6 @@ onMounted(() => {
                                     <span class="post-time">{{ item.createTime }}</span>
                                     <span class="post-circle">{{ item.circleName }}</span>
                                     <span class="post-comment">评论 {{ item.commentCount || 0 }}</span>
-                                    <span class="post-like">点赞 {{ item.likeCount || 0 }}</span>
                                 </div>
                             </div>
                         </div>

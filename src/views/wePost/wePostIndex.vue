@@ -203,7 +203,7 @@ onMounted(async () => {
             <p class="login-user" @click="toUserDetail(userId)" style="cursor: pointer;">
                 {{ loginUser }}
             </p>
-            <button class="button button-item" v-if="showPublishBtn">
+            <button class="button button-item" v-if="showPublishBtn"  @click="showPutPost = true">
                 <span class="button-bg">
                     <span class="button-bg-layers">
                         <span class="button-bg-layer button-bg-layer-1 -purple"></span>
@@ -211,7 +211,7 @@ onMounted(async () => {
                         <span class="button-bg-layer button-bg-layer-3 -yellow"></span>
                     </span>
                 </span>
-                <span class="button-inner" @click="showPutPost = true">
+                <span class="button-inner">
                     <span class="button-inner-static">发布</span>
                 </span>
             </button>
@@ -326,7 +326,6 @@ onMounted(async () => {
                                     <span class="post-time">{{ item.createTime }}</span>
                                     <span class="post-circle">{{ item.circleName }}</span>
                                     <span class="post-comment">评论 {{ item.commentCount || 0 }}</span>
-                                    <span class="post-like">点赞 {{ item.likeCount || 0 }}</span>
                                 </div>
                             </div>
                         </div>

@@ -29,3 +29,18 @@ export const createOrderApi = (data)=>{
 export const queryPriceApi = (modelId,styleId,goodsId)=>{
     return request.post(`/permission/goods/queryPrice?modelId=${modelId}&styleId=${styleId}&goodsId=${goodsId}`)
 }
+
+//根据订单号查询订单金额
+export const queryOrderPriceApi = (orderNo)=>{
+    return request.post(`/permission/goods/queryOrderPrice?orderNo=${orderNo}`)
+}
+
+//支付
+export const payApi = (orderNo)=>{
+    return request.post(`/permission/goods/pay?orderNo=${orderNo}`)
+}
+
+//查询订单
+export const queryOrderApi = (data)=>{
+    return request.post('/permission/goods/queryUserOrders',data)
+}
