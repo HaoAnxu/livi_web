@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, nextTick, onMounted } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import { createOrderApi, queryPriceApi } from '@/api/shop.js'
 import MyMessage from '@/utils/MyMessage.js'
 import { MyLoading } from '@/utils/MyLoading.js'
@@ -353,8 +353,6 @@ const createOrder = async () => {
     background-color: #e8e8e8;
     color: #333;
 }
-
-/* 移除 close-btn.disabled 样式 */
 
 /* 商品信息区域 */
 .goods-info {

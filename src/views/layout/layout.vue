@@ -11,15 +11,12 @@ const navMenus = ref([
   { name: '智能家居', path: '/smartHome' },
   { name: '购物商城', path: '/shop' },
   { name: 'We社群', path: '/weCommunity' },
-  { name: 'We社区', path: '/wePost' },
-  { name: '短视频', path: '/shortVideo' },
-  { name: '音乐', path: '/music' },
+  { name: 'We社区', path: '/wePost' }
 ]);
 
 // 右侧功能菜单
 const commonFuncMenus = ref([
-  { name: '购物车', path: '/cart' },
-  { name: '待读消息', path: '/messages' },
+  { name: '待读消息', path: '/message' },
   { name: '用户中心', path: '/userCenter' }
 ]);
 

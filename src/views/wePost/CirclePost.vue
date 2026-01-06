@@ -244,6 +244,7 @@ onMounted(() => {
         <div class="user-center-container">
             <!-- 左侧：信息区 -->
             <div class="user-info-sidebar">
+                <!-- 圈子信息 -->
                 <div class="info-card basic-info">
                     <div class="avatar-box">
                         <div class="avatar"
@@ -258,23 +259,7 @@ onMounted(() => {
                         <p class="signature">{{ circleDetail.circleDesc || '这个圈子很懒，什么都没留下～' }}</p>
                     </div>
                 </div>
-
-                <!-- 热点话题 -->
-                <div class="info-card account-info">
-                    <div class="card-title">热点话题#</div>
-                    <div class="info-list">
-                        <div class="info-item" v-for="(item, index) in newsList" :key="item.postId"
-                            @click="toPostDetail(item.postId, item.userId)">
-                            <span class="label">
-                                <span :style="{ color: index < 3 ? 'red' : '', fontSize: '16px' }">{{ index + 1
-                                    }}.</span>
-                                {{ item.postTitle }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 广告区域 -->
+                <!-- 推荐推广 -->
                 <div class="info-card account-info ad-card">
                     <div class="card-title">推荐推广</div>
                     <div class="info-list ad-list">

@@ -1,0 +1,39 @@
+/* 回到首页按钮 */
+.home-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: none;
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.2);
+  font-size: 15px;
+  font-weight: 600;
+  color: #e65100;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.home-btn:focus-visible {
+  outline: 2px solid #f97316;
+  outline-offset: 2px;
+}
+
+.home-btn:hover {
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #f97316, #e65100);
+  color: #fff;
+  box-shadow: 0 7px 29px rgba(249, 115, 22, 0.4);
+  transform: translateY(-2px);
+}
+
+.home-btn:active {
+  letter-spacing: 3px;
+  background: #e65100;
+  color: #fff;
+  box-shadow: 0 0 0 rgba(249, 115, 22, 0.2);
+  transform: translateY(1px);
+  transition: all 0.1s ease;
+}

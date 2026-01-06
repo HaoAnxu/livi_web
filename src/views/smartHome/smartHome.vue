@@ -23,7 +23,6 @@ const currentFamilyId = ref(0) // 改为数字类型，初始值0
 // 获取用户家庭信息列表
 const getFamilyInfoList = async () => {
   try {
-    MyLoading.value = true;
     const loginUser = JSON.parse(sessionStorage.getItem('loginUser'));
     if (!loginUser) {
       MyMessage.error('请先登录');
@@ -45,8 +44,6 @@ const getFamilyInfoList = async () => {
     MyMessage.error('获取家庭信息失败：' + error.message);
     familyInfoList.value = [];
     currentFamilyId.value = 0;
-  } finally {
-    MyLoading.value = false; // 无论成功失败都关闭loading
   }
 }
 
@@ -229,7 +226,6 @@ const resetForm = () => {
 const roomInfoList = ref([])
 const getRoomInfoList = async () => {
   try {
-    MyLoading.value = true;
     const result = await getRoomInfoByFamilyIdApi(currentFamilyId.value);
     if (result.code) {
       roomInfoList.value = result.data || [];
@@ -240,8 +236,6 @@ const getRoomInfoList = async () => {
   } catch (error) {
     MyMessage.error('获取房间列表失败：' + error.message);
     roomInfoList.value = [];
-  } finally {
-    MyLoading.value = false;
   }
 }
 

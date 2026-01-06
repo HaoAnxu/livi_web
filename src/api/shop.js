@@ -44,3 +44,8 @@ export const payApi = (orderNo)=>{
 export const queryOrderApi = (data)=>{
     return request.post('/permission/goods/queryUserOrders',data)
 }
+
+//评价订单
+export const commentOrderApi = (data)=>{
+    return request.post('/permission/goods/commentOrders',data)
+}

@@ -318,6 +318,7 @@ onMounted(async () => {
 
         <div class="user-center-container">
             <div class="user-info-sidebar">
+                <!-- 帖子作者信息 -->
                 <div class="info-card basic-info">
                     <div class="avatar-box">
                         <div class="avatar" :style="{ backgroundImage: postAuthorInfo.avatar ? `url(${postAuthorInfo.avatar})` : 'none' }">
@@ -332,7 +333,7 @@ onMounted(async () => {
                         <p class="signature">{{ postAuthorInfo.signature || '这个人很懒，什么都没留下～' }}</p>
                     </div>
                 </div>
-
+                <!-- 推荐推广 -->
                 <div class="info-card account-info ad-card">
                     <div class="card-title">推荐推广</div>
                     <div class="info-list ad-list">

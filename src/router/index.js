@@ -4,14 +4,11 @@ import IndexView from '@/views/index/Index.vue'
 import LayoutView from '@/views/layout/Layout.vue'
 import LoginView from '@/views/login/Login.vue'
 import RegisterView from '@/views/register/Register.vue'
-import CartView from '@/views/cart/Cart.vue'
 import WeCommunityView from '@/views/weCommunity/WeCommunity.vue'
 import ChatRoomView from "@/views/weCommunity/ChatRoom.vue"
 import UserCenterView from '@/views/userCenter/UserCenter.vue'
 import SmartHomeView from '@/views/smartHome/SmartHome.vue'
 import ShopView from '@/views/shop/Shop.vue'
-import ShortVideoView from '@/views/shortVideo/ShortVideo.vue'
-import MusicView from '@/views/music/Music.vue'
 import WePostIndexView from '@/views/wePost/WePostIndex.vue'
 import DeviceControlView from '@/views/smartHome/DeviceControl.vue'
 import CirclePostView from '@/views/wePost/CirclePost.vue'
@@ -19,6 +16,7 @@ import UserPostView from '@/views/wePost/UserPost.vue'
 import PostDetailView from '@/views/wePost/PostDetail.vue'
 import GoodsDetailView from '@/views/shop/GoodsDetail.vue'
 import PayView from '@/views/shop/Pay.vue'
+import MessageView from '@/views/message/Message.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,12 +27,10 @@ const router = createRouter({
             redirect: '/index',//重定向
             children: [
                 { path: 'index', name: 'index', component: IndexView },
-                { path: 'cart', name: 'cart', component: CartView },
                 { path: 'smartHome', name: 'smartHome', component: SmartHomeView },
                 { path: 'deviceControl', name: 'deviceControl', component: DeviceControlView },
                 { path: 'shop', name: 'shop', component: ShopView },
-                { path: 'shortVideo', name: 'shortVideo', component: ShortVideoView },
-                { path: 'music', name: 'music', component: MusicView }
+                { path: 'message', name: 'message', component: MessageView }
             ]
         },
         { path: '/userCenter', name: 'userCenter', component: UserCenterView },
