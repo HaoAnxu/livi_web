@@ -49,3 +49,8 @@ export const queryOrderApi = (data)=>{
 export const commentOrderApi = (data)=>{
     return request.post('/permission/goods/commentOrders',data)
 }
+
+//查询物流信息
+export const queryLogisticsApi = (orderNo)=>{
+    return request.post(`/permission/goods/queryLogistics?orderNo=${orderNo}`)
+}

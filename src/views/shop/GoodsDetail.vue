@@ -4,7 +4,7 @@ import { queryGoodsDetailApi, queryGoodsCommentApi } from "@/api/shop.js";
 import { onMounted, ref } from 'vue'
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
-import CreateOrder from '@/components/CreateOrder.vue'
+import CreateOrder from '@/components/shop/CreateOrder.vue'
 
 const createOrderVisible = ref(false)
 const route = useRoute()

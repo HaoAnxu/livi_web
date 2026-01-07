@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue' // 新增 onUnmounted
 import { queryGoodsApi } from "@/api/shop.js";
 import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
@@ -51,6 +51,11 @@ const search = async () => {
       }
       goodsList.value = result.data.rows;
       MyLoading.value = false;
+
+      // 关键：数据加载完成后，重新初始化懒加载（分页后也要生效）
+      setTimeout(() => {
+        initModuleLazyLoad()
+      }, 100)
     } else {
       MyMessage.error(result.msg);
       MyLoading.value = false;
@@ -101,11 +106,47 @@ const viewDetail = (goodsId) => {
   })
 }
 
+let observer = null;
+const initModuleLazyLoad = () => {
+  // 先销毁旧的观察者，避免重复监听
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+
+  const modules = document.querySelectorAll('.product-card');
+  const observeOptions = {
+    root: null,
+    rootMargin: '50px 0px',
+    threshold: 0.1
+  }
+
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('card-animated');
+        observer.unobserve(entry.target);
+      }
+    })
+  }, observeOptions)
+
+  modules.forEach(module => {
+    module.classList.remove('card-animated')
+    observer.observe(module);
+  })
+}
+
 onMounted(() => {
   search()
 })
-</script>
 
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
+})
+</script>
 <template>
   <el-container class="page-container">
     <el-header class="search-header">
@@ -237,6 +278,7 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
+/* 商品卡片基础样式 + 初始懒加载状态 */
 .product-card {
   width: 100%;
   flex-shrink: 0;
@@ -247,15 +289,39 @@ onMounted(() => {
   border: 1px solid rgba(200, 200, 200, 0.3);
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+
+  /* 懒加载初始状态：透明+下移+轻微缩放+模糊 */
+  opacity: 0;
+  transform: translateY(30px) scale(0.97);
+  filter: blur(2px);
+  /* 更丝滑的过渡动画曲线 */
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+  /* 保留原有hover过渡 */
+
+  /* 优化动画性能 */
+  will-change: opacity, transform, filter;
 }
 
+/* 懒加载触发后的动画状态 */
+.product-card.card-animated {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* hover效果保留 */
 .product-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.01);
+  /* 轻微放大，更有层次感 */
 }
 
 .product-img-wrapper {
@@ -425,6 +491,8 @@ onMounted(() => {
 
   .product-card {
     min-height: 240px;
+    /* 移动端动画更柔和 */
+    transition-duration: 0.5s;
   }
 
   .product-title {

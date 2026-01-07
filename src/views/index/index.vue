@@ -6,21 +6,18 @@ import { MyLoading } from "@/utils/MyLoading.js"
 import MyMessage from "@/utils/MyMessage.js"
 
 // 设置全局动画显示状态存储,如果不存在则设置为true
-if(!sessionStorage.getItem('animation_index')) {
-  sessionStorage.setItem('animation_index',true)
+if (!sessionStorage.getItem('animation_index')) {
+  sessionStorage.setItem('animation_index', true)
 }
-if(!sessionStorage.getItem('animation_WC')) {
-  sessionStorage.setItem('animation_WC',true)
+if (!sessionStorage.getItem('animation_WC')) {
+  sessionStorage.setItem('animation_WC', true)
 }
-if(!sessionStorage.getItem('animation_WP')) {
-  sessionStorage.setItem('animation_WP',true)
+if (!sessionStorage.getItem('animation_WP')) {
+  sessionStorage.setItem('animation_WP', true)
 }
 
 // 控制开场动画显示状态
 const showSplash = ref(sessionStorage.getItem('animation_index') === 'true')
-
-// 观察者实例
-let observer = null;
 
 const products = ref([])
 const getHotGoods = async () => {
@@ -40,24 +37,33 @@ const getHotGoods = async () => {
   }
 }
 
+// 观察者实例
+let observer = null;
 // 懒加载函数
 const initModuleLazyLoad = () => {
+  //1.获取所有需要懒加载的模块
   const modules = document.querySelectorAll('.module-row')
+  //2.配置观察选项
   const observerOptions = {
-    root: null,
-    rootMargin: '50px 0px',
-    threshold: 0.1
+    root: null,  // 监听的根容器，null表示默认使用浏览器视口
+    rootMargin: '50px 0px', // 监听的根容器的外边距，用于提前加载
+    threshold: 0.1 // 触发回调的阈值，0.1表示元素可见度超过10%时触发
   }
-
+  //3.创建观察者实例
   observer = new IntersectionObserver((entries) => {
+    // entries 是被监听元素的状态数组（每个元素对应一个IntersectionObserverEntry对象）
     entries.forEach(entry => {
+      // entry.isIntersecting：布尔值，判断元素是否进入视口
       if (entry.isIntersecting) {
+        // 给进入视口的模块添加动画类（CSS里定义了.module-animated会让元素显示）
         entry.target.classList.add('module-animated')
+        // 只触发一次：停止监听这个元素（避免滚动时重复触发）
         observer.unobserve(entry.target)
       }
     })
   }, observerOptions)
 
+  //4.开始监听所有模块
   modules.forEach(module => {
     observer.observe(module)
   })
@@ -223,14 +229,14 @@ onUnmounted(() => {
           <div class="module-content">
             <div class="module-title mall-title">
               <h2 class="mall-main-title">WeCommunity</h2>
-              <p class="mall-sub-title">分享生活 · 连接世界</p>
+              <p class="mall-sub-title">探索 · 连结 · 建立 · 沟通</p>
               <div class="title-decoration"></div>
             </div>
           </div>
           <div class="WeCommunity">
             <!-- 社区介绍区域 -->
             <div class="community-intro">
-              <h3 class="intro-title">LiVi Unity 社区</h3>
+              <h3 class="intro-title">LiVi 群聊</h3>
               <p class="intro-desc">
                 这里是 LiVi 用户的专属交流空间，您可以分享使用心得、提出产品建议、解决设备问题，
                 我们的客服团队也会实时在线为您解答疑惑。加入社区，与更多智能生活爱好者一起交流成长！
@@ -284,8 +290,56 @@ onUnmounted(() => {
           </div>
         </div>
 
+        <!-- WePost -->
+        <div class="module-row">
+          <div class="module-content">
+            <div class="module-title mall-title">
+              <h2 class="mall-main-title">WePost</h2>
+              <p class="mall-sub-title">分享生活 · 连接世界</p>
+              <div class="title-decoration"></div>
+            </div>
+          </div>
+          <div class="WeCommunity">
+            <!-- 社区介绍区域 -->
+            <div class="community-intro">
+              <h3 class="intro-title">LiVi 社区</h3>
+              <p class="intro-desc">
+                LiVi社区，是一个专注于智能生活的交流平台，
+                这里的用户都分享着自己的使用心得、产品建议、设备问题，
+                并与其他用户建立起了联系。
+              </p>
+            </div>
 
-        <div class="module-row"></div>
+            <!-- 左侧聊天示例卡片 -->
+            <div class="chat-card-wrapper">
+              <!-- From Uiverse.io by Novaxlo -->
+              <div class="capybaraloader">
+                <div class="capybara">
+                  <div class="capyhead">
+                    <div class="capyear">
+                      <div class="capyear2"></div>
+                    </div>
+                    <div class="capyear"></div>
+                    <div class="capymouth">
+                      <div class="capylips"></div>
+                      <div class="capylips"></div>
+                    </div>
+                    <div class="capyeye"></div>
+                    <div class="capyeye"></div>
+                  </div>
+                  <div class="capyleg"></div>
+                  <div class="capyleg2"></div>
+                  <div class="capyleg2"></div>
+                  <div class="capy"></div>
+                </div>
+                <div class="loader">
+                  <div class="loaderline"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </main>
     </div>
   </div>
@@ -293,4 +347,5 @@ onUnmounted(() => {
 
 <style scoped>
 @import url('@/assets/CSS/index/main.css');
+@import url('@/assets/CSS/index/animation.css');
 </style>

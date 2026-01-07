@@ -5,10 +5,10 @@ import MyMessage from "@/utils/MyMessage.js";
 import { MyLoading } from "@/utils/MyLoading.js";
 import { useRouter } from "vue-router";
 import { verifyIsLoginApi } from "@/api/wecommunity.js";
-import { queryOrderApi } from "@/api/shop.js";
-import OrderComment from "@/components/OrderComment.vue";
-import OrderDetail from "@/components/OrderDetail.vue";
-
+import { queryOrderApi, queryLogisticsApi } from "@/api/shop.js";
+import OrderComment from "@/components/order/OrderComment.vue";
+import OrderDetail from "@/components/order/OrderDetail.vue";
+import Logistics from "@/components/order/Logistics.vue";
 
 const router = useRouter();
 const userInfo = ref({})
@@ -43,7 +43,7 @@ const isLogin = async () => {
 const orderList = ref([])
 const sortRule = ref('all');
 const DTO = ref({
-  userId: userId.value,
+  userId: '', 
   sortRule: '',
   page: 1,
   pageSize: 10,
@@ -67,10 +67,6 @@ const queryOrderList = async () => {
   }
 };
 
-const viewLogistics = (order) => {
-  MyMessage.success(`查看物流：${order.orderId}`);
-};
-
 const showDetail = ref(false);
 const orderDetail = ref({})
 const viewDetail = (order) => {
@@ -89,12 +85,52 @@ const evaluateDTO = ref({
   orderId: 0,
   goodsId: 0,
 })
-const evaluate = (orderId,goodsId,userId) => {
+const evaluate = (orderId, goodsId, userId) => {
   evaluateVisible.value = true;
   evaluateDTO.value.orderId = orderId;
   evaluateDTO.value.goodsId = goodsId;
   evaluateDTO.value.userId = userId;
 };
+
+//物流弹窗
+const logisticsVisible = ref(false);
+const logisticsOrderNo = ref('')
+const logisticsAddress = ref('')
+const orderStatus = ref(0)
+const viewLogistics = async (order) => {
+  console.log('当前订单数据：', order);
+  logisticsOrderNo.value = order.orderNo || '';
+  logisticsAddress.value = order.orderAddress || '';
+  orderStatus.value = order.orderStatus || 0;
+  logisticsVisible.value = true;
+  await queryLogisticsList();
+};
+
+//物流详情
+const logisticsInfo = ref({})
+const queryLogisticsList = async()=>{
+  if (!logisticsOrderNo.value) {
+    MyMessage.warn('订单号为空，无法查询物流');
+    logisticsInfo.value = {};
+    return;
+  }
+  console.log('查询物流的订单号：', logisticsOrderNo.value);
+  MyLoading.value = true
+  try{
+    const result = await queryLogisticsApi(logisticsOrderNo.value)
+    if(result.code){
+      logisticsInfo.value = result.data || {};
+    }else{
+      MyMessage.error(result.msg || '物流信息查询失败');
+      logisticsInfo.value = {};
+    }
+  }catch(error){
+    MyMessage.error(error.message || '物流接口请求失败');
+    logisticsInfo.value = {};
+  }finally{
+    MyLoading.value = false;
+  }
+}
 
 const handleTabChange = (type) => {
   sortRule.value = type;
@@ -137,7 +173,11 @@ onMounted(async () => {
 <template>
 
   <OrderDetail :order="orderDetail" :visible="showDetail" @close="showDetail = false" />
-  <OrderComment :visible="evaluateVisible" :userId="evaluateDTO.userId" :orderId="evaluateDTO.orderId" :goodsId="evaluateDTO.goodsId" @close="evaluateVisible = false" />
+  <OrderComment :visible="evaluateVisible" :userId="evaluateDTO.userId" :orderId="evaluateDTO.orderId"
+    :goodsId="evaluateDTO.goodsId" @close="evaluateVisible = false" />
+  <Logistics :visible="logisticsVisible" :orderNo="logisticsOrderNo" :orderAddress="logisticsAddress"
+        :orderStatus="orderStatus" :logisticsInfo="logisticsInfo"
+        @close="logisticsVisible = false" />
 
   <div class="page-wrapper">
     <div class="bg"></div>
@@ -287,7 +327,8 @@ onMounted(async () => {
                 <button class="order-btn primary" v-if="order.orderStatus === 2" @click="confirmReceive(order)">
                   确认收货
                 </button>
-                <button class="order-btn primary" v-if="order.orderStatus === 4" @click="evaluate(order.orderId,order.goodsId,order.userId)">
+                <button class="order-btn primary" v-if="order.orderStatus === 4"
+                  @click="evaluate(order.orderId, order.goodsId, order.userId)">
                   评价
                 </button>
               </div>
@@ -632,10 +673,12 @@ onMounted(async () => {
   font-size: 14px;
   color: #999;
 }
+
 .load-more {
   padding: 12px 0;
   text-align: center;
 }
+
 /* 移动端适配 */
 @media (max-width: 768px) {
   .page-wrapper {
